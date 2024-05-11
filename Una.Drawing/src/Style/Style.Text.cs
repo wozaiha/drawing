@@ -1,0 +1,192 @@
+﻿/* Una.Drawing                                                 ____ ___
+ *   A declarative drawing library for FFXIV.                 |    |   \____ _____        ____                _
+ *                                                            |    |   /    \\__  \      |    \ ___ ___ _ _ _|_|___ ___
+ * By Una. Licensed under AGPL-3.                             |    |  |   |  \/ __ \_    |  |  |  _| .'| | | | |   | . |
+ * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
+ * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
+
+using System.Numerics;
+using Dalamud.Interface.ManagedFontAtlas;
+
+namespace Una.Drawing;
+
+/// <summary>
+/// Defines the properties that specify the presentation of a node.
+/// </summary>
+public partial class Style
+{
+    /// <summary>
+    /// Defines the color representation of text contents.
+    /// </summary>
+    /// <remarks>
+    /// This property is implicitly inherited from the parent style if it is
+    /// not explicitly defined.
+    /// </remarks>
+    public Color? Color { get; set; }
+
+    /// <summary>
+    /// Defines the outline color of text contents.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This property does not have an effect if <see cref="OutlineSize"/> is
+    /// left at 0.
+    /// </para>
+    /// <para>
+    /// This property is implicitly inherited from the parent style if it is
+    /// not explicitly defined.
+    /// </para>
+    /// </remarks>
+    public Color? OutlineColor { get; set; }
+
+    /// <summary>
+    /// Defines the outline thickness of text contents.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This property has no effect if <see cref="OutlineColor"/> is left
+    /// undefined.
+    /// </para>
+    /// <para>
+    /// This property is implicitly inherited from the parent style if it is
+    /// not explicitly defined.
+    /// </para>
+    /// </remarks>
+    public int OutlineSize { get; set; }
+
+    /// <summary>
+    /// Defines which font to use when rendering text content. This property
+    /// references the <see cref="Typeface.Name"/> of a registered typeface.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Modifying this property will trigger a reflow of the layout. This is a
+    /// computationally expensive operation and should be done sparingly.
+    /// </para>
+    /// <para>
+    /// This property is implicitly inherited from the parent style if it is
+    /// not explicitly defined.
+    /// </para>
+    /// </remarks>
+    public string? Font {
+        get => _font;
+        set {
+            if (_font == value) return;
+
+            _font = value;
+            OnLayoutPropertyChanged?.Invoke();
+        }
+    }
+
+    private string? _font;
+
+    /// <summary>
+    /// Specifies the size of the font used to render text contents.
+    /// </summary>
+    public float FontSize {
+        get => _fontSize;
+        set {
+            if (_fontSize == value) return;
+
+            _fontSize = value;
+            OnLayoutPropertyChanged?.Invoke();
+        }
+    }
+
+    private float _fontSize = 14;
+
+    /// <summary>
+    /// Defines the line height of multi-line text. This value is a multiplier
+    /// of the height of the font. Defaults to 1.0
+    /// </summary>
+    public float LineHeight {
+        get => _lineHeight;
+        set {
+            if (_lineHeight == value) return;
+
+            _lineHeight = value;
+            OnLayoutPropertyChanged?.Invoke();
+        }
+    }
+
+    private float _lineHeight = 1f;
+
+    /// <summary>
+    /// Specifies the alignment of text contents within the bounds of the node.
+    /// Defaults to <see cref="Anchor.TopLeft"/>.
+    /// </summary>
+    public Anchor TextAlign {
+        get => _textAlign;
+        set {
+            if (_textAlign == value) return;
+
+            _textAlign = value;
+            OnPaintPropertyChanged?.Invoke();
+        }
+    }
+
+    private Anchor _textAlign = Anchor.TopLeft;
+
+    /// <summary>
+    /// Defines the offset of the text content from the top-left corner of the
+    /// inner bounds of the node.
+    /// </summary>
+    /// <remarks>
+    /// This property does not affect the automatically calculated size of the
+    /// node, but is purely a visual offset that can be used if some fonts do
+    /// not align correctly.
+    /// </remarks>
+    public Vector2 TextOffset {
+        get => _textOffset;
+        set {
+            if (_textOffset == value) return;
+
+            _textOffset = value;
+            OnPaintPropertyChanged?.Invoke();
+        }
+    }
+
+    private Vector2 _textOffset = Vector2.Zero;
+
+    /// <summary>
+    /// <para>
+    /// Whether to wrap text contents to the next line when they exceed the
+    /// defined width of the node.
+    /// </para>
+    /// <para>
+    /// If WordWrap is set to false and the text would exceed the width of the
+    /// element, it will be truncated and an ellipsis will be appended to the
+    /// end of the text.
+    /// </para>
+    /// </summary>
+    /// <remarks>
+    /// Modifying this property will trigger a reflow of the layout. This is a
+    /// computationally expensive operation and should be done sparingly.
+    /// </remarks>
+    public bool WordWrap {
+        get => _wordWrap;
+        set {
+            if (_wordWrap == value) return;
+
+            _wordWrap = value;
+            OnLayoutPropertyChanged?.Invoke();
+        }
+    }
+
+    private bool _wordWrap = false;
+
+    /// <summary>
+    /// Inherits the text properties from the specified style.
+    /// </summary>
+    /// <param name="from">The source style to inherit properties from.</param>
+    private void InheritTextProperties(Style from)
+    {
+        Font         ??= from._font;
+        Color        ??= from.Color;
+        OutlineColor ??= from.OutlineColor;
+        TextAlign    =   TextAlign == Anchor.TopLeft ? from.TextAlign : TextAlign;
+        OutlineSize  =   OutlineSize == 0 ? from.OutlineSize : OutlineSize;
+        FontSize     =   FontSize == 0 ? from.FontSize : FontSize;
+        LineHeight   =   LineHeight == 0 ? from.LineHeight : LineHeight;
+    }
+}
