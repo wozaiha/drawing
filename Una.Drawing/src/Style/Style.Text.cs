@@ -6,7 +6,6 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System.Numerics;
-using Dalamud.Interface.ManagedFontAtlas;
 
 namespace Una.Drawing;
 

@@ -13,13 +13,13 @@ namespace Una.Drawing;
 
 public partial class Node
 {
-    private Vector2  _textCachedNodeSize = Vector2.Zero;
-    private EdgeSize _textCachedPadding  = new();
+    private EdgeSize _textCachedPadding = new();
     private string?  _textCachedNodeValue;
     private string?  _textCachedFontName;
     private float?   _textCachedFontSize;
     private bool?    _textCachedWordWrap;
 
+    internal Vector2      NodeValueSize  { get; private set; } = Vector2.Zero;
     internal List<string> NodeValueLines { get; private set; } = [];
 
     /// <summary>
@@ -44,7 +44,7 @@ public partial class Node
         }
 
         if (false == MustRecomputeNodeValue()) {
-            return new((int)_textCachedNodeSize.X, (int)_textCachedNodeSize.Y);
+            return new((int)NodeValueSize.X, (int)NodeValueSize.Y);
         }
 
         NodeValueLines.Clear();
@@ -59,9 +59,9 @@ public partial class Node
         using SKPaint paint = new();
 
         if (_style.WordWrap == false || Style.Size.IsAutoWidth) {
-            _textCachedNodeSize = new(font.MeasureText(NodeValue, paint), font.Metrics.XHeight);
-            NodeValueLines      = [_nodeValue!];
-            return new((int)_textCachedNodeSize.X, (int)_textCachedNodeSize.Y);
+            NodeValueSize  = new(font.MeasureText(NodeValue, paint), font.Metrics.XHeight);
+            NodeValueLines = [_nodeValue!];
+            return new((int)NodeValueSize.X, (int)NodeValueSize.Y);
         }
 
         List<string> lines = [];
@@ -91,10 +91,10 @@ public partial class Node
             words.Clear();
         }
 
-        NodeValueLines      = lines;
-        _textCachedNodeSize = new(maxWidth, lines.Count * (font.Spacing * _style.LineHeight));
+        NodeValueLines = lines;
+        NodeValueSize  = new(maxWidth, lines.Count * (font.Spacing * _style.LineHeight));
 
-        return new((int)_textCachedNodeSize.X, (int)_textCachedNodeSize.Y);
+        return new((int)NodeValueSize.X, (int)NodeValueSize.Y);
     }
 
     /// <summary>
@@ -109,8 +109,8 @@ public partial class Node
         //     _textCachedGlyphSize  = ImGui.CalcTextSize("W");
         // }
 
-        if (_nodeValue == null && _textCachedNodeSize != Vector2.Zero) {
-            _textCachedNodeSize = Vector2.Zero;
+        if (_nodeValue == null && NodeValueSize != Vector2.Zero) {
+            NodeValueSize = Vector2.Zero;
             return false;
         }
 
@@ -119,7 +119,7 @@ public partial class Node
                 _textCachedFontName != _style.Font
                 || _textCachedFontSize != _style.FontSize
                 || _textCachedNodeValue != _nodeValue
-                || _textCachedNodeSize == Vector2.Zero
+                || NodeValueSize == Vector2.Zero
                 || _textCachedWordWrap != _style.WordWrap
                 || _textCachedPadding != _style.Padding
             );

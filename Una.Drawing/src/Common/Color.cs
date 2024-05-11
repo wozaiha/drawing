@@ -54,6 +54,6 @@ public class Color(byte r, byte g, byte b, float a = 1.0f)
     {
         return color is null
             ? SKColor.Empty
-            : new(color.R, color.G, color.B, (byte)(color.A * 255));
+            : new(color.B, color.G, color.R, (byte)(color.A * 255));
     }
 }

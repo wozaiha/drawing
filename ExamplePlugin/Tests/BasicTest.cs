@@ -13,7 +13,7 @@ public class BasicTest : ITest
         Style = new() {
             Size            = new(128, 128),
             Flow            = Flow.Vertical,
-            Padding         = new(10),
+            Padding         = new(0, 0),
             Gap             = 4,
             BackgroundColor = new(0x504400FF),
             BorderColor = new() {
@@ -30,15 +30,18 @@ public class BasicTest : ITest
             LineHeight         = 1.2f,
             WordWrap           = true,
             TextAlign          = Anchor.MiddleCenter,
-            OutlineColor       = new(0xFF000000),
-            OutlineSize        = 1,
+            OutlineColor       = new(0x600000FF),
+            OutlineSize        = 2,
+            TextOffset         = new(0, -5),
         },
         ChildNodes = []
     };
 
     public void Render()
     {
-        _node.NodeValue = $"Hello World! Pretty graphics! This is very neat with word wrap enabled. {DateTime.Now:h:mm:ss tt}";
+        _node.NodeValue =
+            $"Hello World! Pretty graphics! This is very neat with word wrap enabled. {DateTime.Now:h:mm:ss tt}";
+
         _node.Render(ImGui.GetForegroundDrawList(), new(100, 100));
     }
 }
