@@ -22,9 +22,7 @@ internal static class QuerySelectorParser
 
         result.Add(root);
 
-        for (var i = 0; i < tokens.Count; i++) {
-            QuerySelectorToken token = tokens[i];
-
+        foreach (QuerySelectorToken token in tokens) {
             switch (token.Type) {
                 case QuerySelectorTokenType.Identifier:
                     if (scope.Identifier != null) {

@@ -93,17 +93,9 @@ public class BarStaticTest : ITest
         return new() {
             Id        = id,
             NodeValue = label,
+            ClassList = ["button"],
             Style = new() {
-                Anchor             = anchor ?? Anchor.TopLeft,
-                Size               = new(0, 26),
-                Padding            = new(0, 6),
-                BackgroundColor    = new(0xC01A1A1A),
-                BorderColor        = new(new(0xFF787A7A)),
-                BorderWidth        = new(1),
-                BorderRadius       = 5,
-                BorderInset        = 2,
-                BackgroundGradient = GradientColor.Vertical(new(0xC02F2A2A), null, 5),
-                TextAlign          = Anchor.MiddleCenter
+                Anchor = anchor ?? Anchor.TopLeft,
             }
         };
     }

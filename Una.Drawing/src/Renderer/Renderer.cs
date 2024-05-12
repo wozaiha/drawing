@@ -94,9 +94,11 @@ public sealed class Renderer : IDisposable
     {
         if (node.Width == 0 || node.Height == 0) return null;
 
-        _skCanvas.Save();
-        _skCanvas.ClipRect(new (0, 0, node.Width, node.Height));
-        _skCanvas.Clear();
+        using SKPaint paint = new();
+        paint.Color     = SKColor.Empty;
+        paint.Style     = SKPaintStyle.Fill;
+        paint.BlendMode = SKBlendMode.Clear;
+        _skCanvas.DrawRect(0, 0, node.Width, node.Height, paint);
 
         foreach (IGenerator generator in _generators) {
             generator.Generate(_skCanvas, node);
@@ -123,8 +125,6 @@ public sealed class Renderer : IDisposable
         IDalamudTextureWrap texture = _uiBuilder.LoadImageRaw(targetData, node.Width, node.Height, 4);
 
         ArrayPool<byte>.Shared.Return(targetData);
-
-        _skCanvas.Restore();
 
         return texture;
     }

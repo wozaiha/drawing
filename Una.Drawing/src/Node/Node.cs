@@ -6,7 +6,8 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -41,7 +42,7 @@ public partial class Node
         set {
             if (_nodeValue == value) return;
 
-            _nodeValue  = value;
+            _nodeValue = value;
 
             OnPropertyChanged?.Invoke("NodeValue", _nodeValue);
             SignalReflowRecursive();
@@ -51,13 +52,14 @@ public partial class Node
     /// <summary>
     /// Returns a list of class names applied to this node.
     /// </summary>
-    public List<string> ClassList {
+    public ObservableCollection<string> ClassList {
         get => _classList;
         set {
             if (_classList.SequenceEqual(value)) return;
 
             _classList.Clear();
-            _classList.AddRange(value);
+
+            foreach (string v in value) _classList.Add(v);
             OnPropertyChanged?.Invoke("ClassList", _classList);
         }
     }
@@ -71,14 +73,14 @@ public partial class Node
     /// A node with ID "example" and tags "active" and "hovered" can be queried
     /// using the following query: `example:active:hovered`.
     /// </example>
-    public List<string> TagsList {
+    public ObservableCollection<string> TagsList {
         get => _tagsList;
         set {
             if (_tagsList.SequenceEqual(value)) return;
 
             _tagsList.Clear();
-            _tagsList.AddRange(value);
 
+            foreach (string v in value) _tagsList.Add(v);
             OnPropertyChanged?.Invoke("TagsList", _tagsList);
         }
     }
@@ -86,7 +88,7 @@ public partial class Node
     /// <summary>
     /// A list of child nodes of this node.
     /// </summary>
-    public List<Node> ChildNodes {
+    public ObservableCollection<Node> ChildNodes {
         get => _childNodes;
         set {
             if (_childNodes.SequenceEqual(value)) return;
@@ -161,31 +163,100 @@ public partial class Node
     private string? _id;
     private string? _nodeValue;
 
-    private readonly ReactiveList<string> _classList  = [];
-    private readonly ReactiveList<string> _tagsList   = [];
-    private readonly ReactiveList<Node>   _childNodes = [];
+    private readonly ObservableCollection<string> _classList  = [];
+    private readonly ObservableCollection<string> _tagsList   = [];
+    private readonly ObservableCollection<Node>   _childNodes = [];
 
     public Node()
     {
-        _childNodes.OnItemAdded   += OnChildAddedToList;
-        _childNodes.OnItemRemoved += OnChildRemovedFromList;
-        _classList.OnItemAdded    += OnClassAdded;
-        _classList.OnItemRemoved  += OnClassRemoved;
-        _tagsList.OnItemAdded     += OnTagAdded;
-        _tagsList.OnItemRemoved   += OnTagRemoved;
-
-        _childNodes.OnItemAdded   += InvalidateQuerySelectorCache;
-        _childNodes.OnItemRemoved += InvalidateQuerySelectorCache;
-        _classList.OnItemAdded    += InvalidateQuerySelectorCache;
-        _classList.OnItemRemoved  += InvalidateQuerySelectorCache;
-        _tagsList.OnItemAdded     += InvalidateQuerySelectorCache;
-        _tagsList.OnItemRemoved   += InvalidateQuerySelectorCache;
+        _childNodes.CollectionChanged += HandleChildListChanged;
+        _classList.CollectionChanged  += HandleClassListChanged;
+        _tagsList.CollectionChanged   += HandleTagsListChanged;
 
         ComputedStyle.OnLayoutPropertyChanged += SignalReflowRecursive;
         ComputedStyle.OnPaintPropertyChanged  += SignalRepaint;
 
         OnChildAdded   += child => child.OnReflow += SignalReflow;
         OnChildRemoved += child => child.OnReflow -= SignalReflow;
+    }
+
+    private void HandleChildListChanged(object? _, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e) {
+            case { Action: NotifyCollectionChangedAction.Add, NewItems: not null }: {
+                foreach (Node node in e.NewItems) OnChildAddedToList(node);
+                break;
+            }
+            case { Action: NotifyCollectionChangedAction.Remove, OldItems: not null }: {
+                foreach (Node node in e.OldItems) OnChildRemovedFromList(node);
+                break;
+            }
+            case { Action: NotifyCollectionChangedAction.Replace, OldItems: not null, NewItems: not null }: {
+                foreach (Node node in e.OldItems!) OnChildRemovedFromList(node);
+                foreach (Node node in e.NewItems!) OnChildAddedToList(node);
+                break;
+            }
+            case { Action: NotifyCollectionChangedAction.Reset, OldItems: not null }: {
+                foreach (Node node in e.OldItems) OnChildRemovedFromList(node);
+                break;
+            }
+        }
+
+        InvalidateQuerySelectorCache();
+        SignalReflow();
+        ReassignAnchorNodes();
+    }
+
+    private void HandleClassListChanged(object? _, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e) {
+            case { Action: NotifyCollectionChangedAction.Add, NewItems: not null }: {
+                foreach (string className in e.NewItems) OnClassAdded?.Invoke(className);
+                break;
+            }
+            case { Action: NotifyCollectionChangedAction.Remove, OldItems: not null }: {
+                foreach (string className in e.OldItems) OnClassRemoved?.Invoke(className);
+                break;
+            }
+            case { Action: NotifyCollectionChangedAction.Replace, OldItems: not null, NewItems: not null }: {
+                foreach (string className in e.NewItems) OnClassAdded?.Invoke(className);
+                foreach (string className in e.OldItems) OnClassRemoved?.Invoke(className);
+                break;
+            }
+            case { Action: NotifyCollectionChangedAction.Reset, OldItems: not null }: {
+                foreach (string className in e.OldItems) OnClassRemoved?.Invoke(className);
+                break;
+            }
+        }
+
+        InvalidateQuerySelectorCache();
+        SignalReflow();
+    }
+
+    private void HandleTagsListChanged(object? _, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e) {
+            case { Action: NotifyCollectionChangedAction.Add, NewItems: not null }: {
+                foreach (string tag in e.NewItems) OnTagAdded?.Invoke(tag);
+                break;
+            }
+            case { Action: NotifyCollectionChangedAction.Remove, OldItems: not null }: {
+                foreach (string tag in e.OldItems) OnTagRemoved?.Invoke(tag);
+                break;
+            }
+            case { Action: NotifyCollectionChangedAction.Replace, OldItems: not null, NewItems: not null }: {
+                foreach (string tag in e.NewItems) OnTagAdded?.Invoke(tag);
+                foreach (string tag in e.OldItems) OnTagRemoved?.Invoke(tag);
+                break;
+            }
+            case { Action: NotifyCollectionChangedAction.Reset, OldItems: not null }: {
+                foreach (string tag in e.OldItems) OnTagRemoved?.Invoke(tag);
+                break;
+            }
+        }
+
+        InvalidateQuerySelectorCache();
+        SignalReflow();
     }
 
     /// <summary>

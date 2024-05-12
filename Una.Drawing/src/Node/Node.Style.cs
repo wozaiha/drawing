@@ -41,6 +41,16 @@ public partial class Node
 
         ComputedStyle.Reset();
 
+        foreach (string className in _classList) {
+            Style? cStyle = Stylesheet.GetStyleForClass(className);
+            if (cStyle is not null) ComputedStyle.Apply(cStyle);
+        }
+
+        foreach (string tagName in _tagsList) {
+            Style? tStyle = Stylesheet.GetStyleForTag(tagName);
+            if (tStyle is not null) ComputedStyle.Apply(tStyle);
+        }
+
         ComputedStyle.Apply(Style);
 
         int res     = ComputedStyle.Commit();
@@ -69,6 +79,9 @@ public partial class Node
         _mustReflow = true;
     }
 
+    /// <summary>
+    /// Performs a recursive reflow to all children and parent nodes.
+    /// </summary>
     private void SignalReflowRecursive()
     {
         if (_isInReflow) return;
@@ -83,6 +96,9 @@ public partial class Node
         _isInReflow = false;
     }
 
+    /// <summary>
+    /// Forces a repaint of the texture for this node on the next frame.
+    /// </summary>
     private void SignalRepaint()
     {
         _texture?.Dispose();
