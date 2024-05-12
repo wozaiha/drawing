@@ -54,6 +54,9 @@ public sealed class Renderer : IDisposable
     internal static Renderer Instance =>
         _instance ?? throw new InvalidOperationException("Renderer has not been initialized.");
 
+    private readonly SKSurface _skSurface;
+    private readonly SKCanvas  _skCanvas;
+
     internal Renderer(DalamudPluginInterface plugin)
     {
         _uiBuilder = plugin.UiBuilder;
@@ -71,10 +74,18 @@ public sealed class Renderer : IDisposable
             .ToList();
 
         _generators.ForEach(g => Logger.Log($"Got generator: {g.GetType().Name}"));
+
+        // Create the SKSurface and SKCanvas.
+        _skSurface = SKSurface.Create(new SKImageInfo(4096, 4096));
+        _skCanvas  = _skSurface.Canvas;
     }
 
     /// <inheritdoc/>
-    public void Dispose() { }
+    public void Dispose()
+    {
+        _skCanvas.Dispose();
+        _skSurface.Dispose();
+    }
 
     /// <summary>
     /// Creates a texture for the given node.
@@ -83,23 +94,37 @@ public sealed class Renderer : IDisposable
     {
         if (node.Width == 0 || node.Height == 0) return null;
 
-        using SKSurface skSurface = SKSurface.Create(new SKImageInfo(node.Width, node.Height));
-        using SKCanvas  skCanvas  = skSurface.Canvas;
+        _skCanvas.Save();
+        _skCanvas.ClipRect(new (0, 0, node.Width, node.Height));
+        _skCanvas.Clear();
 
         foreach (IGenerator generator in _generators) {
-            generator.Generate(skCanvas, node);
+            generator.Generate(_skCanvas, node);
         }
 
-        using SKImage skImage = skSurface.Snapshot();
+        byte[] targetData = ArrayPool<byte>.Shared.Rent(node.Width * node.Height * 4);
 
-        byte[] targetData = ArrayPool<byte>.Shared.Rent(skImage.Width * skImage.Height * 4);
         fixed (void* ptr = targetData) {
-            skSurface.ReadPixels(skImage.Info, (nint)ptr, skImage.Width * 4, 0, 0);
+            _skSurface.ReadPixels(
+                new() {
+                    Width      = node.Width,
+                    Height     = node.Height,
+                    AlphaType  = SKAlphaType.Premul,
+                    ColorType  = SKColorType.Bgra8888,
+                    ColorSpace = SKColorSpace.CreateSrgb()
+                },
+                (nint)ptr,
+                node.Width * 4,
+                0,
+                0
+            );
         }
 
-        IDalamudTextureWrap texture = _uiBuilder.LoadImageRaw(targetData, skImage.Width, skImage.Height, 4);
+        IDalamudTextureWrap texture = _uiBuilder.LoadImageRaw(targetData, node.Width, node.Height, 4);
 
         ArrayPool<byte>.Shared.Return(targetData);
+
+        _skCanvas.Restore();
 
         return texture;
     }
