@@ -13,16 +13,16 @@ namespace ExamplePlugin;
 public sealed class ExamplePlugin : IDalamudPlugin
 {
     private readonly DalamudPluginInterface    _plugin;
-    private readonly Renderer                  _renderer;
     private readonly Dictionary<string, ITest> _tests = [];
 
-    private string _activeTest = "Stretch";
+    private string _activeTest = "Icons";
 
     public ExamplePlugin(IPluginLog logger, DalamudPluginInterface plugin)
     {
+        DrawingLib.Setup(plugin);
+
         Logger.Writer = logger;
         _plugin       = plugin;
-        _renderer     = Renderer.Create(plugin);
 
         // Node.DrawDebugInfo = true;
 
@@ -67,7 +67,8 @@ public sealed class ExamplePlugin : IDalamudPlugin
     public void Dispose()
     {
         _plugin.UiBuilder.Draw -= OnDraw;
-        _renderer.Dispose();
+
+        DrawingLib.Dispose();
     }
 
     private void OnDraw()

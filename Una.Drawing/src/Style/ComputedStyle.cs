@@ -109,6 +109,24 @@ internal class ComputedStyle
     /// <inheritdoc cref="Style.TextShadowColor"/>
     internal Color? TextShadowColor { get; set; }
 
+    /// <inheritdoc cref="Style.IconId"/>
+    internal uint? IconId { get; set; }
+
+    /// <inheritdoc cref="Style.IconInset"/>
+    internal EdgeSize? IconInset { get; set; }
+
+    /// <inheritdoc cref="Style.IconOffset"/>
+    internal Vector2? IconOffset { get; set; }
+
+    /// <inheritdoc cref="Style.IconRounding"/>
+    internal float IconRounding { get; set; }
+
+    /// <inheritdoc cref="Style.IconGrayscale"/>
+    internal bool IconGrayscale { get; set; }
+
+    /// <inheritdoc cref="Style.IconContrast"/>
+    internal float IconContrast { get; set; }
+
     internal void Apply(Style style)
     {
         IsVisible          = style.IsVisible ?? IsVisible;
@@ -138,6 +156,12 @@ internal class ComputedStyle
         OutlineColor       = style.OutlineColor ?? OutlineColor;
         TextShadowSize     = style.TextShadowSize ?? TextShadowSize;
         TextShadowColor    = style.TextShadowColor ?? TextShadowColor;
+        IconId             = style.IconId ?? IconId;
+        IconInset          = style.IconInset ?? IconInset;
+        IconOffset         = style.IconOffset ?? IconOffset;
+        IconRounding       = style.IconRounding ?? IconRounding;
+        IconGrayscale      = style.IconGrayscale ?? IconGrayscale;
+        IconContrast       = style.IconContrast ?? IconContrast;
     }
 
     internal void Reset()
@@ -169,10 +193,16 @@ internal class ComputedStyle
         OutlineColor       = null;
         TextShadowSize     = 0;
         TextShadowColor    = null;
+        IconId             = null;
+        IconInset          = null;
+        IconOffset         = null;
+        IconRounding       = 0;
+        IconGrayscale      = false;
+        IconContrast       = 0;
     }
 
     internal LayoutStyle CommittedLayoutStyle;
-    internal PaintStyle CommittedPaintStyle;
+    internal PaintStyle  CommittedPaintStyle;
 
     internal int Commit()
     {
@@ -193,9 +223,8 @@ internal class ComputedStyle
             MarginBottom  = Margin.Bottom,
             MarginLeft    = Margin.Left,
             WordWrap      = WordWrap,
-            // Font          = Font,
-            FontSize   = FontSize,
-            LineHeight = LineHeight
+            FontSize      = FontSize,
+            LineHeight    = LineHeight
         };
 
         PaintStyle ps = new() {
@@ -221,7 +250,17 @@ internal class ComputedStyle
             BackgroundGradientInset = BackgroundGradient?.Inset,
             OutlineColor            = OutlineColor?.ToUInt(),
             TextShadowSize          = TextShadowSize,
-            TextShadowColor         = TextShadowColor?.ToUInt()
+            TextShadowColor         = TextShadowColor?.ToUInt(),
+            IconId                  = IconId,
+            IconInsetTop            = IconInset?.Top,
+            IconInsetRight          = IconInset?.Right,
+            IconInsetBottom         = IconInset?.Bottom,
+            IconInsetLeft           = IconInset?.Left,
+            IconOffsetX             = IconOffset?.X,
+            IconOffsetY             = IconOffset?.Y,
+            IconRounding            = IconRounding,
+            IconGrayscale           = IconGrayscale,
+            IconContrast            = IconContrast
         };
 
         var result = 0;
@@ -298,4 +337,14 @@ internal struct PaintStyle
     internal uint?              OutlineColor;
     internal float              TextShadowSize;
     internal uint?              TextShadowColor;
+    internal uint?              IconId;
+    internal int?               IconInsetTop;
+    internal int?               IconInsetRight;
+    internal int?               IconInsetBottom;
+    internal int?               IconInsetLeft;
+    internal float?             IconOffsetX;
+    internal float?             IconOffsetY;
+    internal float?             IconRounding;
+    internal bool?              IconGrayscale;
+    internal float?             IconContrast;
 }

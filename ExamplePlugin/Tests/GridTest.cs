@@ -17,7 +17,7 @@ public class GridTest : ITest
 
     public GridTest()
     {
-        for (var y = 0; y < 10; y++) {
+        for (var y = 0; y < 50; y++) {
             Node row = new() {
                 Style = new() {
                     Flow = Flow.Horizontal,
@@ -32,7 +32,7 @@ public class GridTest : ITest
 
             _node.AppendChild(row);
 
-            for (var x = 0; x < 100; x++) {
+            for (var x = 0; x < 50; x++) {
                 row.AppendChild(CreateBlock());
             }
         }
@@ -47,7 +47,7 @@ public class GridTest : ITest
     {
         return new() {
             Style = new() {
-                Size            = new(16, 16),
+                Size            = new(32, 32),
                 Padding         = new(4, 4),
                 Margin          = new(4),
                 BackgroundColor = new(0x552479FF),
