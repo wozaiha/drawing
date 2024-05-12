@@ -97,8 +97,10 @@ public sealed class Renderer : IDisposable
             skSurface.ReadPixels(skImage.Info, (nint)ptr, skImage.Width * 4, 0, 0);
         }
 
+        IDalamudTextureWrap texture = _uiBuilder.LoadImageRaw(targetData, skImage.Width, skImage.Height, 4);
+
         ArrayPool<byte>.Shared.Return(targetData);
 
-        return _uiBuilder.LoadImageRaw(targetData, skImage.Width, skImage.Height, 4);
+        return texture;
     }
 }
