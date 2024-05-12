@@ -48,6 +48,6 @@ public class BasicTest : ITest
         _node.NodeValue =
             $"Hello World! Pretty graphics! {DateTime.Now:h:mm:ss tt} Frame Count: {_frameCount}";
 
-        _node.Render(ImGui.GetForegroundDrawList(), new(100, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(100, 100));
     }
 }

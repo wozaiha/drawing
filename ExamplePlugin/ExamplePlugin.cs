@@ -39,17 +39,29 @@ public sealed class ExamplePlugin : IDalamudPlugin
 
         _plugin.UiBuilder.Draw += OnDraw;
 
-        Stylesheet.SetClassRule("button", new() {
-            Size               = new(0, 26),
-            Padding            = new(0, 6),
-            BackgroundColor    = new(0xC01A1A1A),
-            BorderColor        = new(new(0xFF787A7A)),
-            BorderWidth        = new(1),
-            BorderRadius       = 5,
-            BorderInset        = 2,
-            BackgroundGradient = GradientColor.Vertical(new(0xC02F2A2A), null, 5),
-            TextAlign          = Anchor.MiddleCenter
-        });
+        Stylesheet.SetClassRule(
+            "button",
+            new() {
+                Size               = new(0, 26),
+                Padding            = new(0, 6),
+                BackgroundColor    = new(0xC01A1A1A),
+                BorderColor        = new(new(0xFF787A7A)),
+                BorderWidth        = new(1),
+                BorderRadius       = 5,
+                BorderInset        = 2,
+                BackgroundGradient = GradientColor.Vertical(new(0xC02F2A2A), null, 5),
+                TextAlign          = Anchor.MiddleCenter
+            }
+        );
+
+        Stylesheet.SetClassRule(
+            "button-hover",
+            new() {
+                Color              = new(0xFF101010),
+                BackgroundColor    = new(0xC0EAEAEA),
+                BackgroundGradient = GradientColor.Vertical(new(0xC02FFFFF), null, 5),
+            }
+        );
     }
 
     public void Dispose()
@@ -71,6 +83,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
 
             foreach (var test in _tests) {
                 var selected = _activeTest == test.Key;
+
                 if (ImGui.Selectable(test.Key, selected)) {
                     _activeTest = test.Key;
                 }
@@ -85,6 +98,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
             if (ImGui.Button(test.Key)) {
                 _activeTest = test.Key;
             }
+
             ImGui.SameLine();
         }
 

@@ -43,7 +43,7 @@ public class StretchTest : ITest
             _time                                   = 0;
         }
 
-        _node.Render(ImGui.GetForegroundDrawList(), new(100, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(100, 100));
     }
 
     private static Node CreateItem(string id, string label)

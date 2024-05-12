@@ -37,6 +37,9 @@ public partial class Node
         }
     }
 
+    /// <summary>
+    /// Defines the textual content of this node.
+    /// </summary>
     public string? NodeValue {
         get => _nodeValue;
         set {
@@ -48,6 +51,15 @@ public partial class Node
             SignalReflowRecursive();
         }
     }
+
+    /// <summary>
+    /// Defines a tooltip text for this node.
+    /// </summary>
+    /// <remarks>
+    /// Defining a tooltip makes this node interactive. This means that some
+    /// nodes may no longer be interacted with if this node overlaps them.
+    /// </remarks>
+    public string? Tooltip { get; set; }
 
     /// <summary>
     /// Returns a list of class names applied to this node.

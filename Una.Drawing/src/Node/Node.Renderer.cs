@@ -21,14 +21,27 @@ public partial class Node
         Draw(drawList);
     }
 
+    /// <summary>
+    /// Returns true if this node is visible and its bounds are not empty.
+    /// </summary>
+    public bool IsVisible =>  ComputedStyle.IsVisible && !Bounds.PaddingSize.IsZero;
+
     private void Draw(ImDrawListPtr drawList)
     {
+        if (!IsVisible) {
+            _isVisibleSince = 0;
+            return;
+        }
+        if (_isVisibleSince == 0) _isVisibleSince = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
         NodeSnapshot snapshot = CreateSnapshot();
 
         if (_texture is null || NodeSnapshot.AreEqual(ref snapshot, ref _snapshot) is false) {
             _texture  = Renderer.Instance.CreateTexture(this);
             _snapshot = snapshot;
         }
+
+        SetupInteractive(drawList);
 
         if (null != _texture) {
             drawList.AddImage(_texture.ImGuiHandle, Bounds.PaddingRect.TopLeft, Bounds.PaddingRect.BottomRight);
@@ -39,6 +52,8 @@ public partial class Node
         foreach (var childNode in ChildNodes) {
             childNode.Draw(drawList);
         }
+
+        EndInteractive();
     }
 
     private NodeSnapshot CreateSnapshot()

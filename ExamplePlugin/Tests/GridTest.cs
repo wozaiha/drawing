@@ -40,7 +40,7 @@ public class GridTest : ITest
 
     public void Render()
     {
-        _node.Render(ImGui.GetForegroundDrawList(), new(10, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(10, 100));
     }
 
     private Node CreateBlock()

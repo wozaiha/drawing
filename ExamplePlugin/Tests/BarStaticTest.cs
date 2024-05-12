@@ -81,7 +81,7 @@ public class BarStaticTest : ITest
 
     public void Render()
     {
-        _node.Render(ImGui.GetForegroundDrawList(), new(100, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(100, 100));
     }
 
     private Node Left   => _node.QuerySelector("Left")!;
@@ -90,13 +90,19 @@ public class BarStaticTest : ITest
 
     private static Node CreateBox(string id, string label, Anchor? anchor = null)
     {
-        return new() {
+        Node box = new() {
             Id        = id,
             NodeValue = label,
             ClassList = ["button"],
             Style = new() {
                 Anchor = anchor ?? Anchor.TopLeft,
-            }
+            },
+            Tooltip = $"This is {label}"
         };
+
+        box.OnMouseEnter += n => n.ClassList.Add("button-hover");
+        box.OnMouseLeave += n => n.ClassList.Remove("button-hover");
+
+        return box;
     }
 }

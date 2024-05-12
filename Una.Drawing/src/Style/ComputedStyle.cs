@@ -119,6 +119,7 @@ internal class ComputedStyle
         Stretch            = style.Stretch ?? Stretch;
         Padding            = style.Padding ?? Padding;
         Margin             = style.Margin ?? Margin;
+        Color              = style.Color ?? Color;
         Font               = style.Font ?? Font;
         FontSize           = style.FontSize ?? FontSize;
         LineHeight         = style.LineHeight ?? LineHeight;

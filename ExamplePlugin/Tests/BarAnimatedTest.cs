@@ -84,7 +84,7 @@ public class BarAnimatedTest : ITest
 
     public void Render()
     {
-        _node.Render(ImGui.GetForegroundDrawList(), new(100, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(100, 100));
 
         _frameCount += ImGui.GetIO().DeltaTime;
 
@@ -106,13 +106,18 @@ public class BarAnimatedTest : ITest
 
     private static Node CreateBox(string id, string label, Anchor? anchor = null)
     {
-        return new() {
+        Node box = new() {
             Id        = id,
             NodeValue = label,
             ClassList = ["button"],
             Style = new() {
                 Anchor = anchor ?? Anchor.TopLeft,
-            }
+            },
         };
+
+        box.OnMouseEnter += n => n.ClassList.Add("button-hover");
+        box.OnMouseLeave += n => n.ClassList.Remove("button-hover");
+
+        return box;
     }
 }

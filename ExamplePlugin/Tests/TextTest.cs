@@ -46,7 +46,7 @@ public class TextTest : ITest
 
     public void Render()
     {
-        _node.Render(ImGui.GetForegroundDrawList(), new(100, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(100, 100));
     }
 
     private static Node CreateNode(Anchor anchor, Anchor textAlign, string text, int? width = null, int? height = null)

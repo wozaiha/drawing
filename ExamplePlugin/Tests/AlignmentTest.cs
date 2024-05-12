@@ -32,12 +32,12 @@ public class AlignmentTest : ITest
 
     public void Render()
     {
-        _node.Render(ImGui.GetForegroundDrawList(), new(100, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(100, 100));
     }
 
     private static Node CreateContainer(int size, Anchor.AnchorPoint point, bool createChildNodes = true)
     {
-        return new() {
+        Node box = new() {
             Style = new() {
                 Anchor          = new(point),
                 Size            = new(size, size),
@@ -71,5 +71,10 @@ public class AlignmentTest : ITest
                 ]
                 : []
         };
+
+        box.OnMouseEnter += n => n.ClassList.Add("button-hover");
+        box.OnMouseLeave += n => n.ClassList.Remove("button-hover");
+
+        return box;
     }
 }

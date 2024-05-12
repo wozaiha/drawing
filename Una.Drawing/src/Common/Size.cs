@@ -5,6 +5,8 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System.Numerics;
+
 namespace Una.Drawing;
 
 /// <summary>
@@ -46,6 +48,12 @@ public record Size(int Width = 0, int Height = 0)
     /// </summary>
     public bool IsAutoHeight => Height == 0;
 
+    /// <summary>
+    /// True if the size is 0 on both axes, meaning that the box should be
+    /// invisible and not take up any space.
+    /// </summary>
+    public bool IsZero => Width == 0 && Height == 0;
+
     public override string ToString()    => $"Size({Width}, {Height})";
 
     public static Size operator +(Size  left, Size right) => new(left.Width + right.Width, left.Height + right.Height);
@@ -56,6 +64,16 @@ public record Size(int Width = 0, int Height = 0)
     /// </summary>
     /// <returns></returns>
     public Size Copy()
+    {
+        return new(Width, Height);
+    }
+
+    /// <summary>
+    /// Returns a new <see cref="Vector2"/> object with the same width and
+    /// height as this size object.
+    /// </summary>
+    /// <returns></returns>
+    public Vector2 ToVector2()
     {
         return new(Width, Height);
     }
