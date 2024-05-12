@@ -25,7 +25,7 @@ public partial class Node
 
         var result = $"{id}{classes}{tags}";
 
-        return (result == "" ? "[/]" : result) + $" <{OuterWidth} x {OuterHeight}> ({LastReflowTime}ms)";
+        return (result == "" ? "[/]" : result) + $" <{OuterWidth} x {OuterHeight}>";
     }
 
     /// <summary>

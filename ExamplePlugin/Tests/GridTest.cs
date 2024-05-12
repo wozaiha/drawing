@@ -17,7 +17,7 @@ public class GridTest : ITest
 
     public GridTest()
     {
-        for (var y = 0; y < 42; y++) {
+        for (var y = 0; y < 10; y++) {
             Node row = new() {
                 Style = new() {
                     Flow = Flow.Horizontal,

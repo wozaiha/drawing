@@ -48,6 +48,8 @@ public partial class Node
             return new((int)NodeValueSize.X, (int)NodeValueSize.Y);
         }
 
+        _texture = null;
+
         NodeValueLines.Clear();
         _textCachedNodeValue = _nodeValue;
         _textCachedWordWrap  = ComputedStyle.WordWrap;

@@ -41,10 +41,10 @@ public partial class Node
         set {
             if (_nodeValue == value) return;
 
-            _nodeValue = value;
+            _nodeValue  = value;
 
             OnPropertyChanged?.Invoke("NodeValue", _nodeValue);
-            SignalReflow();
+            SignalReflowRecursive();
         }
     }
 

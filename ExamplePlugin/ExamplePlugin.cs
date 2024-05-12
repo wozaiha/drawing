@@ -16,7 +16,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
     private readonly Renderer                  _renderer;
     private readonly Dictionary<string, ITest> _tests = [];
 
-    private string _activeTest = "Text";
+    private string _activeTest = "Stretch";
 
     public ExamplePlugin(IPluginLog logger, DalamudPluginInterface plugin)
     {

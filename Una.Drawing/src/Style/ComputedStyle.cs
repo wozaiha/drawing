@@ -7,6 +7,7 @@
 
 using System;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Una.Drawing;
 
@@ -169,93 +170,131 @@ internal class ComputedStyle
         TextShadowColor    = null;
     }
 
-    private LayoutStyle _prevLayoutStyle;
-    private PaintStyle  _prevPaintStyle;
+    internal LayoutStyle CommittedLayoutStyle;
+    internal PaintStyle CommittedPaintStyle;
 
     internal int Commit()
     {
         LayoutStyle ls = new() {
-            Anchor     = Anchor,
-            IsVisible  = IsVisible,
-            Size       = Size,
-            Flow       = Flow,
-            Gap        = Gap,
-            Stretch    = Stretch,
-            Padding    = Padding,
-            Margin     = Margin,
-            WordWrap   = WordWrap,
-            Font       = Font,
+            Anchor        = Anchor.Point,
+            IsVisible     = IsVisible,
+            Width         = Size.Width,
+            Height        = Size.Height,
+            Flow          = Flow,
+            Gap           = Gap,
+            Stretch       = Stretch,
+            PaddingTop    = Padding.Top,
+            PaddingRight  = Padding.Right,
+            PaddingBottom = Padding.Bottom,
+            PaddingLeft   = Padding.Left,
+            MarginTop     = Margin.Top,
+            MarginRight   = Margin.Right,
+            MarginBottom  = Margin.Bottom,
+            MarginLeft    = Margin.Left,
+            WordWrap      = WordWrap,
+            // Font          = Font,
             FontSize   = FontSize,
             LineHeight = LineHeight
         };
 
         PaintStyle ps = new() {
-            Color              = Color,
-            TextAlign          = TextAlign,
-            OutlineSize        = OutlineSize,
-            TextOffset         = TextOffset,
-            BackgroundColor    = BackgroundColor,
-            BorderColor        = BorderColor,
-            BorderInset        = BorderInset,
-            BorderRadius       = BorderRadius,
-            BorderWidth        = BorderWidth,
-            StrokeColor        = StrokeColor,
-            StrokeWidth        = StrokeWidth,
-            BackgroundGradient = BackgroundGradient,
-            OutlineColor       = OutlineColor,
-            TextShadowSize     = TextShadowSize,
-            TextShadowColor    = TextShadowColor
+            Color                   = Color.ToUInt(),
+            TextAlign               = TextAlign.Point,
+            OutlineSize             = OutlineSize,
+            TextOffset              = TextOffset,
+            BackgroundColor         = BackgroundColor?.ToUInt(),
+            BorderTopColor          = BorderColor?.Top?.ToUInt(),
+            BorderRightColor        = BorderColor?.Right?.ToUInt(),
+            BorderBottomColor       = BorderColor?.Bottom?.ToUInt(),
+            BorderLeftColor         = BorderColor?.Left?.ToUInt(),
+            BorderInset             = BorderInset,
+            BorderRadius            = BorderRadius,
+            BorderTopWidth          = BorderWidth.Top,
+            BorderRightWidth        = BorderWidth.Right,
+            BorderBottomWidth       = BorderWidth.Bottom,
+            BorderLeftWidth         = BorderWidth.Left,
+            StrokeColor             = StrokeColor?.ToUInt(),
+            StrokeWidth             = StrokeWidth,
+            BackgroundGradient1     = BackgroundGradient?.Color1?.ToUInt(),
+            BackgroundGradient2     = BackgroundGradient?.Color2?.ToUInt(),
+            BackgroundGradientInset = BackgroundGradient?.Inset,
+            OutlineColor            = OutlineColor?.ToUInt(),
+            TextShadowSize          = TextShadowSize,
+            TextShadowColor         = TextShadowColor?.ToUInt()
         };
 
         var result = 0;
 
-        if (ls != _prevLayoutStyle) {
-            _prevLayoutStyle = ls;
+        if (AreStructsEqual(ref CommittedLayoutStyle, ref ls) is false) {
+            CommittedLayoutStyle = ls;
             OnLayoutPropertyChanged?.Invoke();
             result = 1;
         }
 
-        if (ps != _prevPaintStyle) {
-            _prevPaintStyle = ps;
+        if (AreStructsEqual(ref CommittedPaintStyle, ref ps) is false) {
+            CommittedPaintStyle = ps;
             OnPaintPropertyChanged?.Invoke();
             result += 2;
         }
 
         return result;
     }
+
+    private static bool AreStructsEqual<T>(ref readonly T a, ref readonly T b) where T : unmanaged
+    {
+        return MemoryMarshal
+            .AsBytes(new ReadOnlySpan<T>(in a))
+            .SequenceEqual(MemoryMarshal.AsBytes(new ReadOnlySpan<T>(in b)));
+    }
 }
 
-internal record struct LayoutStyle
+[StructLayout(LayoutKind.Sequential)]
+internal struct LayoutStyle
 {
-    internal Anchor   Anchor;
-    internal bool     IsVisible;
-    internal Size     Size;
-    internal Flow     Flow;
-    internal int      Gap;
-    internal bool     Stretch;
-    internal EdgeSize Padding;
-    internal EdgeSize Margin;
-    internal bool     WordWrap;
-    internal string   Font;
-    internal float    FontSize;
-    internal float    LineHeight;
+    internal Anchor.AnchorPoint Anchor;
+    internal bool               IsVisible;
+    internal int                Width;
+    internal int                Height;
+    internal Flow               Flow;
+    internal int                Gap;
+    internal bool               Stretch;
+    internal int                PaddingTop;
+    internal int                PaddingRight;
+    internal int                PaddingBottom;
+    internal int                PaddingLeft;
+    internal int                MarginTop;
+    internal int                MarginRight;
+    internal int                MarginBottom;
+    internal int                MarginLeft;
+    internal bool               WordWrap;
+    internal float              FontSize;
+    internal float              LineHeight;
 }
 
-internal record struct PaintStyle
+[StructLayout(LayoutKind.Sequential)]
+internal struct PaintStyle
 {
-    internal Anchor         TextAlign;
-    internal float          OutlineSize;
-    internal Vector2        TextOffset;
-    internal Color          Color;
-    internal Color?         BackgroundColor;
-    internal BorderColor?   BorderColor;
-    internal int            BorderInset;
-    internal int            BorderRadius;
-    internal EdgeSize       BorderWidth;
-    internal Color?         StrokeColor;
-    internal int            StrokeWidth;
-    internal GradientColor? BackgroundGradient;
-    internal Color?         OutlineColor;
-    internal float          TextShadowSize;
-    internal Color?         TextShadowColor;
+    internal Anchor.AnchorPoint TextAlign;
+    internal float              OutlineSize;
+    internal Vector2            TextOffset;
+    internal uint               Color;
+    internal uint?              BackgroundColor;
+    internal uint?              BorderTopColor;
+    internal uint?              BorderRightColor;
+    internal uint?              BorderBottomColor;
+    internal uint?              BorderLeftColor;
+    internal int                BorderInset;
+    internal int                BorderRadius;
+    internal int                BorderTopWidth;
+    internal int                BorderRightWidth;
+    internal int                BorderBottomWidth;
+    internal int                BorderLeftWidth;
+    internal uint?              StrokeColor;
+    internal int                StrokeWidth;
+    internal uint?              BackgroundGradient1;
+    internal uint?              BackgroundGradient2;
+    internal int?               BackgroundGradientInset;
+    internal uint?              OutlineColor;
+    internal float              TextShadowSize;
+    internal uint?              TextShadowColor;
 }

@@ -9,26 +9,20 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 
 namespace Una.Drawing;
 
 public partial class Node
 {
-    public double LastReflowTime { get; private set; }
-
     private readonly Dictionary<Anchor.AnchorPoint, List<Node>> _anchorToChildNodes = [];
     private readonly Dictionary<Node, Anchor.AnchorPoint>       _childNodeToAnchor  = [];
-    private readonly Stopwatch                                  _stopwatch          = new();
 
+    private bool  _isInReflow;
     private bool  _mustReflow = true;
-    private bool  _isReflowing;
-    private Point _position = new(0, 0);
+    private Point _position   = new(0, 0);
 
     public void Reflow(Point? position = null)
     {
-        _stopwatch.Restart();
-
         if (_mustReflow) {
             ComputeBoundingBox();
             ComputeStretchedNodeSizes();
@@ -40,9 +34,6 @@ public partial class Node
         }
 
         _mustReflow = false;
-        _stopwatch.Stop();
-
-        LastReflowTime = _stopwatch.Elapsed.TotalMilliseconds;
     }
 
     #region Reflow Stage #1
@@ -75,8 +66,9 @@ public partial class Node
     {
         if (!_mustReflow) return;
 
-        // Always compute the content size from text, since it also prepares the
-        // text content for rendering.
+        // Always compute the content size from text, regardless of whether the
+        // node size is fixed or not, since this also prepares the text for
+        // rendering later on.
         Size contentSize = ComputeContentSizeFromText();
 
         if (false == ComputedStyle.Size.IsFixed) {
@@ -91,8 +83,11 @@ public partial class Node
         Bounds.PaddingSize = Bounds.ContentSize + ComputedStyle.Padding.Size;
 
         // Readjust the content size based on the configured size constraints.
-        if (ComputedStyle.Size.Width > 0) Bounds.ContentSize.Width   = Bounds.PaddingSize.Width  = ComputedStyle.Size.Width;
-        if (ComputedStyle.Size.Height > 0) Bounds.ContentSize.Height = Bounds.PaddingSize.Height = ComputedStyle.Size.Height;
+        if (ComputedStyle.Size.Width > 0)
+            Bounds.ContentSize.Width = Bounds.PaddingSize.Width = ComputedStyle.Size.Width;
+
+        if (ComputedStyle.Size.Height > 0)
+            Bounds.ContentSize.Height = Bounds.PaddingSize.Height = ComputedStyle.Size.Height;
 
         Bounds.MarginSize = Bounds.PaddingSize + ComputedStyle.Margin.Size;
     }
@@ -109,16 +104,18 @@ public partial class Node
             var width  = 0;
             var height = 0;
 
+            if (Id == "Menu") Logger.Log($"Child count: {childNodes.Count}");
+
             foreach (Node childNode in childNodes) {
                 if (!childNode.ComputedStyle.IsVisible) continue;
 
                 switch (ComputedStyle.Flow) {
                     case Flow.Horizontal:
                         width  += childNode.OuterWidth + ComputedStyle.Gap;
-                        height =  Math.Max(result.Height, childNode.OuterHeight);
+                        height =  Math.Max(height, childNode.OuterHeight);
                         break;
                     case Flow.Vertical:
-                        width  =  Math.Max(result.Width, childNode.OuterWidth);
+                        width  =  Math.Max(width, childNode.OuterWidth);
                         height += childNode.OuterHeight + ComputedStyle.Gap;
                         break;
                     default:
@@ -147,17 +144,20 @@ public partial class Node
             child.ComputeStretchedNodeSizes();
         }
 
-        if (ComputedStyle.Stretch && ParentNode is not null) {
-            // Adjust the size of this node to match the size of the parent node.
-            if (ComputedStyle.Size.Width == 0 && ParentNode.ComputedStyle.Flow == Flow.Vertical)
-                Bounds.ContentSize.Width = ParentNode.InnerWidth;
+        if (!ComputedStyle.Stretch || ParentNode is null) return;
 
-            if (ComputedStyle.Size.Height == 0 && ParentNode.ComputedStyle.Flow == Flow.Horizontal)
-                Bounds.ContentSize.Height = ParentNode.InnerHeight;
+        Size size = ParentNode!.Bounds.ContentSize.Copy();
+        Size newContentSize;
 
-            Bounds.PaddingSize = Bounds.ContentSize.Copy();
-            Bounds.MarginSize  = Bounds.PaddingSize + ComputedStyle.Margin.Size;
+        if (ParentNode.ComputedStyle.Flow == Flow.Horizontal) {
+            newContentSize = new Size(Bounds.ContentSize.Width, size.Height) - ComputedStyle.Padding.Size;
+        } else {
+            newContentSize = new Size(size.Width, Bounds.ContentSize.Height) - ComputedStyle.Padding.Size;
         }
+
+        Bounds.ContentSize = newContentSize;
+        Bounds.PaddingSize = Bounds.ContentSize + ComputedStyle.Padding.Size;
+        Bounds.MarginSize  = Bounds.PaddingSize + ComputedStyle.Margin.Size;
     }
 
     #endregion
@@ -198,7 +198,8 @@ public partial class Node
             int y = originY;
 
             if (anchor.IsCenter) {
-                x += InnerWidth / 2 - (ComputedStyle.Flow == Flow.Horizontal ? totalChildSize.Width : maxChildSize.Width) / 2;
+                x += InnerWidth / 2
+                    - (ComputedStyle.Flow == Flow.Horizontal ? totalChildSize.Width : maxChildSize.Width) / 2;
             }
 
             if (anchor.IsRight) x += InnerWidth;

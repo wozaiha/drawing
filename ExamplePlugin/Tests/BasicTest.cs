@@ -39,10 +39,14 @@ public class BasicTest : ITest
         ChildNodes = []
     };
 
+    private uint _frameCount = 0;
+
     public void Render()
     {
+        _frameCount++;
+
         _node.NodeValue =
-            $"Hello World! Pretty graphics! This is very neat with word wrap enabled. {DateTime.Now:h:mm:ss tt}";
+            $"Hello World! Pretty graphics! {DateTime.Now:h:mm:ss tt} Frame Count: {_frameCount}";
 
         _node.Render(ImGui.GetForegroundDrawList(), new(100, 100));
     }

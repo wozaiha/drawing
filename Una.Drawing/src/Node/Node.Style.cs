@@ -54,7 +54,7 @@ public partial class Node
             ReassignAnchorNodes();
         }
 
-        return res is 1 or 3;
+        return _textCachedNodeValue != _nodeValue || res is 1 or 3;
     }
 
     /// <summary>
@@ -63,28 +63,24 @@ public partial class Node
     /// </summary>
     private void SignalReflow()
     {
-        if (_isReflowing) return;
+        if (_isInReflow) return;
 
         OnReflow?.Invoke();
         _mustReflow = true;
-
-        _texture?.Dispose();
-        _texture = null;
     }
 
     private void SignalReflowRecursive()
     {
-        _isReflowing = true;
+        if (_isInReflow) return;
 
-        _texture?.Dispose();
-        _texture    = null;
+        _isInReflow = true;
         _mustReflow = true;
 
         foreach (Node child in _childNodes) child.SignalReflowRecursive();
 
-        OnReflow?.Invoke();
+        ParentNode?.SignalReflowRecursive();
 
-        _isReflowing = false;
+        _isInReflow = false;
     }
 
     private void SignalRepaint()
