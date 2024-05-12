@@ -33,6 +33,8 @@ public class BasicTest : ITest
             OutlineColor       = new(0x600000FF),
             OutlineSize        = 2,
             TextOffset         = new(0, -5),
+            TextShadowSize     = 16,
+            TextShadowColor    = new(0xFFFFFFFF),
         },
         ChildNodes = []
     };

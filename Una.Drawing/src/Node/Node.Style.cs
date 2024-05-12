@@ -23,22 +23,39 @@ public partial class Node
     /// <see cref="Style"/> object.
     /// </remarks>
     /// <exception cref="ArgumentNullException"></exception>
-    public Style Style {
-        get => _style;
-        set {
-            _style.OnLayoutPropertyChanged -= SignalReflowRecursive;
-            _style.OnPaintPropertyChanged  -= SignalRepaint;
+    public Style Style { get; set; } = new();
 
-            _style = value ?? throw new ArgumentNullException(nameof(value));
+    /// <summary>
+    /// Defines the final computed style of this node.
+    /// </summary>
+    internal ComputedStyle ComputedStyle { get; private set; } = new();
 
-            _style.OnLayoutPropertyChanged += SignalReflowRecursive;
-            _style.OnPaintPropertyChanged  += SignalRepaint;
+    /// <summary>
+    /// Generates the computed style of this node and its descendants.
+    /// </summary>
+    private bool ComputeStyle()
+    {
+        // TODO: Only recompute style if needed:
+        //  - If the style has changed. (make it reactive again)
+        //  - If the class list has changed.
 
-            OnPropertyChanged?.Invoke("Style", value);
+        ComputedStyle.Reset();
+
+        ComputedStyle.Apply(Style);
+
+        int res     = ComputedStyle.Commit();
+        var updated = false;
+
+        foreach (Node child in _childNodes) {
+            updated |= child.ComputeStyle();
         }
-    }
 
-    private Style _style = new();
+        if (updated) {
+            ReassignAnchorNodes();
+        }
+
+        return res is 1 or 3;
+    }
 
     /// <summary>
     /// Invokes the reflow event, signaling that the layout of this element
@@ -64,6 +81,7 @@ public partial class Node
         _mustReflow = true;
 
         foreach (Node child in _childNodes) child.SignalReflowRecursive();
+
         OnReflow?.Invoke();
 
         _isReflowing = false;

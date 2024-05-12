@@ -22,18 +22,7 @@ public partial class Style
     /// Modifying this property will trigger a reflow of the layout. This is a
     /// computationally expensive operation and should be done sparingly.
     /// </remarks>
-    public EdgeSize Margin {
-        get => _margin;
-        set {
-            if (_margin.Equals(value)) return;
-
-            _margin.OnChanged -= SignalLayoutPropertyChanged;
-            _margin           =  value;
-            _margin.OnChanged += SignalLayoutPropertyChanged;
-
-            OnLayoutPropertyChanged?.Invoke();
-        }
-    }
+    public EdgeSize? Margin { get; set; }
 
     /// <summary>
     /// <para>
@@ -57,18 +46,7 @@ public partial class Style
     /// Modifying this property will trigger a reflow of the layout. This is a
     /// computationally expensive operation and should be done sparingly.
     /// </remarks>
-    public EdgeSize Padding {
-        get => _padding;
-        set {
-            if (_padding.Equals(value)) return;
-
-            _padding.OnChanged -= SignalLayoutPropertyChanged;
-            _padding           =  value;
-            _padding.OnChanged += SignalLayoutPropertyChanged;
-
-            OnLayoutPropertyChanged?.Invoke();
-        }
-    }
+    public EdgeSize? Padding { get; set; }
 
     /// <summary>
     /// <para>
@@ -90,25 +68,5 @@ public partial class Style
     /// Modifying this property will trigger a reflow of the layout. This is a
     /// computationally expensive operation and should be done sparingly.
     /// </remarks>
-    public Size Size {
-        get => _size;
-        set {
-            if (_size.Equals(value)) return;
-
-            _size.OnChanged -= SignalLayoutPropertyChanged;
-            _size           =  value;
-            _size.OnChanged += SignalLayoutPropertyChanged;
-
-            OnLayoutPropertyChanged?.Invoke();
-        }
-    }
-
-    private EdgeSize _margin  = new();
-    private EdgeSize _padding = new();
-    private Size     _size    = new();
-
-    private void SignalLayoutPropertyChanged()
-    {
-        OnLayoutPropertyChanged?.Invoke();
-    }
+    public Size? Size { get; set; }
 }

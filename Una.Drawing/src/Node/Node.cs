@@ -181,8 +181,8 @@ public partial class Node
         _tagsList.OnItemAdded     += InvalidateQuerySelectorCache;
         _tagsList.OnItemRemoved   += InvalidateQuerySelectorCache;
 
-        _style.OnLayoutPropertyChanged += SignalReflowRecursive;
-        _style.OnPaintPropertyChanged  += SignalRepaint;
+        ComputedStyle.OnLayoutPropertyChanged += SignalReflowRecursive;
+        ComputedStyle.OnPaintPropertyChanged  += SignalRepaint;
 
         OnChildAdded   += child => child.OnReflow += SignalReflow;
         OnChildRemoved += child => child.OnReflow -= SignalReflow;
@@ -291,12 +291,12 @@ public partial class Node
         node.ParentNode?.RemoveChild(node);
         node.ParentNode = this;
 
-        if (false == _anchorToChildNodes.ContainsKey(node.Style.Anchor.Point)) {
-            _anchorToChildNodes[node.Style.Anchor.Point] = [];
+        if (false == _anchorToChildNodes.ContainsKey(node.ComputedStyle.Anchor.Point)) {
+            _anchorToChildNodes[node.ComputedStyle.Anchor.Point] = [];
         }
 
-        _anchorToChildNodes[node.Style.Anchor.Point].Add(node);
-        _childNodeToAnchor[node] = node.Style.Anchor.Point;
+        _anchorToChildNodes[node.ComputedStyle.Anchor.Point].Add(node);
+        _childNodeToAnchor[node] = node.ComputedStyle.Anchor.Point;
 
         SignalReflow();
         OnChildAdded?.Invoke(node);

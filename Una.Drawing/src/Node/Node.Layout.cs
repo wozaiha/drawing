@@ -55,7 +55,7 @@ public partial class Node
     /// This method ensures that the <see cref="NodeBounds.ContentSize"/>,
     /// <see cref="NodeBounds.PaddingSize"/> and <see cref="NodeBounds.MarginSize"/>
     /// of this node are computed correctly, except for nodes that are supposed
-    /// to be stretched (See <see cref="Style.Stretch"/>).
+    /// to be stretched (See <see cref="ComputedStyle.Stretch"/>).
     /// </para>
     /// </summary>
     private void ComputeBoundingBox()
@@ -79,7 +79,7 @@ public partial class Node
         // text content for rendering.
         Size contentSize = ComputeContentSizeFromText();
 
-        if (false == Style.Size.IsFixed) {
+        if (false == ComputedStyle.Size.IsFixed) {
             Size childSpan = ComputeContentSizeFromChildren();
 
             Bounds.ContentSize = new(
@@ -88,13 +88,13 @@ public partial class Node
             );
         }
 
-        Bounds.PaddingSize = Bounds.ContentSize + _style.Padding.Size;
+        Bounds.PaddingSize = Bounds.ContentSize + ComputedStyle.Padding.Size;
 
         // Readjust the content size based on the configured size constraints.
-        if (Style.Size.Width > 0) Bounds.ContentSize.Width   = Bounds.PaddingSize.Width  = Style.Size.Width;
-        if (Style.Size.Height > 0) Bounds.ContentSize.Height = Bounds.PaddingSize.Height = Style.Size.Height;
+        if (ComputedStyle.Size.Width > 0) Bounds.ContentSize.Width   = Bounds.PaddingSize.Width  = ComputedStyle.Size.Width;
+        if (ComputedStyle.Size.Height > 0) Bounds.ContentSize.Height = Bounds.PaddingSize.Height = ComputedStyle.Size.Height;
 
-        Bounds.MarginSize = Bounds.PaddingSize + _style.Margin.Size;
+        Bounds.MarginSize = Bounds.PaddingSize + ComputedStyle.Margin.Size;
     }
 
     /// <summary>
@@ -110,24 +110,24 @@ public partial class Node
             var height = 0;
 
             foreach (Node childNode in childNodes) {
-                if (!childNode.Style.IsVisible) continue;
+                if (!childNode.ComputedStyle.IsVisible) continue;
 
-                switch (Style.Flow) {
+                switch (ComputedStyle.Flow) {
                     case Flow.Horizontal:
-                        width  += childNode.OuterWidth + Style.Gap;
+                        width  += childNode.OuterWidth + ComputedStyle.Gap;
                         height =  Math.Max(result.Height, childNode.OuterHeight);
                         break;
                     case Flow.Vertical:
                         width  =  Math.Max(result.Width, childNode.OuterWidth);
-                        height += childNode.OuterHeight + Style.Gap;
+                        height += childNode.OuterHeight + ComputedStyle.Gap;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
 
-            if (Style.Flow == Flow.Horizontal && width > 0) width -= Style.Gap;
-            if (Style.Flow == Flow.Vertical && height > 0) height -= Style.Gap;
+            if (ComputedStyle.Flow == Flow.Horizontal && width > 0) width -= ComputedStyle.Gap;
+            if (ComputedStyle.Flow == Flow.Vertical && height > 0) height -= ComputedStyle.Gap;
 
             result.Width  = Math.Max(result.Width,  width);
             result.Height = Math.Max(result.Height, height);
@@ -147,16 +147,16 @@ public partial class Node
             child.ComputeStretchedNodeSizes();
         }
 
-        if (Style.Stretch && ParentNode is not null) {
+        if (ComputedStyle.Stretch && ParentNode is not null) {
             // Adjust the size of this node to match the size of the parent node.
-            if (Style.Size.Width == 0 && ParentNode.Style.Flow == Flow.Vertical)
+            if (ComputedStyle.Size.Width == 0 && ParentNode.ComputedStyle.Flow == Flow.Vertical)
                 Bounds.ContentSize.Width = ParentNode.InnerWidth;
 
-            if (Style.Size.Height == 0 && ParentNode.Style.Flow == Flow.Horizontal)
+            if (ComputedStyle.Size.Height == 0 && ParentNode.ComputedStyle.Flow == Flow.Horizontal)
                 Bounds.ContentSize.Height = ParentNode.InnerHeight;
 
             Bounds.PaddingSize = Bounds.ContentSize.Copy();
-            Bounds.MarginSize  = Bounds.PaddingSize + _style.Margin.Size;
+            Bounds.MarginSize  = Bounds.PaddingSize + ComputedStyle.Margin.Size;
         }
     }
 
@@ -175,15 +175,15 @@ public partial class Node
         Bounds.MarginRect.X2 = Bounds.MarginRect.X1 + OuterWidth;
         Bounds.MarginRect.Y2 = Bounds.MarginRect.Y1 + OuterHeight;
 
-        Bounds.PaddingRect.X1 = Bounds.MarginRect.X1 + _style.Margin.Left;
-        Bounds.PaddingRect.Y1 = Bounds.MarginRect.Y1 + _style.Margin.Top;
-        Bounds.PaddingRect.X2 = Bounds.MarginRect.X2 - _style.Margin.Right;
-        Bounds.PaddingRect.Y2 = Bounds.MarginRect.Y2 - _style.Margin.Bottom;
+        Bounds.PaddingRect.X1 = Bounds.MarginRect.X1 + ComputedStyle.Margin.Left;
+        Bounds.PaddingRect.Y1 = Bounds.MarginRect.Y1 + ComputedStyle.Margin.Top;
+        Bounds.PaddingRect.X2 = Bounds.MarginRect.X2 - ComputedStyle.Margin.Right;
+        Bounds.PaddingRect.Y2 = Bounds.MarginRect.Y2 - ComputedStyle.Margin.Bottom;
 
-        Bounds.ContentRect.X1 = Bounds.PaddingRect.X1 + _style.Padding.Left;
-        Bounds.ContentRect.Y1 = Bounds.PaddingRect.Y1 + _style.Padding.Top;
-        Bounds.ContentRect.X2 = Bounds.PaddingRect.X2 - _style.Padding.Right;
-        Bounds.ContentRect.Y2 = Bounds.PaddingRect.Y2 - _style.Padding.Bottom;
+        Bounds.ContentRect.X1 = Bounds.PaddingRect.X1 + ComputedStyle.Padding.Left;
+        Bounds.ContentRect.Y1 = Bounds.PaddingRect.Y1 + ComputedStyle.Padding.Top;
+        Bounds.ContentRect.X2 = Bounds.PaddingRect.X2 - ComputedStyle.Padding.Right;
+        Bounds.ContentRect.Y2 = Bounds.PaddingRect.Y2 - ComputedStyle.Padding.Bottom;
 
         int originX = Bounds.ContentRect.X1;
         int originY = Bounds.ContentRect.Y1;
@@ -198,14 +198,14 @@ public partial class Node
             int y = originY;
 
             if (anchor.IsCenter) {
-                x += InnerWidth / 2 - (Style.Flow == Flow.Horizontal ? totalChildSize.Width : maxChildSize.Width) / 2;
+                x += InnerWidth / 2 - (ComputedStyle.Flow == Flow.Horizontal ? totalChildSize.Width : maxChildSize.Width) / 2;
             }
 
             if (anchor.IsRight) x += InnerWidth;
 
             if (anchor.IsMiddle) {
                 y += (InnerHeight / 2)
-                    - (Style.Flow == Flow.Horizontal ? maxChildSize.Height : totalChildSize.Height) / 2;
+                    - (ComputedStyle.Flow == Flow.Horizontal ? maxChildSize.Height : totalChildSize.Height) / 2;
             }
 
             if (anchor.IsBottom) y += Height;
@@ -217,29 +217,29 @@ public partial class Node
                 var yOffset = 0;
 
                 if (anchor.IsMiddle) {
-                    yOffset = ((maxChildSize.Height - childNode.OuterHeight) / 2) - Style.Padding.Top;
+                    yOffset = ((maxChildSize.Height - childNode.OuterHeight) / 2) - ComputedStyle.Padding.Top;
                 } else if (anchor.IsBottom) {
-                    yOffset -= (childNode.OuterHeight) + Style.Padding.VerticalSize;
+                    yOffset -= (childNode.OuterHeight) + ComputedStyle.Padding.VerticalSize;
                 }
 
                 if (anchor.IsCenter) {
-                    xOffset = -Style.Padding.Left;
+                    xOffset = -ComputedStyle.Padding.Left;
                 } else if (anchor.IsRight) {
-                    xOffset -= (childNode.OuterWidth) + Style.Padding.HorizontalSize;
+                    xOffset -= (childNode.OuterWidth) + ComputedStyle.Padding.HorizontalSize;
                 }
 
                 childNode.ComputeBoundingRects(new(x + xOffset, y + yOffset));
 
                 if (childNode == lastNode) break;
 
-                switch (Style.Flow) {
+                switch (ComputedStyle.Flow) {
                     case Flow.Horizontal:
                         x = anchor.IsRight
                             ? x - childNode.OuterWidth
                             : x + childNode.OuterWidth;
 
                         if (lastNode != childNode) {
-                            x += anchor.IsRight ? -Style.Gap : Style.Gap;
+                            x += anchor.IsRight ? -ComputedStyle.Gap : ComputedStyle.Gap;
                         }
 
                         break;
@@ -249,12 +249,12 @@ public partial class Node
                             : y + childNode.OuterHeight;
 
                         if (lastNode != childNode) {
-                            y += anchor.IsTop ? Style.Gap : -Style.Gap;
+                            y += anchor.IsTop ? ComputedStyle.Gap : -ComputedStyle.Gap;
                         }
 
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException($"Unknown flow direction '{Style.Flow}'.");
+                        throw new ArgumentOutOfRangeException($"Unknown flow direction '{ComputedStyle.Flow}'.");
                 }
             }
         }
@@ -269,10 +269,10 @@ public partial class Node
         int width  = nodes.Max(node => node.OuterWidth);
         int height = nodes.Max(node => node.OuterHeight);
 
-        if (Style.Flow == Flow.Horizontal) {
-            width += Style.Gap * Math.Max(0, nodes.Count - 1);
+        if (ComputedStyle.Flow == Flow.Horizontal) {
+            width += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
         } else {
-            height += Style.Gap * Math.Max(0, nodes.Count - 1);
+            height += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
         }
 
         return new(width, height);
@@ -285,14 +285,31 @@ public partial class Node
         int width  = nodes.Sum(node => node.OuterWidth);
         int height = nodes.Sum(node => node.OuterHeight);
 
-        if (Style.Flow == Flow.Horizontal) {
-            width += Style.Gap * Math.Max(0, nodes.Count - 1);
+        if (ComputedStyle.Flow == Flow.Horizontal) {
+            width += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
         } else {
-            height += Style.Gap * Math.Max(0, nodes.Count - 1);
+            height += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
         }
 
         return new(width, height);
     }
 
     #endregion
+
+    private void ReassignAnchorNodes()
+    {
+        _childNodeToAnchor.Clear();
+        _anchorToChildNodes.Clear();
+
+        foreach (Node child in _childNodes) {
+            if (child.ComputedStyle.Anchor == Anchor.AnchorPoint.None) continue;
+
+            if (!_anchorToChildNodes.ContainsKey(child.ComputedStyle.Anchor.Point)) {
+                _anchorToChildNodes[child.ComputedStyle.Anchor.Point] = new();
+            }
+
+            _anchorToChildNodes[child.ComputedStyle.Anchor.Point].Add(child);
+            _childNodeToAnchor[child] = child.ComputedStyle.Anchor.Point;
+        }
+    }
 }

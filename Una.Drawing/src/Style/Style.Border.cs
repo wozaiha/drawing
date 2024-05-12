@@ -15,20 +15,7 @@ public partial class Style
     /// </para>
     /// This property has no effect if <see cref="BorderWidth"/> is left at 0.
     /// </summary>
-    public BorderColor? BorderColor {
-        get => _borderColor;
-        set {
-            if (_borderColor == value) return;
-
-            if (_borderColor is not null) _borderColor.OnChanged -= OnPaintPropertyChanged;
-
-            _borderColor = value;
-
-            if (_borderColor is not null) _borderColor.OnChanged += OnPaintPropertyChanged;
-
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
+    public BorderColor? BorderColor { get; set; }
 
     /// <summary>
     /// Defines the thickness of the border around the node.
@@ -37,42 +24,18 @@ public partial class Style
     /// This property has no effect if <see cref="BorderColor"/> is left
     /// undefined.
     /// </remarks>
-    public EdgeSize? BorderWidth {
-        get => _borderWidth;
-        set {
-            if (_borderWidth == value) return;
-
-            _borderWidth = value;
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
+    public EdgeSize? BorderWidth { get; set; }
 
     /// <summary>
     /// Defines the roundness of the corners of the node.
     /// </summary>
-    public int? BorderRadius {
-        get => _borderRadius;
-        set {
-            if (_borderRadius == value) return;
-
-            _borderRadius = value;
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
+    public int? BorderRadius { get; set; }
 
     /// <summary>
     /// Defines the inset of the border around the node, allowing the border to
     /// be drawn inside the node's bounds.
     /// </summary>
-    public int? BorderInset {
-        get => _borderInset;
-        set {
-            if (_borderInset == value) return;
-
-            _borderInset = value;
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
+    public int? BorderInset { get; set; }
 
     /// <summary>
     /// <para>
@@ -86,15 +49,7 @@ public partial class Style
     /// value.
     /// </para>
     /// </summary>
-    public Color? StrokeColor {
-        get => _strokeColor;
-        set {
-            if (_strokeColor == value) return;
-
-            _strokeColor = value;
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
+    public Color? StrokeColor { get; set; }
 
     /// <summary>
     /// <para>
@@ -107,20 +62,5 @@ public partial class Style
     /// inset value.
     /// </para>
     /// </summary>
-    public int? StrokeWidth {
-        get => _strokeWidth;
-        set {
-            if (_strokeWidth == value) return;
-
-            _strokeWidth = value;
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
-
-    private BorderColor? _borderColor;
-    private EdgeSize?    _borderWidth;
-    private int?         _borderRadius;
-    private int?         _borderInset;
-    private Color?       _strokeColor;
-    private int?         _strokeWidth;
+    public int? StrokeWidth { get; set; }
 }

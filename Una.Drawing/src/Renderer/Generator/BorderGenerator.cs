@@ -18,18 +18,15 @@ internal class BorderGenerator : IGenerator
     /// <inheritdoc/>
     public void Generate(SKCanvas canvas, Node node)
     {
-        if (null == node.Style.BorderColor) return;
+        if (null == node.ComputedStyle.BorderColor) return;
 
-        if (node.Style.BorderWidth is null
-            || (
-                node.Style.BorderWidth.HorizontalSize == 0 && node.Style.BorderWidth.VerticalSize == 0
-            ))
+        if (node.ComputedStyle.BorderWidth is { HorizontalSize: 0, VerticalSize: 0 })
             return;
 
-        Size  size  = node.Bounds.PaddingSize;
-        Style style = node.Style;
+        Size          size  = node.Bounds.PaddingSize;
+        ComputedStyle style = node.ComputedStyle;
 
-        int inset        = style.BorderInset ?? 0;
+        int inset        = style.BorderInset;
         int topWidth     = style.BorderWidth.Top;
         int rightWidth   = style.BorderWidth.Right;
         int bottomWidth  = style.BorderWidth.Bottom;
@@ -38,7 +35,7 @@ internal class BorderGenerator : IGenerator
         var insetRight   = (int)Math.Floor((float)rightWidth / 2);
         var insetBottom  = (int)Math.Floor((float)bottomWidth / 2);
         var insetLeft    = (int)Math.Floor((float)leftWidth / 2);
-        int cornerRadius = Math.Max(0, (style.BorderRadius ?? 0) - (style.BorderInset ?? 0));
+        int cornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset));
 
         var rect = new SKRect(
             insetLeft + inset,
@@ -47,10 +44,10 @@ internal class BorderGenerator : IGenerator
             size.Height - insetBottom - inset
         );
 
-        Color? topColor    = style.BorderColor.Top;
-        Color? rightColor  = style.BorderColor.Right;
-        Color? leftColor   = style.BorderColor.Left;
-        Color? bottomColor = style.BorderColor.Bottom;
+        Color? topColor    = style.BorderColor.Value.Top;
+        Color? rightColor  = style.BorderColor.Value.Right;
+        Color? leftColor   = style.BorderColor.Value.Left;
+        Color? bottomColor = style.BorderColor.Value.Bottom;
 
         if (topWidth > 0 && topColor is not null) {
             using SKPaint paint = new SKPaint();

@@ -14,7 +14,13 @@ public partial class Node
         if (ParentNode is not null)
             throw new InvalidOperationException("Cannot render a node that has a parent or is not a root node.");
 
+        // Update styles.
+        ComputeStyle();
+
+        // Reflow to update bounding boxes.
         Reflow(position);
+
+        // Draw.
         Draw(drawList);
     }
 

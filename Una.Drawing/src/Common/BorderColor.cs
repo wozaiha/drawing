@@ -1,59 +1,14 @@
-﻿using System;
+﻿/* Una.Drawing                                                 ____ ___
+ *   A declarative drawing library for FFXIV.                 |    |   \____ _____        ____                _
+ *                                                            |    |   /    \\__  \      |    \ ___ ___ _ _ _|_|___ ___
+ * By Una. Licensed under AGPL-3.                             |    |  |   |  \/ __ \_    |  |  |  _| .'| | | | |   | . |
+ * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
+ * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 namespace Una.Drawing;
 
-public class BorderColor(Color? top = null, Color? right = null, Color? bottom = null, Color? left = null)
+public record struct BorderColor(Color? Top = null, Color? Right = null, Color? Bottom = null, Color? Left = null)
 {
-    internal Action? OnChanged;
-
-    /// <summary>
-    /// The size of the top edge in pixels.
-    /// </summary>
-    public Color? Top {
-        get => top;
-        set {
-            if (top == value) return;
-            top = value;
-            OnChanged?.Invoke();
-        }
-    }
-
-    /// <summary>
-    /// The size of the right edge in pixels.
-    /// </summary>
-    public Color? Right {
-        get => right;
-        set {
-            if (right == value) return;
-            right = value;
-            OnChanged?.Invoke();
-        }
-    }
-
-    /// <summary>
-    /// The size of the bottom edge in pixels.
-    /// </summary>
-    public Color? Bottom {
-        get => bottom;
-        set {
-            if (bottom == value) return;
-            bottom = value;
-            OnChanged?.Invoke();
-        }
-    }
-
-    /// <summary>
-    /// The size of the left edge in pixels.
-    /// </summary>
-    public Color? Left {
-        get => left;
-        set {
-            if (left == value) return;
-            left = value;
-            OnChanged?.Invoke();
-        }
-    }
-
     public BorderColor(Color? all) : this(all, all, all, all) { }
 
     public BorderColor(Color? topRight, Color? bottomLeft) : this(topRight, topRight, bottomLeft, bottomLeft) { }

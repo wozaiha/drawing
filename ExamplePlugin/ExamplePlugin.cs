@@ -16,7 +16,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
     private readonly Renderer                  _renderer;
     private readonly Dictionary<string, ITest> _tests = [];
 
-    private string _activeTest = "Basic";
+    private string _activeTest = "Text";
 
     public ExamplePlugin(IPluginLog logger, DalamudPluginInterface plugin)
     {
@@ -48,7 +48,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
 
     private void OnDraw()
     {
-        ImGui.SetNextWindowSize(new(200, 56), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new(600, 84), ImGuiCond.Always);
         ImGui.SetNextWindowPos(new(10, 10));
         ImGui.Begin("UnaDrawingTestSuite");
 
@@ -65,6 +65,15 @@ public sealed class ExamplePlugin : IDalamudPlugin
             }
 
             ImGui.EndCombo();
+        }
+
+        ImGui.SetCursorPos(new(10, 56));
+
+        foreach (var test in _tests) {
+            if (ImGui.Button(test.Key)) {
+                _activeTest = test.Key;
+            }
+            ImGui.SameLine();
         }
 
         ImGui.End();

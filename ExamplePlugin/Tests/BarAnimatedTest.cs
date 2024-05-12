@@ -4,9 +4,9 @@ using Una.Drawing;
 
 namespace ExamplePlugin.Tests;
 
-public class BarTest : ITest
+public class BarAnimatedTest : ITest
 {
-    public string Name => "Bar";
+    public string Name => "Bar (Animated)";
 
     private readonly Node _node = new() {
         Style = new() {
@@ -14,8 +14,8 @@ public class BarTest : ITest
             Size               = new(1920, 32),
             BackgroundColor    = new(0xFF2A2A2A),
             BackgroundGradient = GradientColor.Vertical(new(0xFF2F2F2F), new(0xFF1A1A1A)),
-            BorderColor        = new(top: new(0xFF4F4F4F)),
-            BorderWidth        = new(top: 1),
+            BorderColor        = new(Top: new(0xFF4F4F4F)),
+            BorderWidth        = new() { Top = 1 },
         },
         ChildNodes = [
             new() {
@@ -25,17 +25,16 @@ public class BarTest : ITest
                     Flow    = Flow.Horizontal,
                     Size    = new(0, 0),
                     Gap     = 6,
-                    Padding = new(left: 6),
+                    Padding = new() { Left = 6 },
                 }
             },
             new() {
                 Id = "Center",
                 Style = new() {
-                    Anchor  = Anchor.MiddleCenter,
-                    Flow    = Flow.Horizontal,
-                    Size    = new(0, 0),
-                    Gap     = 6,
-                    Padding = new(left: 6),
+                    Anchor = Anchor.MiddleCenter,
+                    Flow   = Flow.Horizontal,
+                    Size   = new(0, 0),
+                    Gap    = 6,
                 }
             },
             new() {
@@ -45,13 +44,13 @@ public class BarTest : ITest
                     Flow    = Flow.Horizontal,
                     Size    = new(0, 0),
                     Gap     = 6,
-                    Padding = new(right: 6),
+                    Padding = new() { Right = 6 },
                 }
             }
         ]
     };
 
-    public BarTest()
+    public BarAnimatedTest()
     {
         Left.AppendChild(CreateBox("Left1",  "Button"));
         Left.AppendChild(CreateBox("Left2",  "Button"));
@@ -90,15 +89,15 @@ public class BarTest : ITest
         _frameCount += ImGui.GetIO().DeltaTime;
 
         int val = (int)MathF.Abs(MathF.Sin(_frameCount * 0.25f) * 100) + 26;
-        Left.QuerySelector("Left3")!.Style.Size.Width = val;
+        Left.QuerySelector("Left3")!.Style.Size = new(val, 26);
 
         int val2 = (int)MathF.Abs(MathF.Sin((_frameCount + 64) * 0.66f) * 100) + 32;
-        Center.QuerySelector("Center2")!.Style.Size.Width = val2;
+        Center.QuerySelector("Center2")!.Style.Size = new(val2, 26);
 
         int val3 = (int)MathF.Abs(MathF.Sin((_frameCount + 64) * 0.9f) * 100) + 32;
-        Right.QuerySelector("Right1")!.Style.Size.Width = val3;
+        Right.QuerySelector("Right1")!.Style.Size = new(val3, 26);
         int val4 = (int)MathF.Abs(MathF.Sin((_frameCount + 87) * 0.75f) * 100) + 32;
-        Right.QuerySelector("Right6")!.Style.Size.Width = val4;
+        Right.QuerySelector("Right6")!.Style.Size = new(val4, 26);
     }
 
     private Node Left   => _node.QuerySelector("Left")!;
@@ -112,7 +111,7 @@ public class BarTest : ITest
             NodeValue = label,
             Style = new() {
                 Anchor             = anchor ?? Anchor.TopLeft,
-                Size               = new(26, 26),
+                Size               = new(0, 26),
                 Padding            = new(0, 6),
                 BackgroundColor    = new(0xC01A1A1A),
                 BorderColor        = new(new(0xFF787A7A)),
@@ -120,6 +119,7 @@ public class BarTest : ITest
                 BorderRadius       = 5,
                 BorderInset        = 2,
                 BackgroundGradient = GradientColor.Vertical(new(0xC02F2A2A), null, 5),
+                TextAlign          = Anchor.MiddleCenter
             }
         };
     }

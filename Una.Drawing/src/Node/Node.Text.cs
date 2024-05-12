@@ -5,6 +5,7 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using SkiaSharp;
@@ -49,26 +50,30 @@ public partial class Node
 
         NodeValueLines.Clear();
         _textCachedNodeValue = _nodeValue;
-        _textCachedWordWrap  = _style.WordWrap;
-        _textCachedPadding   = _style.Padding;
-        _textCachedFontName  = _style.Font;
-        _textCachedFontSize  = _style.FontSize;
+        _textCachedWordWrap  = ComputedStyle.WordWrap;
+        _textCachedPadding   = ComputedStyle.Padding;
+        _textCachedFontName  = ComputedStyle.Font;
+        _textCachedFontSize  = ComputedStyle.FontSize;
 
-        SKTypeface    tf    = TypefaceRegistry.Get(_style.Font);
-        using SKFont  font  = new(tf, _style.FontSize);
+        SKTypeface    tf    = TypefaceRegistry.Get(ComputedStyle.Font);
+        using SKFont  font  = new(tf, ComputedStyle.FontSize);
         using SKPaint paint = new();
 
-        if (_style.WordWrap == false || Style.Size.IsAutoWidth) {
-            NodeValueSize  = new(font.MeasureText(NodeValue, paint), font.Metrics.XHeight);
+        if (ComputedStyle.WordWrap == false || ComputedStyle.Size.IsAutoWidth) {
+            NodeValueSize  = new(font.MeasureText(NodeValue, paint), font.Spacing);
             NodeValueLines = [_nodeValue!];
-            return new((int)NodeValueSize.X, (int)NodeValueSize.Y);
+
+            return new(
+                (int)NodeValueSize.X,
+                (int)NodeValueSize.Y
+            );
         }
 
         List<string> lines = [];
         List<string> words = [];
 
         var lineWidth = 0f;
-        var maxWidth  = (float)(Style.Size.Width - Style.Padding.HorizontalSize);
+        var maxWidth  = (float)(ComputedStyle.Size.Width - ComputedStyle.Padding.HorizontalSize);
 
         foreach (string word in NodeValue!.Split(' ')) {
             string wordWithSpace = word + " ";
@@ -92,9 +97,16 @@ public partial class Node
         }
 
         NodeValueLines = lines;
-        NodeValueSize  = new(maxWidth, lines.Count * (font.Spacing * _style.LineHeight));
 
-        return new((int)NodeValueSize.X, (int)NodeValueSize.Y);
+        NodeValueSize = new(
+            maxWidth,
+            font.Spacing + Math.Max(0, font.Spacing * (lines.Count - 1))
+        );
+
+        return new(
+            (int)NodeValueSize.X,
+            (int)NodeValueSize.Y
+        );
     }
 
     /// <summary>
@@ -103,7 +115,7 @@ public partial class Node
     /// </summary>
     private bool MustRecomputeNodeValue()
     {
-        // if (_textCachedFontName != Style.Font && _textCachedFontSize != Style.FontSize) {
+        // if (_textCachedFontName != ComputedStyle.Font && _textCachedFontSize != ComputedStyle.FontSize) {
         //     || _textCachedGlyphSize == Vector2.Zero) {
         //     _textCachedFontHandle = fontPtr.NativePtr;
         //     _textCachedGlyphSize  = ImGui.CalcTextSize("W");
@@ -116,12 +128,12 @@ public partial class Node
 
         return _nodeValue != null
             && (
-                _textCachedFontName != _style.Font
-                || _textCachedFontSize != _style.FontSize
+                _textCachedFontName != ComputedStyle.Font
+                || _textCachedFontSize != ComputedStyle.FontSize
                 || _textCachedNodeValue != _nodeValue
                 || NodeValueSize == Vector2.Zero
-                || _textCachedWordWrap != _style.WordWrap
-                || _textCachedPadding != _style.Padding
+                || _textCachedWordWrap != ComputedStyle.WordWrap
+                || _textCachedPadding != ComputedStyle.Padding
             );
     }
 }

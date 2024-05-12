@@ -79,8 +79,10 @@ public sealed class Renderer : IDisposable
     /// <summary>
     /// Creates a texture for the given node.
     /// </summary>
-    internal unsafe IDalamudTextureWrap CreateTexture(Node node)
+    internal unsafe IDalamudTextureWrap? CreateTexture(Node node)
     {
+        if (node.Width == 0 || node.Height == 0) return null;
+
         using SKSurface skSurface = SKSurface.Create(new SKImageInfo(node.Width, node.Height));
         using SKCanvas  skCanvas  = skSurface.Canvas;
 

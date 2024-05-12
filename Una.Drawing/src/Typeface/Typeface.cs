@@ -15,7 +15,7 @@ public readonly struct Typeface(string name, SKTypeface typeface)
     public string     Name       { get; } = name;
     public SKTypeface SkTypeface { get; } = typeface;
 
-    public static Typeface Default { get; } = new("monospace", SKTypeface.FromFamilyName("Consolas"));
+    public static Typeface Default { get; } = new("default", SKTypeface.FromFamilyName("Consolas"));
 
     public static Typeface FromFile(string name, string path) => new(name, SKTypeface.FromFile(path));
 

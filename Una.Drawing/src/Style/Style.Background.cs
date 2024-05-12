@@ -18,15 +18,7 @@ public partial class Style
     /// are defined, the gradient will be rendered on top of the background color.
     /// </para>
     /// </summary>
-    public Color? BackgroundColor {
-        get => _backgroundColor;
-        set {
-            if (_backgroundColor == value) return;
-
-            _backgroundColor = value;
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
+    public Color? BackgroundColor { get; set; }
 
     /// <summary>
     /// <para>
@@ -37,16 +29,5 @@ public partial class Style
     /// are defined, the gradient will be rendered on top of the background color.
     /// </para>
     /// </summary>
-    public GradientColor? BackgroundGradient {
-        get => _backgroundGradient;
-        set {
-            if (_backgroundGradient == value) return;
-
-            _backgroundGradient = value;
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
-
-    private Color?         _backgroundColor;
-    private GradientColor? _backgroundGradient;
+    public GradientColor? BackgroundGradient { get; set; }
 }

@@ -16,8 +16,8 @@ internal class GradientGenerator : IGenerator
 
     public void Generate(SKCanvas canvas, Node node)
     {
-        Style style = node.Style;
-        Size  size  = node.Bounds.PaddingSize;
+        ComputedStyle style = node.ComputedStyle;
+        Size          size  = node.Bounds.PaddingSize;
 
         if (null == style.BackgroundGradient || style.BackgroundGradient.IsEmpty) return;
 
@@ -30,12 +30,12 @@ internal class GradientGenerator : IGenerator
         paint.Style       = SKPaintStyle.Fill;
         paint.Shader      = CreateShader(size, style.BackgroundGradient);
 
-        if (style.BorderRadius is null or 0) {
+        if (style.BorderRadius == 0) {
             canvas.DrawRect(rect, paint);
             return;
         }
 
-        int cornerRadius = Math.Max(0, (style.BorderRadius ?? 0) - (style.BorderInset ?? 0));
+        int cornerRadius = Math.Max(0, style.BorderRadius - style.BorderInset);
         canvas.DrawRoundRect(rect, cornerRadius, cornerRadius, paint);
     }
 

@@ -51,7 +51,7 @@ public partial class Style
     /// not explicitly defined.
     /// </para>
     /// </remarks>
-    public int OutlineSize { get; set; }
+    public int? OutlineSize { get; set; }
 
     /// <summary>
     /// Defines which font to use when rendering text content. This property
@@ -67,64 +67,24 @@ public partial class Style
     /// not explicitly defined.
     /// </para>
     /// </remarks>
-    public string? Font {
-        get => _font;
-        set {
-            if (_font == value) return;
-
-            _font = value;
-            OnLayoutPropertyChanged?.Invoke();
-        }
-    }
-
-    private string? _font;
+    public string? Font { get; set; }
 
     /// <summary>
     /// Specifies the size of the font used to render text contents.
     /// </summary>
-    public float FontSize {
-        get => _fontSize;
-        set {
-            if (_fontSize == value) return;
-
-            _fontSize = value;
-            OnLayoutPropertyChanged?.Invoke();
-        }
-    }
-
-    private float _fontSize = 14;
+    public float? FontSize { get; set; }
 
     /// <summary>
     /// Defines the line height of multi-line text. This value is a multiplier
-    /// of the height of the font. Defaults to 1.0
+    /// of the height of the font.
     /// </summary>
-    public float LineHeight {
-        get => _lineHeight;
-        set {
-            if (_lineHeight == value) return;
-
-            _lineHeight = value;
-            OnLayoutPropertyChanged?.Invoke();
-        }
-    }
-
-    private float _lineHeight = 1f;
+    public float? LineHeight { get; set; }
 
     /// <summary>
     /// Specifies the alignment of text contents within the bounds of the node.
     /// Defaults to <see cref="Anchor.TopLeft"/>.
     /// </summary>
-    public Anchor TextAlign {
-        get => _textAlign;
-        set {
-            if (_textAlign == value) return;
-
-            _textAlign = value;
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
-
-    private Anchor _textAlign = Anchor.TopLeft;
+    public Anchor? TextAlign { get; set; }
 
     /// <summary>
     /// Defines the offset of the text content from the top-left corner of the
@@ -135,17 +95,7 @@ public partial class Style
     /// node, but is purely a visual offset that can be used if some fonts do
     /// not align correctly.
     /// </remarks>
-    public Vector2 TextOffset {
-        get => _textOffset;
-        set {
-            if (_textOffset == value) return;
-
-            _textOffset = value;
-            OnPaintPropertyChanged?.Invoke();
-        }
-    }
-
-    private Vector2 _textOffset = Vector2.Zero;
+    public Vector2? TextOffset { get; set; }
 
     /// <summary>
     /// <para>
@@ -162,30 +112,15 @@ public partial class Style
     /// Modifying this property will trigger a reflow of the layout. This is a
     /// computationally expensive operation and should be done sparingly.
     /// </remarks>
-    public bool WordWrap {
-        get => _wordWrap;
-        set {
-            if (_wordWrap == value) return;
-
-            _wordWrap = value;
-            OnLayoutPropertyChanged?.Invoke();
-        }
-    }
-
-    private bool _wordWrap = false;
+    public bool? WordWrap { get; set; }
 
     /// <summary>
-    /// Inherits the text properties from the specified style.
+    /// Specifies the blur radius of the shadow cast by the text content.
     /// </summary>
-    /// <param name="from">The source style to inherit properties from.</param>
-    private void InheritTextProperties(Style from)
-    {
-        Font         ??= from._font;
-        Color        ??= from.Color;
-        OutlineColor ??= from.OutlineColor;
-        TextAlign    =   TextAlign == Anchor.TopLeft ? from.TextAlign : TextAlign;
-        OutlineSize  =   OutlineSize == 0 ? from.OutlineSize : OutlineSize;
-        FontSize     =   FontSize == 0 ? from.FontSize : FontSize;
-        LineHeight   =   LineHeight == 0 ? from.LineHeight : LineHeight;
-    }
+    public float? TextShadowSize { get; set; }
+
+    /// <summary>
+    /// Defines the color of the shadow cast by the text content.
+    /// </summary>
+    public Color? TextShadowColor { get; set; }
 }
