@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using Dalamud.Interface.Internal;
 using ImGuiNET;
@@ -37,7 +36,7 @@ public partial class Node
         NodeSnapshot snapshot = CreateSnapshot();
 
         if (_texture is null || NodeSnapshot.AreEqual(ref snapshot, ref _snapshot) is false) {
-            _texture  = Renderer.Instance.CreateTexture(this);
+            _texture  = Renderer.CreateTexture(this);
             _snapshot = snapshot;
         }
 
@@ -61,14 +60,12 @@ public partial class Node
         return new() {
             Width       = OuterWidth,
             Height      = OuterHeight,
-            ValueWidth  = NodeValueSize.X,
-            ValueHeight = NodeValueSize.Y,
+            // ValueWidth  = NodeValueMeasurement.Size.Width,
+            // ValueHeight = NodeValueMeasurement.Size.Height,
             LayoutStyle = ComputedStyle.CommittedLayoutStyle,
             PaintStyle  = ComputedStyle.CommittedPaintStyle,
         };
     }
-
-    private void Test<T>(in T x) where T : unmanaged { }
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -76,12 +73,12 @@ internal struct NodeSnapshot
 {
     internal int         Width;
     internal int         Height;
-    internal float       ValueWidth;
-    internal float       ValueHeight;
+    internal int         ValueWidth;
+    internal int         ValueHeight;
     internal LayoutStyle LayoutStyle;
     internal PaintStyle  PaintStyle;
 
-    public static bool AreEqual<T>(ref readonly T a, ref readonly T b) where T : unmanaged
+    internal static bool AreEqual<T>(ref readonly T a, ref readonly T b) where T : unmanaged
     {
         return MemoryMarshal
             .AsBytes(new ReadOnlySpan<T>(in a))

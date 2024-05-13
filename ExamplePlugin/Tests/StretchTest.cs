@@ -20,9 +20,9 @@ public class StretchTest : ITest
             Padding         = new(4),
         },
         ChildNodes = [
-            CreateItem("Item1", "Item 1"),
-            CreateItem("Item2", "Another Item 2"),
-            CreateItem("Item3", "Some other Item 3"),
+            CreateItem("Item1", "JA: グッデイワールド"),
+            CreateItem("Item2", "CN: 好日子世界"),
+            CreateItem("Item3", "KR: 굿데이월드"),
             CreateItem("Item4", "Item 4"),
             CreateItem("Item5", "Short"),
         ]
@@ -34,11 +34,11 @@ public class StretchTest : ITest
     {
         _time += 1;
 
-        if (_time == 200) {
+        if (_time == 600) {
             _node.QuerySelector("Item4")!.NodeValue = "Now this text is much longer!";
         }
 
-        if (_time == 400) {
+        if (_time == 1200) {
             _node.QuerySelector("Item4")!.NodeValue = "Yes";
             _time                                   = 0;
         }
@@ -55,9 +55,15 @@ public class StretchTest : ITest
                 Stretch         = true,
                 Size            = new(0, 32),
                 Padding         = new(0, 8),
+                Font            = 1,
+                FontSize        = 12,
                 TextAlign       = Anchor.MiddleCenter,
                 BackgroundColor = new(0x80008080),
                 BorderRadius    = 4,
+                TextShadowColor = new(0xFF000000),
+                TextShadowSize  = 2,
+                OutlineColor    = new(0xFF000000),
+                OutlineSize     = 1,
             }
         };
     }

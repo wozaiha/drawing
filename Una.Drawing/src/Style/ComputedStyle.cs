@@ -56,10 +56,10 @@ internal class ComputedStyle
     internal Color Color { get; set; } = new(0xFFC0C0C0);
 
     /// <inheritdoc cref="Style.Font"/>
-    internal string Font { get; set; } = "default";
+    internal uint Font { get; set; }
 
     /// <inheritdoc cref="Style.FontSize"/>
-    internal float FontSize { get; set; }
+    internal int FontSize { get; set; }
 
     /// <inheritdoc cref="Style.LineHeight"/>
     internal float LineHeight { get; set; }
@@ -175,7 +175,7 @@ internal class ComputedStyle
         Padding            = new();
         Margin             = new();
         Color              = new(0xFFC0C0C0);
-        Font               = "default";
+        Font               = 0;
         FontSize           = 12;
         LineHeight         = 1.2f;
         WordWrap           = false;
@@ -223,6 +223,7 @@ internal class ComputedStyle
             MarginBottom  = Margin.Bottom,
             MarginLeft    = Margin.Left,
             WordWrap      = WordWrap,
+            Font          = Font,
             FontSize      = FontSize,
             LineHeight    = LineHeight
         };
@@ -307,7 +308,8 @@ internal struct LayoutStyle
     internal int                MarginBottom;
     internal int                MarginLeft;
     internal bool               WordWrap;
-    internal float              FontSize;
+    internal uint               Font;
+    internal int                FontSize;
     internal float              LineHeight;
 }
 

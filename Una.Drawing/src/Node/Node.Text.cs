@@ -5,10 +5,7 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using SkiaSharp;
+using Una.Drawing.Font;
 
 namespace Una.Drawing;
 
@@ -16,12 +13,11 @@ public partial class Node
 {
     private EdgeSize _textCachedPadding = new();
     private string?  _textCachedNodeValue;
-    private string?  _textCachedFontName;
+    private uint?    _textCachedFontId;
     private float?   _textCachedFontSize;
     private bool?    _textCachedWordWrap;
 
-    internal Vector2      NodeValueSize  { get; private set; } = Vector2.Zero;
-    internal List<string> NodeValueLines { get; private set; } = [];
+    internal MeasuredText? NodeValueMeasurement { get; private set; }
 
     /// <summary>
     /// <para>
@@ -40,75 +36,31 @@ public partial class Node
     private Size ComputeContentSizeFromText()
     {
         if (string.IsNullOrEmpty(_nodeValue)) {
-            if (NodeValueLines.Count > 0) NodeValueLines.Clear();
             return new(0, 0);
         }
 
         if (false == MustRecomputeNodeValue()) {
-            return new((int)NodeValueSize.X, (int)NodeValueSize.Y);
+            return NodeValueMeasurement?.Size ?? new();
         }
 
         _texture = null;
 
-        NodeValueLines.Clear();
         _textCachedNodeValue = _nodeValue;
         _textCachedWordWrap  = ComputedStyle.WordWrap;
         _textCachedPadding   = ComputedStyle.Padding;
-        _textCachedFontName  = ComputedStyle.Font;
+        _textCachedFontId    = ComputedStyle.Font;
         _textCachedFontSize  = ComputedStyle.FontSize;
 
-        SKTypeface    tf    = TypefaceRegistry.Get(ComputedStyle.Font);
-        using SKFont  font  = new(tf, ComputedStyle.FontSize);
-        using SKPaint paint = new();
+        var font = FontRegistry.Typefaces[ComputedStyle.Font];
 
-        if (ComputedStyle.WordWrap == false || ComputedStyle.Size.IsAutoWidth) {
-            NodeValueSize  = new(font.MeasureText(NodeValue, paint), font.Spacing);
-            NodeValueLines = [_nodeValue!];
-
-            return new(
-                (int)NodeValueSize.X,
-                (int)NodeValueSize.Y
-            );
-        }
-
-        List<string> lines = [];
-        List<string> words = [];
-
-        var lineWidth = 0f;
-        var maxWidth  = (float)(ComputedStyle.Size.Width - ComputedStyle.Padding.HorizontalSize);
-
-        foreach (string word in NodeValue!.Split(' ')) {
-            string wordWithSpace = word + " ";
-            float  wordWidth     = font.MeasureText(wordWithSpace, paint);
-
-            if (lineWidth + wordWidth > maxWidth) {
-                if (words.Count > 0) {
-                    lines.Add(string.Join(" ", words));
-                    words.Clear();
-                    lineWidth = 0f;
-                }
-            }
-
-            words.Add(word);
-            lineWidth += wordWidth;
-        }
-
-        if (words.Count > 0) {
-            lines.Add(string.Join(" ", words));
-            words.Clear();
-        }
-
-        NodeValueLines = lines;
-
-        NodeValueSize = new(
-            maxWidth,
-            font.Spacing + Math.Max(0, font.Spacing * (lines.Count - 1))
+        NodeValueMeasurement = font.MeasureText(
+            _nodeValue,
+            ComputedStyle.FontSize,
+            ComputedStyle.Size.Width,
+            ComputedStyle.WordWrap
         );
 
-        return new(
-            (int)NodeValueSize.X,
-            (int)NodeValueSize.Y
-        );
+        return NodeValueMeasurement.Value.Size;
     }
 
     /// <summary>
@@ -117,23 +69,16 @@ public partial class Node
     /// </summary>
     private bool MustRecomputeNodeValue()
     {
-        // if (_textCachedFontName != ComputedStyle.Font && _textCachedFontSize != ComputedStyle.FontSize) {
-        //     || _textCachedGlyphSize == Vector2.Zero) {
-        //     _textCachedFontHandle = fontPtr.NativePtr;
-        //     _textCachedGlyphSize  = ImGui.CalcTextSize("W");
-        // }
-
-        if (_nodeValue == null && NodeValueSize != Vector2.Zero) {
-            NodeValueSize = Vector2.Zero;
+        if (_nodeValue == null && !(NodeValueMeasurement?.Size.IsZero ?? false)) {
+            NodeValueMeasurement = new();
             return false;
         }
 
         return _nodeValue != null
             && (
-                _textCachedFontName != ComputedStyle.Font
+                _textCachedFontId != ComputedStyle.Font
                 || _textCachedFontSize != ComputedStyle.FontSize
                 || _textCachedNodeValue != _nodeValue
-                || NodeValueSize == Vector2.Zero
                 || _textCachedWordWrap != ComputedStyle.WordWrap
                 || _textCachedPadding != ComputedStyle.Padding
             );

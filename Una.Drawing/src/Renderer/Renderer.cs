@@ -12,54 +12,22 @@ using System.Linq;
 using System.Reflection;
 using Dalamud.Interface;
 using Dalamud.Interface.Internal;
-using Dalamud.Plugin;
 using SkiaSharp;
 using Una.Drawing.Generator;
 
 namespace Una.Drawing;
 
-public sealed class Renderer : IDisposable
+internal static class Renderer
 {
-    private static Renderer? _instance;
+    private static List<IGenerator> _generators = [];
 
-    private readonly UiBuilder        _uiBuilder;
-    private readonly List<IGenerator> _generators;
+    private static UiBuilder _uiBuilder = null!;
+    private static SKSurface _skSurface = null!;
+    private static SKCanvas  _skCanvas  = null!;
 
-    /// <summary>
-    /// <para>
-    /// Creates an instance of the node renderer that is responsible for
-    /// rendering the graphical aspects of individual nodes.
-    /// </para>
-    /// <para>
-    /// The returned instance MUST be disposed of when the plugin is being
-    /// disposed of.
-    /// </para>
-    /// </summary>
-    /// <param name="pluginInterface"></param>
-    /// <returns></returns>
-    public static Renderer Create(DalamudPluginInterface pluginInterface)
+    internal static void Setup(UiBuilder uiBuilder)
     {
-        return _instance ??= new(pluginInterface);
-    }
-
-    /// <summary>
-    /// Returns true if an instance of the renderer has been created.
-    /// </summary>
-    internal static bool HasInstance => _instance != null;
-
-    /// <summary>
-    /// Returns the instance of the renderer.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">If no instance was created.</exception>
-    internal static Renderer Instance =>
-        _instance ?? throw new InvalidOperationException("Renderer has not been initialized.");
-
-    private readonly SKSurface _skSurface;
-    private readonly SKCanvas  _skCanvas;
-
-    internal Renderer(DalamudPluginInterface plugin)
-    {
-        _uiBuilder = plugin.UiBuilder;
+        _uiBuilder = uiBuilder;
 
         // Collect generators.
         List<Type> generatorTypes = Assembly
@@ -80,8 +48,7 @@ public sealed class Renderer : IDisposable
         _skCanvas  = _skSurface.Canvas;
     }
 
-    /// <inheritdoc/>
-    public void Dispose()
+    internal static void Dispose()
     {
         _skCanvas.Dispose();
         _skSurface.Dispose();
@@ -90,7 +57,7 @@ public sealed class Renderer : IDisposable
     /// <summary>
     /// Creates a texture for the given node.
     /// </summary>
-    internal unsafe IDalamudTextureWrap? CreateTexture(Node node)
+    internal static unsafe IDalamudTextureWrap? CreateTexture(Node node)
     {
         if (node.Width == 0 || node.Height == 0) return null;
 

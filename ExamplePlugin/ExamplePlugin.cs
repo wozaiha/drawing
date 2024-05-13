@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using Dalamud;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ExamplePlugin.Tests;
@@ -15,7 +17,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
     private readonly DalamudPluginInterface    _plugin;
     private readonly Dictionary<string, ITest> _tests = [];
 
-    private string _activeTest = "Icons";
+    private string _activeTest = "Stretch";
 
     public ExamplePlugin(IPluginLog logger, DalamudPluginInterface plugin)
     {
@@ -25,6 +27,14 @@ public sealed class ExamplePlugin : IDalamudPlugin
         _plugin       = plugin;
 
         // Node.DrawDebugInfo = true;
+
+        var file = new FileInfo(Path.Combine(_plugin.DalamudAssetDirectory.FullName, "UIRes", "NotoSansKR-Regular.otf"));
+
+        Logger.Log(file.FullName);
+        Logger.Log($"File exists? {file.Exists}");
+
+        FontRegistry.SetNativeFontFamily(1, file);
+
 
         var tests = Assembly
             .GetExecutingAssembly()

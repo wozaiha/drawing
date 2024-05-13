@@ -17,10 +17,6 @@ public partial class Style
     /// <summary>
     /// Defines the color representation of text contents.
     /// </summary>
-    /// <remarks>
-    /// This property is implicitly inherited from the parent style if it is
-    /// not explicitly defined.
-    /// </remarks>
     public Color? Color { get; set; }
 
     /// <summary>
@@ -30,10 +26,6 @@ public partial class Style
     /// <para>
     /// This property does not have an effect if <see cref="OutlineSize"/> is
     /// left at 0.
-    /// </para>
-    /// <para>
-    /// This property is implicitly inherited from the parent style if it is
-    /// not explicitly defined.
     /// </para>
     /// </remarks>
     public Color? OutlineColor { get; set; }
@@ -46,33 +38,26 @@ public partial class Style
     /// This property has no effect if <see cref="OutlineColor"/> is left
     /// undefined.
     /// </para>
-    /// <para>
-    /// This property is implicitly inherited from the parent style if it is
-    /// not explicitly defined.
-    /// </para>
     /// </remarks>
     public int? OutlineSize { get; set; }
 
     /// <summary>
     /// Defines which font to use when rendering text content. This property
-    /// references the <see cref="Typeface.Name"/> of a registered typeface.
+    /// references a font by its ID which has been registered using the
+    /// <see cref="FontRegistry"/>.
     /// </summary>
     /// <remarks>
     /// <para>
     /// Modifying this property will trigger a reflow of the layout. This is a
     /// computationally expensive operation and should be done sparingly.
     /// </para>
-    /// <para>
-    /// This property is implicitly inherited from the parent style if it is
-    /// not explicitly defined.
-    /// </para>
     /// </remarks>
-    public string? Font { get; set; }
+    public uint? Font { get; set; }
 
     /// <summary>
     /// Specifies the size of the font used to render text contents.
     /// </summary>
-    public float? FontSize { get; set; }
+    public int? FontSize { get; set; }
 
     /// <summary>
     /// Defines the line height of multi-line text. This value is a multiplier

@@ -104,8 +104,6 @@ public partial class Node
             var width  = 0;
             var height = 0;
 
-            if (Id == "Menu") Logger.Log($"Child count: {childNodes.Count}");
-
             foreach (Node childNode in childNodes) {
                 if (!childNode.ComputedStyle.IsVisible) continue;
 

@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using SkiaSharp;
+using Una.Drawing.Font;
 
 namespace Una.Drawing.Generator;
 
@@ -17,44 +18,44 @@ internal class TextGenerator : IGenerator
     /// <inheritdoc/>
     public void Generate(SKCanvas canvas, Node node)
     {
-        if (string.IsNullOrWhiteSpace(node.NodeValue) || node.NodeValueLines.Count == 0) return;
+        MeasuredText? measurement = node.NodeValueMeasurement;
 
-        using SKPaint paint = new();
-        using SKFont  font  = new();
+        if (null == measurement || string.IsNullOrWhiteSpace(node.NodeValue) || measurement.Value.LineCount == 0)
+            return;
 
-        font.Typeface = TypefaceRegistry.Get(node.ComputedStyle.Font);
-        font.Size     = node.ComputedStyle.FontSize;
-        font.Hinting  = SKFontHinting.Slight;
-        font.Edging   = SKFontEdging.Antialias;
+        Size  size       = node.NodeValueMeasurement!.Value.Size;
+        IFont font       = FontRegistry.Typefaces[node.ComputedStyle.Font];
+        int   fontSize   = node.ComputedStyle.FontSize;
+        float lineHeight = font.GetLineHeight(fontSize);
 
-        paint.IsAntialias = true;
-
-        float y = (font.Spacing * 1.5f) + node.ComputedStyle.TextOffset.Y;
+        float y = (font.GetLineHeight(fontSize) * 1.5f) + node.ComputedStyle.TextOffset.Y + 1;
         float x = node.ComputedStyle.TextOffset.X;
 
-        if (node.ComputedStyle.TextAlign.IsTop) y    -= 1;
-        if (node.ComputedStyle.TextAlign.IsLeft) x   += node.ComputedStyle.Padding.Left;
-        if (node.ComputedStyle.TextAlign.IsRight) x  += -node.ComputedStyle.Padding.Right;
+        if (node.ComputedStyle.TextAlign.IsTop) y   -= 1;
+        if (node.ComputedStyle.TextAlign.IsLeft) x  += node.ComputedStyle.Padding.Left;
+        if (node.ComputedStyle.TextAlign.IsRight) x += -node.ComputedStyle.Padding.Right;
 
         if (node.ComputedStyle.TextAlign.IsMiddle)
-            y += ((node.Bounds.PaddingSize.Height - node.NodeValueSize.Y) / 2) - (font.Spacing / 1.5f) - 2;
+            y += ((node.Bounds.PaddingSize.Height - size.Height) / 2) - (lineHeight / 1.5f) - 2;
 
-        if (node.ComputedStyle.TextAlign.IsBottom) y = (node.Bounds.PaddingSize.Height - node.NodeValueSize.Y) + 1;
+        if (node.ComputedStyle.TextAlign.IsBottom) y = (node.Bounds.PaddingSize.Height - size.Height) + 1;
 
-        foreach (string line in node.NodeValueLines) {
-            PrintLine(canvas, paint, font, node, line, x, y);
-            y += font.Spacing;
+        foreach (string line in node.NodeValueMeasurement!.Value.Lines) {
+            PrintLine(canvas, font, node, line, x, y);
+            y += lineHeight;
         }
     }
 
-    private static void PrintLine(SKCanvas canvas, SKPaint paint, SKFont font, Node node, string line, float x, float y)
+    private static void PrintLine(SKCanvas canvas, IFont font, Node node, string line, float x, float y)
     {
-        float lineWidth = font.MeasureText(line, paint);
+        MeasuredText measurement = font.MeasureText(line, node.ComputedStyle.FontSize);
+        float        lineWidth   = measurement.Size.Width;
 
         if (node.ComputedStyle.TextAlign.IsCenter) x += (node.Bounds.PaddingSize.Width - lineWidth) / 2;
         if (node.ComputedStyle.TextAlign.IsRight) x  += node.Bounds.PaddingSize.Width - lineWidth;
 
-        SKPoint point = new(x, y);
+        using SKPaint paint = new();
+        SKPoint       point = new(x, y);
 
         if (node.ComputedStyle.OutlineSize > 0) {
             paint.ImageFilter = null;
@@ -62,7 +63,7 @@ internal class TextGenerator : IGenerator
             paint.Style       = SKPaintStyle.Stroke;
             paint.StrokeWidth = node.ComputedStyle.OutlineSize * 2;
             paint.MaskFilter  = SKMaskFilter.CreateBlur(SKBlurStyle.Solid, node.ComputedStyle.OutlineSize);
-            canvas.DrawText(line, point, font, paint);
+            font.DrawText(canvas, paint, point, node.ComputedStyle.FontSize, line);
         }
 
         if (node.ComputedStyle.TextShadowSize > 0) {
@@ -80,6 +81,6 @@ internal class TextGenerator : IGenerator
         paint.StrokeWidth = 0;
         paint.MaskFilter  = null;
 
-        canvas.DrawText(line, point, font, paint);
+        font.DrawText(canvas, paint, point, node.ComputedStyle.FontSize, line);
     }
 }

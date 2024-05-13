@@ -8,19 +8,17 @@
 using System.IO;
 using SkiaSharp;
 
-namespace Una.Drawing;
+namespace Una.Drawing.Font;
 
-public readonly struct Typeface(string name, SKTypeface typeface)
+internal class FontFactory
 {
-    public string     Name       { get; } = name;
-    public SKTypeface SkTypeface { get; } = typeface;
+    internal static IFont CreateFromFontFamily(string fontFamily)
+    {
+        return new FontNativeImpl(SKTypeface.FromFamilyName(fontFamily));
+    }
 
-    public static Typeface Default { get; } = new("default", SKTypeface.FromFamilyName("Consolas"));
-
-    public static Typeface FromFile(string name, string path) => new(name, SKTypeface.FromFile(path));
-
-    public static Typeface FromStream(string name, Stream stream) => new(name, SKTypeface.FromStream(stream));
-
-    public static Typeface FromBytes(string name, byte[] bytes) =>
-        new(name, SKTypeface.FromData(SKData.CreateCopy(bytes)));
+    internal static IFont CreateFromFontFile(FileInfo file)
+    {
+        return new FontNativeImpl(SKTypeface.FromFile(file.FullName));
+    }
 }

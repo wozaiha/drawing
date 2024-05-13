@@ -1,4 +1,12 @@
-﻿using Dalamud.IoC;
+﻿/* Una.Drawing                                                 ____ ___
+ *   A declarative drawing library for FFXIV.                 |    |   \____ _____        ____                _
+ *                                                            |    |   /    \\__  \      |    \ ___ ___ _ _ _|_|___ ___
+ * By Una. Licensed under AGPL-3.                             |    |  |   |  \/ __ \_    |  |  |  _| .'| | | | |   | . |
+ * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
+ * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
+
+using System.IO;
+using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 
@@ -6,8 +14,6 @@ namespace Una.Drawing;
 
 public class DrawingLib
 {
-    private static Renderer? _renderer = null;
-
     /// <summary>
     /// Setup the drawing library. Make sure to call this method in your plugin
     /// before using any of the drawing library's features.
@@ -16,7 +22,14 @@ public class DrawingLib
     {
         pluginInterface.Create<DalamudServices>();
 
-        _renderer = Renderer.Create(pluginInterface);
+        // Use the Noto Sans font that comes with Dalamud as the default font,
+        // as it supports a wide range of characters, including Japanese.
+        FontRegistry.SetNativeFontFamily(0, new FileInfo(Path.Combine(
+            pluginInterface.DalamudAssetDirectory.FullName,
+            "UIRes", "NotoSansKR-Regular.otf"
+        )));
+
+        Renderer.Setup(pluginInterface.UiBuilder);
     }
 
     /// <summary>
@@ -25,7 +38,8 @@ public class DrawingLib
     /// </summary>
     public static void Dispose()
     {
-        _renderer?.Dispose();
+        Renderer.Dispose();
+        FontRegistry.Dispose();
     }
 }
 

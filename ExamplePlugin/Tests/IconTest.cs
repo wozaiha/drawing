@@ -63,7 +63,7 @@ public class IconTest : ITest
                 Size         = new(0, 32),
                 TextAlign    = Anchor.MiddleLeft,
                 WordWrap     = false,
-                Font         = "default",
+                Font         = 1,
                 FontSize     = 14,
                 OutlineColor = new(0xFF000000),
                 OutlineSize  = 1,
