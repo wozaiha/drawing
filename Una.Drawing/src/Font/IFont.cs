@@ -25,6 +25,13 @@ public interface IFont
     internal void DrawText(SKCanvas canvas, SKPaint paint, SKPoint pos, int fontSize, string text);
 
     /// <summary>
+    /// Returns a <see cref="SKFontMetrics"/> object for the given font size.
+    /// </summary>
+    /// <param name="fontSize"></param>
+    /// <returns></returns>
+    internal SKFontMetrics GetMetrics(int fontSize);
+
+    /// <summary>
     /// Returns the height of a single line of text.
     /// </summary>
     internal float GetLineHeight(int fontSize);

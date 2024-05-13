@@ -121,8 +121,14 @@ public partial class Node
                 }
             }
 
-            if (ComputedStyle.Flow == Flow.Horizontal && width > 0) width -= ComputedStyle.Gap;
-            if (ComputedStyle.Flow == Flow.Vertical && height > 0) height -= ComputedStyle.Gap;
+            switch (ComputedStyle.Flow) {
+                case Flow.Horizontal when width > 0:
+                    width -= ComputedStyle.Gap;
+                    break;
+                case Flow.Vertical when height > 0:
+                    height -= ComputedStyle.Gap;
+                    break;
+            }
 
             result.Width  = Math.Max(result.Width,  width);
             result.Height = Math.Max(result.Height, height);
@@ -212,6 +218,8 @@ public partial class Node
             Node lastNode = childNodes.Last();
 
             foreach (Node childNode in childNodes) {
+                if (!childNode.IsVisible) continue;
+
                 var xOffset = 0;
                 var yOffset = 0;
 

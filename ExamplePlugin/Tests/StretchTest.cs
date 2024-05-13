@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Dalamud.Game.Text.SeStringHandling;
 using ImGuiNET;
 using Una.Drawing;
 
@@ -25,10 +25,28 @@ public class StretchTest : ITest
             CreateItem("Item3", "KR: 굿데이월드"),
             CreateItem("Item4", "Item 4"),
             CreateItem("Item5", "Short"),
+            CreateItem("Item6", "Foobar"),
+            CreateItem("Item7", "Another one with very large text!"),
+            CreateItem("Item8", null)
         ]
     };
 
     private double _time;
+
+    public StretchTest()
+    {
+        _node.QuerySelector("Item6")!.Style.IsVisible = false;
+
+        SeString str = new SeStringBuilder()
+            .AddUiForeground(28)
+            .AddText("SeString test with ")
+            .AddUiForegroundOff()
+            .AddIcon(BitmapFontIcon.IslandSanctuary)
+            .AddText(" a very nice icon. Neat stuff!")
+            .Build();
+
+        _node.QuerySelector("Item8")!.NodeValue = str;
+    }
 
     public void Render()
     {
@@ -36,17 +54,19 @@ public class StretchTest : ITest
 
         if (_time == 600) {
             _node.QuerySelector("Item4")!.NodeValue = "Now this text is much longer!";
+            _node.QuerySelector("Item6")!.Style.IsVisible = true;
         }
 
         if (_time == 1200) {
-            _node.QuerySelector("Item4")!.NodeValue = "Yes";
-            _time                                   = 0;
+            _node.QuerySelector("Item4")!.NodeValue       = "Yes";
+            _node.QuerySelector("Item6")!.Style.IsVisible = false;
+            _time                                         = 0;
         }
 
         _node.Render(ImGui.GetBackgroundDrawList(), new(100, 100));
     }
 
-    private static Node CreateItem(string id, string label)
+    private static Node CreateItem(string id, object? label)
     {
         return new() {
             Id        = id,
@@ -56,7 +76,7 @@ public class StretchTest : ITest
                 Size            = new(0, 32),
                 Padding         = new(0, 8),
                 Font            = 1,
-                FontSize        = 12,
+                FontSize        = 14,
                 TextAlign       = Anchor.MiddleCenter,
                 BackgroundColor = new(0x80008080),
                 BorderRadius    = 4,

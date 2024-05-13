@@ -9,6 +9,7 @@ using System.IO;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using Una.Drawing.Texture;
 
 namespace Una.Drawing;
 
@@ -29,6 +30,7 @@ public class DrawingLib
             "UIRes", "NotoSansKR-Regular.otf"
         )));
 
+        GfdIconRepository.Setup();
         Renderer.Setup(pluginInterface.UiBuilder);
     }
 
@@ -40,6 +42,7 @@ public class DrawingLib
     {
         Renderer.Dispose();
         FontRegistry.Dispose();
+        GfdIconRepository.Dispose();
     }
 }
 

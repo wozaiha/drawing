@@ -41,8 +41,6 @@ internal static class Renderer
             .OrderBy(g => g.RenderOrder)
             .ToList();
 
-        _generators.ForEach(g => Logger.Log($"Got generator: {g.GetType().Name}"));
-
         // Create the SKSurface and SKCanvas.
         _skSurface = SKSurface.Create(new SKImageInfo(4096, 4096));
         _skCanvas  = _skSurface.Canvas;

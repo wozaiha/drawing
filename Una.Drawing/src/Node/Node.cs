@@ -40,7 +40,7 @@ public partial class Node
     /// <summary>
     /// Defines the textual content of this node.
     /// </summary>
-    public string? NodeValue {
+    public object? NodeValue {
         get => _nodeValue;
         set {
             if (_nodeValue == value) return;
@@ -173,7 +173,7 @@ public partial class Node
     public event Action<string>? OnTagRemoved;
 
     private string? _id;
-    private string? _nodeValue;
+    private object? _nodeValue;
 
     private readonly ObservableCollection<string> _classList  = [];
     private readonly ObservableCollection<string> _tagsList   = [];

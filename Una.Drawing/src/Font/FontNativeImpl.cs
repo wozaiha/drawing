@@ -22,21 +22,21 @@ internal sealed class FontNativeImpl : IFont
     }
 
     /// <inheritdoc/>
-    public float GetLineHeight(int fontSize) => GetFont(fontSize).Spacing;
+    public float GetLineHeight(int fontSize) => (96 / 72) * GetFont(fontSize).Size;
 
     /// <inheritdoc/>
     public MeasuredText MeasureText(string text, int fontSize = 14, float? maxLineWidth = null, bool wordWrap = false)
     {
-        var maxWidth  = 0;
-        var maxHeight = 0;
-        var font      = GetFont(fontSize);
+        var maxWidth   = 0;
+        var maxHeight  = 0;
+        var font       = GetFont(fontSize);
+        var lineHeight = (int)Math.Ceiling(GetLineHeight(fontSize));
 
         if (maxLineWidth is null or 0) {
-            maxWidth   =  (int)Math.Ceiling(font.MeasureText(text));
-            maxHeight  += (int)Math.Ceiling(font.Spacing);
+            maxWidth  = (int)Math.Ceiling(font.MeasureText(text));
 
             return new() {
-                Size      = new(maxWidth, maxHeight),
+                Size      = new(maxWidth, lineHeight),
                 Lines     = [text],
                 LineCount = 1,
             };
@@ -52,7 +52,7 @@ internal sealed class FontNativeImpl : IFont
 
             if (totalLineLength + wordLength > maxLineWidth) {
                 maxWidth        =  (int)Math.Ceiling(Math.Max(maxWidth, totalLineLength + wordLength));
-                maxHeight       += (int)Math.Ceiling(font.Spacing);
+                maxHeight       += lineHeight;
                 totalLineLength =  0;
 
                 if (wordWrap == false) {
@@ -71,7 +71,7 @@ internal sealed class FontNativeImpl : IFont
 
         if (line.Length > 0) {
             lines.Add(line);
-            maxHeight += (int)Math.Ceiling(font.Spacing);
+            maxHeight += lineHeight;
         }
 
         return new() {
@@ -97,11 +97,16 @@ internal sealed class FontNativeImpl : IFont
         _fontCache.Clear();
     }
 
+    public SKFontMetrics GetMetrics(int fontSize) => GetFont(fontSize).Metrics;
+
     private SKFont GetFont(int fontSize)
     {
         if (_fontCache.TryGetValue(fontSize, out SKFont? cachedFont)) return cachedFont;
 
-        var font = new SKFont(_typeface, fontSize);
+        var font = new SKFont(_typeface, (int)((float)fontSize));
+        font.Hinting  = SKFontHinting.Full;
+        font.Edging   = SKFontEdging.SubpixelAntialias;
+        font.Subpixel = true;
 
         _fontCache[fontSize] = font;
 

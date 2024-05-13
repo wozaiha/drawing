@@ -5,6 +5,9 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Una.Drawing.Font;
 
 namespace Una.Drawing;
@@ -12,7 +15,7 @@ namespace Una.Drawing;
 public partial class Node
 {
     private EdgeSize _textCachedPadding = new();
-    private string?  _textCachedNodeValue;
+    private object?  _textCachedNodeValue;
     private uint?    _textCachedFontId;
     private float?   _textCachedFontSize;
     private bool?    _textCachedWordWrap;
@@ -35,7 +38,11 @@ public partial class Node
     /// </summary>
     private Size ComputeContentSizeFromText()
     {
-        if (string.IsNullOrEmpty(_nodeValue)) {
+        if (_nodeValue is SeString) {
+            return ComputeContentSizeFromSeString();
+        }
+
+        if (_nodeValue is not string str || string.IsNullOrEmpty(str)) {
             return new(0, 0);
         }
 
@@ -51,16 +58,52 @@ public partial class Node
         _textCachedFontId    = ComputedStyle.Font;
         _textCachedFontSize  = ComputedStyle.FontSize;
 
-        var font = FontRegistry.Typefaces[ComputedStyle.Font];
+        var font = FontRegistry.Fonts[ComputedStyle.Font];
 
         NodeValueMeasurement = font.MeasureText(
-            _nodeValue,
+            str,
             ComputedStyle.FontSize,
             ComputedStyle.Size.Width,
             ComputedStyle.WordWrap
         );
 
         return NodeValueMeasurement.Value.Size;
+    }
+
+    private Size ComputeContentSizeFromSeString()
+    {
+        if (_nodeValue is not SeString str || str.Payloads.Count == 0) {
+            return new(0, 0);
+        }
+
+        IFont font       = FontRegistry.Fonts[ComputedStyle.Font];
+        var   maxWidth   = 0;
+        var   maxHeight  = 0;
+        int   spaceWidth = font.MeasureText(" ", ComputedStyle.FontSize).Size.Width;
+
+        foreach (var payload in str.Payloads) {
+            switch (payload) {
+                case TextPayload text:
+                    if (string.IsNullOrEmpty(text.Text)) continue;
+
+                    MeasuredText measurement = font.MeasureText(text.Text, ComputedStyle.FontSize);
+                    maxWidth  += measurement.Size.Width;
+                    maxHeight =  Math.Max(maxHeight, measurement.Size.Height);
+                    continue;
+                case IconPayload:
+                    maxWidth  += spaceWidth + 20 + spaceWidth;
+                    maxHeight =  Math.Max(16, maxHeight);
+                    continue;
+            }
+        }
+
+        NodeValueMeasurement = new() {
+            Lines     = [],
+            LineCount = 1,
+            Size      = new(maxWidth, maxHeight)
+        };
+
+        return new(maxWidth, maxHeight);
     }
 
     /// <summary>

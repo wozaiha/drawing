@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dalamud;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ExamplePlugin.Tests;
@@ -14,6 +16,8 @@ namespace ExamplePlugin;
 
 public sealed class ExamplePlugin : IDalamudPlugin
 {
+    [PluginService] private IChatGui _chatGui { get; set; } = null!;
+
     private readonly DalamudPluginInterface    _plugin;
     private readonly Dictionary<string, ITest> _tests = [];
 
@@ -28,13 +32,14 @@ public sealed class ExamplePlugin : IDalamudPlugin
 
         // Node.DrawDebugInfo = true;
 
-        var file = new FileInfo(Path.Combine(_plugin.DalamudAssetDirectory.FullName, "UIRes", "NotoSansKR-Regular.otf"));
+        var file = new FileInfo(
+            Path.Combine(_plugin.DalamudAssetDirectory.FullName, "UIRes", "NotoSansKR-Regular.otf")
+        );
 
         Logger.Log(file.FullName);
         Logger.Log($"File exists? {file.Exists}");
 
         FontRegistry.SetNativeFontFamily(1, file);
-
 
         var tests = Assembly
             .GetExecutingAssembly()
@@ -60,7 +65,8 @@ public sealed class ExamplePlugin : IDalamudPlugin
                 BorderRadius       = 5,
                 BorderInset        = 2,
                 BackgroundGradient = GradientColor.Vertical(new(0xC02F2A2A), null, 5),
-                TextAlign          = Anchor.MiddleCenter
+                TextAlign          = Anchor.MiddleCenter,
+                FontSize           = 10,
             }
         );
 
@@ -72,6 +78,16 @@ public sealed class ExamplePlugin : IDalamudPlugin
                 BackgroundGradient = GradientColor.Vertical(new(0xC02FFFFF), null, 5),
             }
         );
+
+        SeString str = new SeStringBuilder()
+            .AddUiForeground(28)
+            .AddText("SeString test with ")
+            .AddUiForegroundOff()
+            .AddIcon(BitmapFontIcon.IslandSanctuary)
+            .AddText(" a very nice icon. Neat stuff!")
+            .Build();
+
+        _chatGui.Print(str);
     }
 
     public void Dispose()

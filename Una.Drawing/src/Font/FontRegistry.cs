@@ -13,7 +13,7 @@ namespace Una.Drawing;
 
 public static class FontRegistry
 {
-    internal static readonly Dictionary<uint, IFont> Typefaces = [];
+    internal static readonly Dictionary<uint, IFont> Fonts = [];
 
     /// <summary>
     /// Creates a font from the given font family and registers it with the
@@ -27,9 +27,9 @@ public static class FontRegistry
     /// <param name="fontFamily"></param>
     public static void SetNativeFontFamily(uint id, string fontFamily)
     {
-        if (Typefaces.TryGetValue(id, out IFont? existingFont)) existingFont.Dispose();
+        if (Fonts.TryGetValue(id, out IFont? existingFont)) existingFont.Dispose();
 
-        Typefaces[id] = FontFactory.CreateFromFontFamily(fontFamily);
+        Fonts[id] = FontFactory.CreateFromFontFamily(fontFamily);
     }
 
     /// <summary>
@@ -47,14 +47,14 @@ public static class FontRegistry
     {
         if (! fontFile.Exists) throw new FileNotFoundException("Font file not found.", fontFile.FullName);
 
-        if (Typefaces.TryGetValue(id, out IFont? existingFont)) existingFont.Dispose();
+        if (Fonts.TryGetValue(id, out IFont? existingFont)) existingFont.Dispose();
 
-        Typefaces[id] = FontFactory.CreateFromFontFile(fontFile);
+        Fonts[id] = FontFactory.CreateFromFontFile(fontFile);
     }
 
     internal static void Dispose()
     {
-        foreach (var font in Typefaces.Values) font.Dispose();
-        Typefaces.Clear();
+        foreach (var font in Fonts.Values) font.Dispose();
+        Fonts.Clear();
     }
 }

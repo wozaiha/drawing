@@ -5,6 +5,7 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System;
 using SkiaSharp;
 using Una.Drawing.Font;
 
@@ -18,41 +19,47 @@ internal class TextGenerator : IGenerator
     /// <inheritdoc/>
     public void Generate(SKCanvas canvas, Node node)
     {
-        MeasuredText? measurement = node.NodeValueMeasurement;
+        if (node.NodeValue is not string str || string.IsNullOrWhiteSpace(str)) return;
 
-        if (null == measurement || string.IsNullOrWhiteSpace(node.NodeValue) || measurement.Value.LineCount == 0)
-            return;
+        MeasuredText? measurement = node.NodeValueMeasurement;
+        if (null == measurement || measurement.Value.LineCount == 0) return;
 
         Size  size       = node.NodeValueMeasurement!.Value.Size;
-        IFont font       = FontRegistry.Typefaces[node.ComputedStyle.Font];
+        IFont font       = FontRegistry.Fonts[node.ComputedStyle.Font];
         int   fontSize   = node.ComputedStyle.FontSize;
-        float lineHeight = font.GetLineHeight(fontSize);
+        var   lineHeight = (int)Math.Ceiling(font.GetLineHeight(fontSize));
+        var   metrics    = font.GetMetrics(node.ComputedStyle.FontSize);
 
-        float y = (font.GetLineHeight(fontSize) * 1.5f) + node.ComputedStyle.TextOffset.Y + 1;
-        float x = node.ComputedStyle.TextOffset.X;
+        var y = (int)(metrics.CapHeight + (int)node.ComputedStyle.TextOffset.Y + 1);
+        var x = (int)node.ComputedStyle.TextOffset.X;
 
-        if (node.ComputedStyle.TextAlign.IsTop) y   -= 1;
-        if (node.ComputedStyle.TextAlign.IsLeft) x  += node.ComputedStyle.Padding.Left;
-        if (node.ComputedStyle.TextAlign.IsRight) x += -node.ComputedStyle.Padding.Right;
-
-        if (node.ComputedStyle.TextAlign.IsMiddle)
-            y += ((node.Bounds.PaddingSize.Height - size.Height) / 2) - (lineHeight / 1.5f) - 2;
-
-        if (node.ComputedStyle.TextAlign.IsBottom) y = (node.Bounds.PaddingSize.Height - size.Height) + 1;
+        if (node.ComputedStyle.TextAlign.IsTop) y    += node.ComputedStyle.Padding.Top;
+        if (node.ComputedStyle.TextAlign.IsLeft) x   += node.ComputedStyle.Padding.Left;
+        if (node.ComputedStyle.TextAlign.IsRight) x  += -node.ComputedStyle.Padding.Right;
+        if (node.ComputedStyle.TextAlign.IsMiddle) y += (node.Height - size.Height) / 2 + 1;
+        if (node.ComputedStyle.TextAlign.IsBottom) y =  node.Height - size.Height;
 
         foreach (string line in node.NodeValueMeasurement!.Value.Lines) {
-            PrintLine(canvas, font, node, line, x, y);
+            PrintLine(canvas, font, node, line, x, y, size);
             y += lineHeight;
         }
     }
 
-    private static void PrintLine(SKCanvas canvas, IFont font, Node node, string line, float x, float y)
+    private static void PrintLine(SKCanvas canvas, IFont font, Node node, string line, float x, float y, Size size)
     {
         MeasuredText measurement = font.MeasureText(line, node.ComputedStyle.FontSize);
         float        lineWidth   = measurement.Size.Width;
 
         if (node.ComputedStyle.TextAlign.IsCenter) x += (node.Bounds.PaddingSize.Width - lineWidth) / 2;
         if (node.ComputedStyle.TextAlign.IsRight) x  += node.Bounds.PaddingSize.Width - lineWidth;
+
+        using SKPaint sp = new();
+        sp.IsStroke    = true;
+        sp.Style       = SKPaintStyle.Stroke;
+        sp.Color       = SKColors.White;
+        sp.StrokeWidth = 2;
+
+        //canvas.DrawRect(x, y - font.GetLineHeight(node.ComputedStyle.FontSize), size.Width, size.Height, sp);
 
         using SKPaint paint = new();
         SKPoint       point = new(x, y);
