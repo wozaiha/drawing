@@ -127,6 +127,9 @@ internal class ComputedStyle
     /// <inheritdoc cref="Style.IconContrast"/>
     internal float IconContrast { get; set; }
 
+    /// <inheritdoc cref="Style.Opacity"/>
+    internal float Opacity { get; set; }
+
     internal void Apply(Style style)
     {
         IsVisible          = style.IsVisible ?? IsVisible;
@@ -162,6 +165,7 @@ internal class ComputedStyle
         IconRounding       = style.IconRounding ?? IconRounding;
         IconGrayscale      = style.IconGrayscale ?? IconGrayscale;
         IconContrast       = style.IconContrast ?? IconContrast;
+        Opacity            = style.Opacity ?? Opacity;
     }
 
     internal void Reset()
@@ -199,6 +203,7 @@ internal class ComputedStyle
         IconRounding       = 0;
         IconGrayscale      = false;
         IconContrast       = 0;
+        Opacity            = 1;
     }
 
     internal LayoutStyle CommittedLayoutStyle;

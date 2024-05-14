@@ -189,6 +189,8 @@ public partial class Node
         Bounds.ContentRect.X2 = Bounds.PaddingRect.X2 - ComputedStyle.Padding.Right;
         Bounds.ContentRect.Y2 = Bounds.PaddingRect.Y2 - ComputedStyle.Padding.Bottom;
 
+        UpdateParentBounds();
+
         int originX = Bounds.ContentRect.X1;
         int originY = Bounds.ContentRect.Y1;
 
@@ -318,5 +320,40 @@ public partial class Node
             _anchorToChildNodes[child.ComputedStyle.Anchor.Point].Add(child);
             _childNodeToAnchor[child] = child.ComputedStyle.Anchor.Point;
         }
+    }
+
+    private void UpdateParentBounds()
+    {
+        if (ParentNode is not null) return;
+
+        var offsetX = 0;
+        var offsetY = 0;
+
+        if (ComputedStyle.Anchor.IsCenter) {
+            offsetX = Bounds.MarginSize.Width / 2;
+        } else if (ComputedStyle.Anchor.IsRight) {
+            offsetX = Bounds.MarginSize.Width;
+        }
+
+        if (ComputedStyle.Anchor.IsMiddle) {
+            offsetY = Bounds.MarginSize.Height / 2;
+        } else if (ComputedStyle.Anchor.IsBottom) {
+            offsetY = Bounds.MarginSize.Height;
+        }
+
+        Bounds.MarginRect.X1 -= offsetX;
+        Bounds.MarginRect.Y1 -= offsetY;
+        Bounds.MarginRect.X2 -= offsetX;
+        Bounds.MarginRect.Y2 -= offsetY;
+
+        Bounds.PaddingRect.X1 -= offsetX;
+        Bounds.PaddingRect.Y1 -= offsetY;
+        Bounds.PaddingRect.X2 -= offsetX;
+        Bounds.PaddingRect.Y2 -= offsetY;
+
+        Bounds.ContentRect.X1 -= offsetX;
+        Bounds.ContentRect.Y1 -= offsetY;
+        Bounds.ContentRect.X2 -= offsetX;
+        Bounds.ContentRect.Y2 -= offsetY;
     }
 }

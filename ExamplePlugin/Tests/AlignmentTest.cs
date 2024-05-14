@@ -9,7 +9,7 @@ public class AlignmentTest : ITest
 
     private readonly Node _node = new() {
         Style = new() {
-            Anchor          = Anchor.TopCenter,
+            Anchor          = Anchor.MiddleCenter,
             Size            = new(500, 500),
             Padding         = new(8),
             Flow            = Flow.Vertical,
@@ -32,7 +32,7 @@ public class AlignmentTest : ITest
 
     public void Render()
     {
-        _node.Render(ImGui.GetBackgroundDrawList(), new(100, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(500, 500));
     }
 
     private static Node CreateContainer(int size, Anchor.AnchorPoint point, bool createChildNodes = true)

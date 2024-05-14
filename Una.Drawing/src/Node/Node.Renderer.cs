@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Dalamud.Interface.Internal;
 using ImGuiNET;
@@ -43,7 +44,13 @@ public partial class Node
         SetupInteractive(drawList);
 
         if (null != _texture) {
-            drawList.AddImage(_texture.ImGuiHandle, Bounds.PaddingRect.TopLeft, Bounds.PaddingRect.BottomRight);
+            drawList.AddImage(
+                _texture.ImGuiHandle,
+                Bounds.PaddingRect.TopLeft, Bounds.PaddingRect.BottomRight,
+                Vector2.Zero,
+                Vector2.One,
+                GetRenderColor()
+            );
         }
 
         DrawDebugBounds();
@@ -65,6 +72,22 @@ public partial class Node
             LayoutStyle = ComputedStyle.CommittedLayoutStyle,
             PaintStyle  = ComputedStyle.CommittedPaintStyle,
         };
+    }
+
+    private uint GetRenderColor()
+    {
+        float opacity = ComputedStyle.Opacity;
+
+        Node? parent = ParentNode;
+
+        while (parent is not null && opacity > 0.0f) {
+            opacity *= parent.ComputedStyle.Opacity;
+            parent = parent.ParentNode;
+        }
+
+        opacity = Math.Clamp(opacity, 0.0f, 1.0f);
+
+        return (uint)(opacity * 255) << 24 | 0x00FFFFFF;
     }
 }
 

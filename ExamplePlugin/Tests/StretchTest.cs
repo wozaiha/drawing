@@ -11,6 +11,7 @@ public class StretchTest : ITest
     private readonly Node _node = new() {
         Id = "Menu",
         Style = new() {
+            Anchor          = Anchor.TopCenter,
             Flow            = Flow.Vertical,
             BackgroundColor = new(0xFF212021),
             StrokeColor     = new(0xFF4F4F4F),
@@ -18,6 +19,7 @@ public class StretchTest : ITest
             BorderRadius    = 4,
             Gap             = 4,
             Padding         = new(4),
+            Opacity         = 0.5f,
         },
         ChildNodes = [
             CreateItem("Item1", "JA: グッデイワールド"),
@@ -53,7 +55,7 @@ public class StretchTest : ITest
         _time += 1;
 
         if (_time == 600) {
-            _node.QuerySelector("Item4")!.NodeValue = "Now this text is much longer!";
+            _node.QuerySelector("Item4")!.NodeValue       = "Now this text is much much much much much longer!";
             _node.QuerySelector("Item6")!.Style.IsVisible = true;
         }
 
@@ -63,7 +65,7 @@ public class StretchTest : ITest
             _time                                         = 0;
         }
 
-        _node.Render(ImGui.GetBackgroundDrawList(), new(100, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(500, 100));
     }
 
     private static Node CreateItem(string id, object? label)

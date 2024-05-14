@@ -35,10 +35,6 @@ public partial class Node
     /// </summary>
     private bool ComputeStyle()
     {
-        // TODO: Only recompute style if needed:
-        //  - If the style has changed. (make it reactive again)
-        //  - If the class list has changed.
-
         ComputedStyle.Reset();
 
         foreach (string className in _classList) {

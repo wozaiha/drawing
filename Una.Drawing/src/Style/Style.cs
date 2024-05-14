@@ -10,4 +10,10 @@ namespace Una.Drawing;
 /// <summary>
 /// Defines the properties that specify the presentation of an element.
 /// </summary>
-public partial class Style;
+public partial class Style
+{
+    /// <summary>
+    /// Specifies the opacity of the node. Must be a value between 0 and 1.
+    /// </summary>
+    public float? Opacity { get; set; }
+}
