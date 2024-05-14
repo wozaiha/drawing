@@ -101,6 +101,9 @@ internal class ComputedStyle
     internal float StrokeInset { get; set; }
 
     /// <inheritdoc cref="Style.RoundedCorners"/>
+    internal float? StrokeRadius { get; set; }
+
+    /// <inheritdoc cref="Style.RoundedCorners"/>
     internal RoundedCorners RoundedCorners { get; set; }
 
     /// <inheritdoc cref="Style.BackgroundGradient"/>
@@ -174,6 +177,7 @@ internal class ComputedStyle
         StrokeColor        = style.StrokeColor ?? StrokeColor;
         StrokeWidth        = style.StrokeWidth ?? StrokeWidth;
         StrokeInset        = style.StrokeInset ?? StrokeInset;
+        StrokeRadius       = style.StrokeRadius ?? StrokeRadius;
         RoundedCorners     = style.RoundedCorners ?? RoundedCorners;
         BackgroundGradient = style.BackgroundGradient ?? BackgroundGradient;
         OutlineColor       = style.OutlineColor ?? OutlineColor;
@@ -218,6 +222,7 @@ internal class ComputedStyle
         StrokeColor        = null;
         StrokeWidth        = 0;
         StrokeInset        = 0;
+        StrokeRadius       = null;
         RoundedCorners     = RoundedCorners.All;
         BackgroundGradient = null;
         OutlineColor       = null;
@@ -282,6 +287,7 @@ internal class ComputedStyle
             StrokeColor             = StrokeColor?.ToUInt(),
             StrokeWidth             = StrokeWidth,
             StrokeInset             = StrokeInset,
+            StrokeRadius            = StrokeRadius,
             BackgroundGradient1     = BackgroundGradient?.Color1?.ToUInt(),
             BackgroundGradient2     = BackgroundGradient?.Color2?.ToUInt(),
             BackgroundGradientInset = BackgroundGradient?.Inset,
@@ -371,6 +377,7 @@ internal struct PaintStyle
     internal uint?              StrokeColor;
     internal int                StrokeWidth;
     internal float              StrokeInset;
+    internal float?             StrokeRadius;
     internal RoundedCorners?    RoundedCorners;
     internal uint?              BackgroundGradient1;
     internal uint?              BackgroundGradient2;

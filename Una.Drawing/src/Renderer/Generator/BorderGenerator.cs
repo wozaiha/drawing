@@ -161,7 +161,7 @@ internal class BorderGenerator : IGenerator
             return;
         }
 
-        var     radius   = (float)style.BorderRadius;
+        float   radius   = style.StrokeRadius ?? style.BorderRadius;
         SKPoint topLeft  = style.RoundedCorners.HasFlag(RoundedCorners.TopLeft) ? new(radius, radius) : new(0, 0);
         SKPoint topRight = style.RoundedCorners.HasFlag(RoundedCorners.TopRight) ? new(radius, radius) : new(0, 0);
 

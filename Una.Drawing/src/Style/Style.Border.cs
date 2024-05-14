@@ -72,6 +72,13 @@ public partial class Style
     public float? StrokeInset { get; set; }
 
     /// <summary>
+    /// Similar to <see cref="BorderRadius"/>, this property defines an override
+    /// of the stroke the corner radius if it needs to be different from the
+    /// border radius.
+    /// </summary>
+    public float? StrokeRadius { get; set; }
+
+    /// <summary>
     /// Specifies which corners of the node should be rounded.
     /// </summary>
     public RoundedCorners? RoundedCorners { get; set; }
