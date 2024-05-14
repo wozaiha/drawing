@@ -39,6 +39,8 @@ public class StretchTest : ITest
     {
         _node.QuerySelector("Item6")!.Style.IsVisible = false;
 
+        Color.AssignByName("stretch-test", 0xFF402070);
+
         SeString str = new SeStringBuilder()
             .AddUiForeground(28)
             .AddText("SeString test with ")
@@ -55,14 +57,16 @@ public class StretchTest : ITest
         _time += 1;
 
         if (_time == 600) {
-            _node.QuerySelector("Item4")!.NodeValue       = "Now this text is much much much much much longer!";
-            _node.QuerySelector("Item6")!.Style.IsVisible = true;
+            // _node.QuerySelector("Item4")!.NodeValue       = "Now this text is much much much much much longer!";
+            // _node.QuerySelector("Item6")!.Style.IsVisible = true;
+            Color.AssignByName("stretch-test", 0xFF407070);
         }
 
         if (_time == 1200) {
-            _node.QuerySelector("Item4")!.NodeValue       = "Yes";
-            _node.QuerySelector("Item6")!.Style.IsVisible = false;
+            // _node.QuerySelector("Item4")!.NodeValue       = "Yes";
+            // _node.QuerySelector("Item6")!.Style.IsVisible = false;
             _time                                         = 0;
+            Color.AssignByName("stretch-test", 0xFF404050);
         }
 
         _node.Render(ImGui.GetBackgroundDrawList(), new(500, 100));
@@ -80,7 +84,7 @@ public class StretchTest : ITest
                 Font            = 1,
                 FontSize        = 14,
                 TextAlign       = Anchor.MiddleCenter,
-                BackgroundColor = new(0x80008080),
+                BackgroundColor = new("stretch-test"),
                 BorderRadius    = 4,
                 TextShadowColor = new(0xFF000000),
                 TextShadowSize  = 2,

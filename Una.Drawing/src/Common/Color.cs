@@ -5,6 +5,7 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System.Collections.Generic;
 using SkiaSharp;
 
 namespace Una.Drawing;
@@ -13,16 +14,84 @@ public class Color(byte r, byte g, byte b, float a = 1.0f)
 {
     public string Name { get; set; } = string.Empty;
 
-    public byte  R { get; set; } = r;
-    public byte  G { get; set; } = g;
-    public byte  B { get; set; } = b;
-    public float A { get; set; } = a;
+    private static readonly Dictionary<string, uint> NamedColors = [];
+
+    /// <summary>
+    /// Returns the red component of this color as a byte.
+    /// </summary>
+    public byte R {
+        set => r = value;
+        get {
+            if (Name != string.Empty && NamedColors.TryGetValue(Name, out uint color)) {
+                return (byte)(color >> 16);
+            }
+
+            return r;
+        }
+    }
+
+    /// <summary>
+    /// Returns the green component of this color as a byte.
+    /// </summary>
+    public byte G {
+        set => g = value;
+        get {
+            if (Name != string.Empty && NamedColors.TryGetValue(Name, out uint color)) {
+                return (byte)(color >> 8);
+            }
+
+            return g;
+        }
+    }
+
+    /// <summary>
+    /// Returns the blue component of this color as a byte.
+    /// </summary>
+    public byte B {
+        set => b = value;
+        get {
+            if (Name != string.Empty && NamedColors.TryGetValue(Name, out uint color)) {
+                return (byte)(color);
+            }
+
+            return b;
+        }
+    }
+
+    /// <summary>
+    /// Returns the alpha component of this color as a float.
+    /// </summary>
+    public float A {
+        set => a = value;
+        get {
+            if (Name != string.Empty && NamedColors.TryGetValue(Name, out uint color)) {
+                return (color >> 24) / 255f;
+            }
+
+            return a;
+        }
+    }
+
+    /// <summary>
+    /// Assigns a named color to a specific color.
+    /// </summary>
+    public static void AssignByName(string name, uint color)
+    {
+        NamedColors[name] = color;
+    }
 
     /// <summary>
     /// Returns a UInt32 representation of the color in ABGR format.
     /// </summary>
     /// <returns></returns>
-    public uint ToUInt() => (uint)((byte)(A * 255) << 24 | B << 16 | G << 8 | R);
+    public uint ToUInt()
+    {
+        if (Name != string.Empty && NamedColors.TryGetValue(Name, out uint color)) {
+            return color;
+        }
+
+        return (uint)((byte)(A * 255) << 24 | R << 16 | G << 8 | B);
+    }
 
     public Color(byte r, byte g, byte b, byte a) : this(r, g, b, a * 255) { }
 
