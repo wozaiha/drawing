@@ -28,6 +28,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="assets\shadow.png" LogicalName="Shadow.png"/>
+    </ItemGroup>
+    
+    <ItemGroup>
         <Reference Include="Dalamud">
             <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
             <Private>false</Private>

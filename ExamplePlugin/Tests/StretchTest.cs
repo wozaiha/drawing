@@ -1,4 +1,11 @@
-﻿using Dalamud.Game.Text.SeStringHandling;
+﻿/* Una.Drawing                                                 ____ ___
+ *   A declarative drawing library for FFXIV.                 |    |   \____ _____        ____                _
+ *                                                            |    |   /    \\__  \      |    \ ___ ___ _ _ _|_|___ ___
+ * By Una. Licensed under AGPL-3.                             |    |  |   |  \/ __ \_    |  |  |  _| .'| | | | |   | . |
+ * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
+ * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
+
+using Dalamud.Game.Text.SeStringHandling;
 using ImGuiNET;
 using Una.Drawing;
 
@@ -15,11 +22,17 @@ public class StretchTest : ITest
             Flow            = Flow.Vertical,
             BackgroundColor = new(0xFF212021),
             StrokeColor     = new(0xFF4F4F4F),
+            BackgroundGradient = GradientColor.Vertical(new(0xFF212021), new(0xFF443911), 6),
             StrokeWidth     = 1,
-            BorderRadius    = 4,
-            Gap             = 4,
-            Padding         = new(4),
-            Opacity         = 0.5f,
+            StrokeInset     = 5,
+            BorderRadius    = 9,
+            RoundedCorners  = RoundedCorners.TopLeft | RoundedCorners.TopRight,
+            Gap             = 18,
+            Padding         = new(16),
+            ShadowSize      = new(64, 64, 0, 64),
+            ShadowInset     = 2,
+            ShadowOffset    = new(0, 8),
+            IsAntialiased   = true,
         },
         ChildNodes = [
             CreateItem("Item1", "JA: グッデイワールド"),
@@ -65,7 +78,7 @@ public class StretchTest : ITest
         if (_time == 1200) {
             // _node.QuerySelector("Item4")!.NodeValue       = "Yes";
             // _node.QuerySelector("Item6")!.Style.IsVisible = false;
-            _time                                         = 0;
+            _time = 0;
             Color.AssignByName("stretch-test", 0xFF404050);
         }
 
@@ -90,6 +103,7 @@ public class StretchTest : ITest
                 TextShadowSize  = 2,
                 OutlineColor    = new(0xFF000000),
                 OutlineSize     = 1,
+                IsAntialiased   = false,
             }
         };
     }

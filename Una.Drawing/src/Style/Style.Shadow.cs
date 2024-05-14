@@ -5,22 +5,24 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System.Numerics;
+
 namespace Una.Drawing;
 
-/// <summary>
-/// Defines the properties that specify the presentation of an element.
-/// </summary>
 public partial class Style
 {
     /// <summary>
-    /// Specifies the opacity of the node. Must be a value between 0 and 1.
+    /// Defines the shadow size on the node for each side.
     /// </summary>
-    public float? Opacity { get; set; }
+    public EdgeSize? ShadowSize { get; set; }
 
     /// <summary>
-    /// Whether the node's texture should be antialiased. This applies to
-    /// background images, icons, and borders. Text is always antialiased,
-    /// regardless of this setting.
+    /// Defines the inset of the shadow on the node in pixels.
     /// </summary>
-    public bool? IsAntialiased { get; set; }
+    public int? ShadowInset { get; set; }
+
+    /// <summary>
+    /// Defines the offset of the shadow on the node in pixels.
+    /// </summary>
+    public Vector2? ShadowOffset { get; set; }
 }

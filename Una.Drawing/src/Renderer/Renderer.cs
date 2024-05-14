@@ -10,7 +10,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Dalamud.Interface;
 using Dalamud.Interface.Internal;
 using SkiaSharp;
 using Una.Drawing.Generator;
@@ -21,14 +20,11 @@ internal static class Renderer
 {
     private static List<IGenerator> _generators = [];
 
-    private static UiBuilder _uiBuilder = null!;
     private static SKSurface _skSurface = null!;
     private static SKCanvas  _skCanvas  = null!;
 
-    internal static void Setup(UiBuilder uiBuilder)
+    internal static void Setup()
     {
-        _uiBuilder = uiBuilder;
-
         // Collect generators.
         List<Type> generatorTypes = Assembly
             .GetExecutingAssembly()
@@ -42,8 +38,11 @@ internal static class Renderer
             .ToList();
 
         // Create the SKSurface and SKCanvas.
-        _skSurface = SKSurface.Create(new SKImageInfo(4096, 4096));
-        _skCanvas  = _skSurface.Canvas;
+        SKImageInfo         info  = new(4096, 4096);
+        SKSurfaceProperties props = new(SKSurfacePropsFlags.UseDeviceIndependentFonts, SKPixelGeometry.Unknown);
+
+        _skSurface  = SKSurface.Create(info, props);
+        _skCanvas   = _skSurface.Canvas;
     }
 
     internal static void Dispose()
@@ -87,7 +86,7 @@ internal static class Renderer
             );
         }
 
-        IDalamudTextureWrap texture = _uiBuilder.LoadImageRaw(targetData, node.Width, node.Height, 4);
+        IDalamudTextureWrap texture = DalamudServices.UiBuilder.LoadImageRaw(targetData, node.Width, node.Height, 4);
 
         ArrayPool<byte>.Shared.Return(targetData);
 

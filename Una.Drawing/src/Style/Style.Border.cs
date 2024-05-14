@@ -35,7 +35,7 @@ public partial class Style
     /// Defines the inset of the border around the node, allowing the border to
     /// be drawn inside the node's bounds.
     /// </summary>
-    public int? BorderInset { get; set; }
+    public float? BorderInset { get; set; }
 
     /// <summary>
     /// <para>
@@ -63,4 +63,16 @@ public partial class Style
     /// </para>
     /// </summary>
     public int? StrokeWidth { get; set; }
+
+    /// <summary>
+    /// Similar to <see cref="BorderInset"/>, this property defines the inset
+    /// distance of the stroke around the node, allowing the stroke to be drawn
+    /// inside the node's bounds.
+    /// </summary>
+    public float? StrokeInset { get; set; }
+
+    /// <summary>
+    /// Specifies which corners of the node should be rounded.
+    /// </summary>
+    public RoundedCorners? RoundedCorners { get; set; }
 }

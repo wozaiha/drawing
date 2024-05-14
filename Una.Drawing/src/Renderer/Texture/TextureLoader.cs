@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Dalamud.Interface.Internal;
 using Lumina.Data.Files;
@@ -10,8 +11,31 @@ namespace Una.Drawing.Texture;
 
 internal static class TextureLoader
 {
-    private static readonly Dictionary<uint, TexFile> IconToTexFileCache = [];
-    private static readonly Dictionary<uint, SKImage> IconToImageCache   = [];
+    private static readonly Dictionary<uint, TexFile>               IconToTexFileCache   = [];
+    private static readonly Dictionary<uint, SKImage>               IconToImageCache     = [];
+    private static readonly Dictionary<string, IDalamudTextureWrap> EmbeddedTextureCache = [];
+
+    /// <summary>
+    /// Loads an embedded texture from one of the plugin assemblies.
+    /// </summary>
+    /// <param name="name">The logical name of the resource.</param>
+    /// <returns>An instance of <see cref="IDalamudTextureWrap"/> that wraps the resource.</returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static IDalamudTextureWrap GetEmbeddedTexture(string name)
+    {
+        if (EmbeddedTextureCache.TryGetValue(name, out var cachedTexture)) return cachedTexture;
+
+        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name);
+        if (stream == null) throw new InvalidOperationException($"Failed to load embedded texture \"{name}\".");
+
+        var imageData = new byte[stream.Length];
+        int _         = stream.Read(imageData, 0, imageData.Length);
+
+        IDalamudTextureWrap texture = DalamudServices.UiBuilder.LoadImage(imageData);
+        EmbeddedTextureCache[name] = texture;
+
+        return texture;
+    }
 
     internal static SKImage? LoadIcon(uint iconId)
     {

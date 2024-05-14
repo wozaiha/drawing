@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* Una.Drawing                                                 ____ ___
+ *   A declarative drawing library for FFXIV.                 |    |   \____ _____        ____                _
+ *                                                            |    |   /    \\__  \      |    \ ___ ___ _ _ _|_|___ ___
+ * By Una. Licensed under AGPL-3.                             |    |  |   |  \/ __ \_    |  |  |  _| .'| | | | |   | . |
+ * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
+ * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
+
+using System;
 using System.Numerics;
 
 namespace Una.Drawing;
@@ -24,6 +31,15 @@ public class Rect(int x1, int y1, int x2, int y2)
     public Rect(Vector2 position, Size    size) : this((int)position.X, (int)position.Y, size) { }
     public Rect(Vector2 position, Vector2 size) : this((int)position.X, (int)position.Y, (int)size.X, (int)size.Y) { }
     public Rect(Size    size) : this(0, 0, size) { }
+
+    /// <summary>
+    /// Creates and returns a copy of this rect.
+    /// </summary>
+    /// <returns></returns>
+    public Rect Copy()
+    {
+        return new(X1, Y1, X2, Y2);
+    }
 
     /// <summary>
     /// Expands this rectangle by the given edge size.

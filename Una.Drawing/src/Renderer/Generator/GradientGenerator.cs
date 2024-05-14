@@ -35,8 +35,17 @@ internal class GradientGenerator : IGenerator
             return;
         }
 
-        int cornerRadius = Math.Max(0, style.BorderRadius - style.BorderInset);
-        canvas.DrawRoundRect(rect, cornerRadius, cornerRadius, paint);
+        var radius = (float)style.BorderRadius;
+
+        RoundedCorners corners     = style.RoundedCorners;
+        SKPoint        topLeft     = corners.HasFlag(RoundedCorners.TopLeft) ? new(radius, radius) : new(0, 0);
+        SKPoint        topRight    = corners.HasFlag(RoundedCorners.TopRight) ? new(radius, radius) : new(0, 0);
+        SKPoint        bottomRight = corners.HasFlag(RoundedCorners.BottomRight) ? new(radius, radius) : new(0, 0);
+        SKPoint        bottomLeft  = corners.HasFlag(RoundedCorners.BottomLeft) ? new(radius, radius) : new(0, 0);
+        SKRoundRect    roundRect   = new SKRoundRect(rect, radius, radius);
+
+        roundRect.SetRectRadii(rect, [topLeft, topRight, bottomRight, bottomLeft]);
+        canvas.DrawRoundRect(roundRect, paint);
     }
 
     private static SKShader CreateShader(Size size, GradientColor gradientColor)

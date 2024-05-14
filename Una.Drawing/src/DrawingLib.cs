@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System.IO;
+using Dalamud.Interface;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -22,6 +23,7 @@ public class DrawingLib
     public static void Setup(DalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<DalamudServices>();
+        DalamudServices.UiBuilder = pluginInterface.UiBuilder;
 
         // Use the Noto Sans font that comes with Dalamud as the default font,
         // as it supports a wide range of characters, including Japanese.
@@ -31,7 +33,7 @@ public class DrawingLib
         )));
 
         GfdIconRepository.Setup();
-        Renderer.Setup(pluginInterface.UiBuilder);
+        Renderer.Setup();
     }
 
     /// <summary>
@@ -51,4 +53,6 @@ internal class DalamudServices
     [PluginService] public static IDataManager                 DataManager                 { get; set; } = null!;
     [PluginService] public static ITextureProvider             TextureProvider             { get; set; } = null!;
     [PluginService] public static ITextureSubstitutionProvider TextureSubstitutionProvider { get; set; } = null!;
+
+    public static UiBuilder UiBuilder { get; set; } = null!;
 }

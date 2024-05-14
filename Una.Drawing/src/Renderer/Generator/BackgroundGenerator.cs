@@ -23,39 +23,27 @@ internal class BackgroundGenerator : IGenerator
 
         Size size = node.Bounds.PaddingSize;
 
-        paint.Color = Color.ToSkColor(node.ComputedStyle.BackgroundColor);
-        paint.Style = SKPaintStyle.Fill;
+        paint.Color       = Color.ToSkColor(node.ComputedStyle.BackgroundColor);
+        paint.Style       = SKPaintStyle.Fill;
+        paint.IsAntialias = node.ComputedStyle.IsAntialiased;
 
         if (node.ComputedStyle.BorderRadius == 0) {
             canvas.DrawRect(0, 0, size.Width, size.Height, paint);
-            DrawStroke(canvas, size, node.ComputedStyle);
             return;
         }
 
-        var radius = (float)node.ComputedStyle.BorderRadius;
-        canvas.DrawRoundRect(0, 0, size.Width, size.Height, radius, radius, paint);
-        DrawStroke(canvas, size, node.ComputedStyle);
-    }
-
-    private static void DrawStroke(SKCanvas canvas, Size size, ComputedStyle style)
-    {
-        if (!(style.StrokeColor?.IsVisible ?? false) || style.StrokeWidth == 0) return;
-
-        using var paint = new SKPaint();
-
-        float  half = (float)style.StrokeWidth / 2;
-        SKRect rect = new(half, half, size.Width - half, size.Height - half);
-
-        paint.Color       = Color.ToSkColor(style.StrokeColor);
-        paint.Style       = SKPaintStyle.Stroke;
-        paint.StrokeWidth = style.StrokeWidth;
-
-        if (style.BorderRadius == 0) {
-            canvas.DrawRect(rect, paint);
-            return;
-        }
-
+        var style  = node.ComputedStyle;
         var radius = (float)style.BorderRadius;
-        canvas.DrawRoundRect(rect, radius, radius, paint);
+
+        RoundedCorners corners     = style.RoundedCorners;
+        SKRect         rect        = new(0, 0, size.Width, size.Height);
+        SKPoint        topLeft     = corners.HasFlag(RoundedCorners.TopLeft) ? new(radius, radius) : new(0, 0);
+        SKPoint        topRight    = corners.HasFlag(RoundedCorners.TopRight) ? new(radius, radius) : new(0, 0);
+        SKPoint        bottomRight = corners.HasFlag(RoundedCorners.BottomRight) ? new(radius, radius) : new(0, 0);
+        SKPoint        bottomLeft  = corners.HasFlag(RoundedCorners.BottomLeft) ? new(radius, radius) : new(0, 0);
+        SKRoundRect    roundRect   = new SKRoundRect(rect, radius, radius);
+
+        roundRect.SetRectRadii(rect, [topLeft, topRight, bottomRight, bottomLeft]);
+        canvas.DrawRoundRect(roundRect, paint);
     }
 }

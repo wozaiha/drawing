@@ -46,6 +46,8 @@ public readonly record struct EdgeSize(int Top, int Right, int Bottom, int Left)
     /// <param name="horizontal">The size of horizontal edges in pixels.</param>
     public EdgeSize(int vertical, int horizontal) : this(vertical, horizontal, vertical, horizontal) { }
 
+    public bool IsZero => Top == 0 && Right == 0 && Bottom == 0 && Left == 0;
+
     public override string ToString() => $"EdgeSize({Top}, {Right}, {Bottom}, {Left})";
 
     public static bool operator ==(EdgeSize? left, EdgeSize? right) => left is not null && left.Equals(right);

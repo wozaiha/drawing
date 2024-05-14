@@ -83,7 +83,7 @@ internal class ComputedStyle
     internal BorderColor? BorderColor { get; set; }
 
     /// <inheritdoc cref="Style.BorderInset"/>
-    internal int BorderInset { get; set; }
+    internal float BorderInset { get; set; }
 
     /// <inheritdoc cref="Style.BorderRadius"/>
     internal int BorderRadius { get; set; }
@@ -96,6 +96,12 @@ internal class ComputedStyle
 
     /// <inheritdoc cref="Style.StrokeWidth"/>
     internal int StrokeWidth { get; set; }
+
+    /// <inheritdoc cref="Style.StrokeInset"/>
+    internal float StrokeInset { get; set; }
+
+    /// <inheritdoc cref="Style.RoundedCorners"/>
+    internal RoundedCorners RoundedCorners { get; set; }
 
     /// <inheritdoc cref="Style.BackgroundGradient"/>
     internal GradientColor? BackgroundGradient { get; set; }
@@ -130,6 +136,18 @@ internal class ComputedStyle
     /// <inheritdoc cref="Style.Opacity"/>
     internal float Opacity { get; set; }
 
+    /// <inheritdoc cref="Style.ShadowSize"/>
+    internal EdgeSize ShadowSize { get; set; } = new();
+
+    /// <inheritdoc cref="Style.ShadowInset"/>
+    internal int ShadowInset { get; set; }
+
+    /// <inheritdoc cref="Style.ShadowOffset"/>
+    internal Vector2 ShadowOffset { get; set; }
+
+    /// <inheritdoc cref="Style.IsAntialiased"/>
+    internal bool IsAntialiased { get; set; }
+
     internal void Apply(Style style)
     {
         IsVisible          = style.IsVisible ?? IsVisible;
@@ -155,6 +173,8 @@ internal class ComputedStyle
         BorderWidth        = style.BorderWidth ?? BorderWidth;
         StrokeColor        = style.StrokeColor ?? StrokeColor;
         StrokeWidth        = style.StrokeWidth ?? StrokeWidth;
+        StrokeInset        = style.StrokeInset ?? StrokeInset;
+        RoundedCorners     = style.RoundedCorners ?? RoundedCorners;
         BackgroundGradient = style.BackgroundGradient ?? BackgroundGradient;
         OutlineColor       = style.OutlineColor ?? OutlineColor;
         TextShadowSize     = style.TextShadowSize ?? TextShadowSize;
@@ -166,6 +186,10 @@ internal class ComputedStyle
         IconGrayscale      = style.IconGrayscale ?? IconGrayscale;
         IconContrast       = style.IconContrast ?? IconContrast;
         Opacity            = style.Opacity ?? Opacity;
+        ShadowSize         = style.ShadowSize ?? ShadowSize;
+        ShadowInset        = style.ShadowInset ?? ShadowInset;
+        ShadowOffset       = style.ShadowOffset ?? ShadowOffset;
+        IsAntialiased      = style.IsAntialiased ?? IsAntialiased;
     }
 
     internal void Reset()
@@ -193,6 +217,8 @@ internal class ComputedStyle
         BorderWidth        = new();
         StrokeColor        = null;
         StrokeWidth        = 0;
+        StrokeInset        = 0;
+        RoundedCorners     = RoundedCorners.All;
         BackgroundGradient = null;
         OutlineColor       = null;
         TextShadowSize     = 0;
@@ -204,6 +230,10 @@ internal class ComputedStyle
         IconGrayscale      = false;
         IconContrast       = 0;
         Opacity            = 1;
+        ShadowSize         = new();
+        ShadowInset        = 0;
+        ShadowOffset       = Vector2.Zero;
+        IsAntialiased      = true;
     }
 
     internal LayoutStyle CommittedLayoutStyle;
@@ -251,6 +281,7 @@ internal class ComputedStyle
             BorderLeftWidth         = BorderWidth.Left,
             StrokeColor             = StrokeColor?.ToUInt(),
             StrokeWidth             = StrokeWidth,
+            StrokeInset             = StrokeInset,
             BackgroundGradient1     = BackgroundGradient?.Color1?.ToUInt(),
             BackgroundGradient2     = BackgroundGradient?.Color2?.ToUInt(),
             BackgroundGradientInset = BackgroundGradient?.Inset,
@@ -266,7 +297,8 @@ internal class ComputedStyle
             IconOffsetY             = IconOffset?.Y,
             IconRounding            = IconRounding,
             IconGrayscale           = IconGrayscale,
-            IconContrast            = IconContrast
+            IconContrast            = IconContrast,
+            IsAntialiased           = IsAntialiased
         };
 
         var result = 0;
@@ -330,7 +362,7 @@ internal struct PaintStyle
     internal uint?              BorderRightColor;
     internal uint?              BorderBottomColor;
     internal uint?              BorderLeftColor;
-    internal int                BorderInset;
+    internal float              BorderInset;
     internal int                BorderRadius;
     internal int                BorderTopWidth;
     internal int                BorderRightWidth;
@@ -338,6 +370,8 @@ internal struct PaintStyle
     internal int                BorderLeftWidth;
     internal uint?              StrokeColor;
     internal int                StrokeWidth;
+    internal float              StrokeInset;
+    internal RoundedCorners?    RoundedCorners;
     internal uint?              BackgroundGradient1;
     internal uint?              BackgroundGradient2;
     internal int?               BackgroundGradientInset;
@@ -354,4 +388,5 @@ internal struct PaintStyle
     internal float?             IconRounding;
     internal bool?              IconGrayscale;
     internal float?             IconContrast;
+    internal bool               IsAntialiased;
 }
