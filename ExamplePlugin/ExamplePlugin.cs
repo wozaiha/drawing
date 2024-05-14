@@ -27,7 +27,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
     {
         DrawingLib.Setup(plugin);
 
-        Logger.Writer = logger;
+        DebugLogger.Writer = logger;
         _plugin       = plugin;
 
         // Node.DrawDebugInfo = true;
@@ -35,9 +35,6 @@ public sealed class ExamplePlugin : IDalamudPlugin
         var file = new FileInfo(
             Path.Combine(_plugin.DalamudAssetDirectory.FullName, "UIRes", "NotoSansKR-Regular.otf")
         );
-
-        Logger.Log(file.FullName);
-        Logger.Log($"File exists? {file.Exists}");
 
         FontRegistry.SetNativeFontFamily(1, file);
 

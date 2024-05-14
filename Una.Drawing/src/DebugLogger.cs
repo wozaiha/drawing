@@ -2,7 +2,7 @@
 
 namespace Una.Drawing;
 
-public static class Logger
+public static class DebugLogger
 {
     public static IPluginLog? Writer { get; set; }
 
