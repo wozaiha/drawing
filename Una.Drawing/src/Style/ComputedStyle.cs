@@ -130,6 +130,9 @@ internal class ComputedStyle
     /// <inheritdoc cref="Style.IconRounding"/>
     internal float IconRounding { get; set; }
 
+    /// <inheritdoc cref="Style.IconRoundedCorners"/>
+    internal RoundedCorners IconRoundedCorners { get; set; }
+
     /// <inheritdoc cref="Style.IconGrayscale"/>
     internal bool IconGrayscale { get; set; }
 
@@ -187,6 +190,7 @@ internal class ComputedStyle
         IconInset          = style.IconInset ?? IconInset;
         IconOffset         = style.IconOffset ?? IconOffset;
         IconRounding       = style.IconRounding ?? IconRounding;
+        IconRoundedCorners = style.IconRoundedCorners ?? IconRoundedCorners;
         IconGrayscale      = style.IconGrayscale ?? IconGrayscale;
         IconContrast       = style.IconContrast ?? IconContrast;
         Opacity            = style.Opacity ?? Opacity;
@@ -232,6 +236,7 @@ internal class ComputedStyle
         IconInset          = null;
         IconOffset         = null;
         IconRounding       = 0;
+        IconRoundedCorners = RoundedCorners.All;
         IconGrayscale      = false;
         IconContrast       = 0;
         Opacity            = 1;
@@ -302,6 +307,7 @@ internal class ComputedStyle
             IconOffsetX             = IconOffset?.X,
             IconOffsetY             = IconOffset?.Y,
             IconRounding            = IconRounding,
+            IconRoundedCorners      = IconRoundedCorners,
             IconGrayscale           = IconGrayscale,
             IconContrast            = IconContrast,
             IsAntialiased           = IsAntialiased
@@ -393,6 +399,7 @@ internal struct PaintStyle
     internal float?             IconOffsetX;
     internal float?             IconOffsetY;
     internal float?             IconRounding;
+    internal RoundedCorners?    IconRoundedCorners;
     internal bool?              IconGrayscale;
     internal float?             IconContrast;
     internal bool               IsAntialiased;

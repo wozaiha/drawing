@@ -25,6 +25,11 @@ public partial class Style
     public float? IconRounding { get; set; }
 
     /// <summary>
+    /// Specifies the corners of the icon that should be rounded.
+    /// </summary>
+    public RoundedCorners? IconRoundedCorners { get; set; }
+
+    /// <summary>
     /// Whether the icon should be displayed in black and white.
     /// </summary>
     public bool? IconGrayscale { get; set; }

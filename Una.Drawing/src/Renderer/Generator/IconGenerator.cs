@@ -44,7 +44,7 @@ internal class IconGenerator : IGenerator
         using SKShader shader = SKShader.CreateImage(image, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, matrix);
 
         paint.Shader      = shader;
-        paint.IsAntialias = true;
+        paint.IsAntialias = node.ComputedStyle.IsAntialiased;
         paint.Style       = SKPaintStyle.Fill;
 
         paint.Shader = SKShader.CreateColorFilter(
@@ -57,12 +57,23 @@ internal class IconGenerator : IGenerator
             )
         );
 
-        float r = node.ComputedStyle.IconRounding * 1.5f;
+        float radius = node.ComputedStyle.IconRounding;
 
-        if (r < 0.01f) {
+        if (radius < 0.01f) {
             canvas.DrawRect(rect, paint);
-        } else {
-            canvas.DrawRoundRect(rect, r, r, paint);
+            return;
         }
+
+        var style  = node.ComputedStyle;
+
+        RoundedCorners corners     = style.IconRoundedCorners;
+        SKPoint        topLeft     = corners.HasFlag(RoundedCorners.TopLeft) ? new(radius, radius) : new(0, 0);
+        SKPoint        topRight    = corners.HasFlag(RoundedCorners.TopRight) ? new(radius, radius) : new(0, 0);
+        SKPoint        bottomRight = corners.HasFlag(RoundedCorners.BottomRight) ? new(radius, radius) : new(0, 0);
+        SKPoint        bottomLeft  = corners.HasFlag(RoundedCorners.BottomLeft) ? new(radius, radius) : new(0, 0);
+        SKRoundRect    roundRect   = new SKRoundRect(rect, radius, radius);
+
+        roundRect.SetRectRadii(rect, [topLeft, topRight, bottomRight, bottomLeft]);
+        canvas.DrawRoundRect(roundRect, paint);
     }
 }
