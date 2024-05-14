@@ -149,7 +149,7 @@ internal class BorderGenerator : IGenerator
         using var paint = new SKPaint();
 
         float  inset = style.StrokeInset + (style.StrokeWidth / 2f);
-        SKRect rect  = new(inset, inset, size.Width - inset - 1, size.Height - inset - 1);
+        SKRect rect  = new(inset, inset, size.Width - inset, size.Height - inset);
 
         paint.IsAntialias = style.IsAntialiased;
         paint.Color       = Color.ToSkColor(style.StrokeColor);
