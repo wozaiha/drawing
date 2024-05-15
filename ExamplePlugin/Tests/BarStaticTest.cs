@@ -8,6 +8,7 @@ public class BarStaticTest : ITest
     public string Name => "Bar (Static)";
 
     private readonly Node _node = new() {
+        Stylesheet = ExamplePlugin.GlobalStylesheet,
         Style = new() {
             Flow               = Flow.Horizontal,
             Size               = new(1920, 32),

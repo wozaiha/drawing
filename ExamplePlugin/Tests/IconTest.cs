@@ -7,7 +7,10 @@ public class IconTest : ITest
 {
     public string Name => "Icons";
 
+    private static readonly Stylesheet IconStyles = new();
+
     private readonly Node _node = new() {
+        Stylesheet = IconStyles,
         Style = new() {
             Flow = Flow.Vertical,
             Gap  = 4,
@@ -28,8 +31,8 @@ public class IconTest : ITest
 
     public IconTest()
     {
-        Stylesheet.SetClassRule(
-            "icon-row",
+        IconStyles.AddRule(
+            ".icon-row",
             new() {
                 Anchor          = Anchor.TopLeft,
                 Size            = new(0, 40),
@@ -42,8 +45,8 @@ public class IconTest : ITest
             }
         );
 
-        Stylesheet.SetClassRule(
-            "icon",
+        IconStyles.AddRule(
+            ".icon",
             new() {
                 Size            = new(32, 32),
                 BackgroundColor = new(0x80232223),
@@ -57,8 +60,8 @@ public class IconTest : ITest
             }
         );
 
-        Stylesheet.SetClassRule(
-            "icon-desc",
+        IconStyles.AddRule(
+            ".icon-desc",
             new() {
                 Size         = new(0, 32),
                 TextAlign    = Anchor.MiddleLeft,

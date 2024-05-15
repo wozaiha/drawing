@@ -9,6 +9,7 @@ public class BarAnimatedTest : ITest
     public string Name => "Bar (Animated)";
 
     private readonly Node _node = new() {
+        Stylesheet = ExamplePlugin.GlobalStylesheet,
         Style = new() {
             Flow               = Flow.Horizontal,
             Size               = new(1920, 32),

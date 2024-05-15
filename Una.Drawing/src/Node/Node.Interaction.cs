@@ -102,6 +102,33 @@ public partial class Node
         IsMouseOver = ImGui.IsItemHovered();
         IsFocused   = ImGui.IsItemFocused();
 
+        switch (IsMouseOver) {
+            case true when !_tagsList.Contains("hover"):
+                _tagsList.Add("hover");
+                break;
+            case false when _tagsList.Contains("hover"):
+                _tagsList.Remove("hover");
+                break;
+        }
+
+        switch (IsFocused) {
+            case true when !_tagsList.Contains("focus"):
+                _tagsList.Add("focus");
+                break;
+            case false when _tagsList.Contains("focus"):
+                _tagsList.Remove("focus");
+                break;
+        }
+
+        switch (IsMouseDown) {
+            case true when !_tagsList.Contains("active"):
+                _tagsList.Add("active");
+                break;
+            case false when _tagsList.Contains("active"):
+                _tagsList.Remove("active");
+                break;
+        }
+
         if (Tooltip != null && IsMouseOver && _mouseOverStartTime < DateTimeOffset.Now.ToUnixTimeMilliseconds() - 500) {
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding,  new Vector2(8, 6));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 6);
@@ -146,13 +173,11 @@ public partial class Node
                 if (!IsMouseDown) {
                     OnMouseDown?.Invoke(this);
                     OnMiddleClick?.Invoke(this);
-                    IsMouseDown = true;
                 }
             } else if (ImGui.IsMouseDown(ImGuiMouseButton.Right)) {
                 if (!IsMouseDown) {
                     OnMouseDown?.Invoke(this);
                     OnRightClick?.Invoke(this);
-                    IsMouseDown = true;
                 }
             } else {
                 if (IsMouseDown) {

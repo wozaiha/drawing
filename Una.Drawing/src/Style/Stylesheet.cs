@@ -5,64 +5,51 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Una.Drawing;
 
-public static class Stylesheet
+public class Stylesheet
 {
-    internal static readonly Dictionary<string, Style> ClassRules = [];
-    internal static readonly Dictionary<string, Style> TagRules   = [];
+    internal Dictionary<Rule, Style> Rules = [];
 
-    /// <summary>
-    /// Defines a style that is applied to all nodes that match the specified
-    /// class name.
-    /// </summary>
-    public static void SetClassRule(string className, Style style)
+    public Stylesheet(Dictionary<string, Style>? rules = null)
     {
-        ClassRules[className] = style;
+        if (rules is null) return;
+
+        foreach ((string query, Style style) in rules)
+            AddRule(query, style);
     }
 
     /// <summary>
-    /// Defines a style that is applied to all nodes that match the specified
-    /// tag name.
+    /// Adds a style rule matching the given query.
     /// </summary>
-    public static void SetTagRule(string tagName, Style style)
+    /// <param name="query"></param>
+    /// <param name="style"></param>
+    /// <exception cref="InvalidOperationException"></exception>
+    public void AddRule(string query, Style style)
     {
-        TagRules[tagName] = style;
+        List<QuerySelector> results = QuerySelectorParser.Parse(query);
+
+        foreach (var qs in results)
+        {
+            // Don't allow nested selectors in a stylesheet. This is a
+            // deliberate design choice to keep performance high.
+            if (qs.DirectChild is not null || qs.NestedChild is not null)
+                throw new InvalidOperationException("A stylesheet rule declaration cannot have nested selectors.");
+
+            Rules.Add(new(qs), style);
+        }
     }
 
-    /// <summary>
-    /// Returns a <see cref="Style"/> object that matches the given class name
-    /// or NULL if no such style was found.
-    /// </summary>
-    public static Style? GetStyleForClass(string className)
+    internal class Rule(QuerySelector querySelector)
     {
-        return ClassRules.GetValueOrDefault(className);
-    }
-
-    /// <summary>
-    /// Returns a <see cref="Style"/> object that matches the given tag name
-    /// or NULL if no such style was found.
-    /// </summary>
-    public static Style? GetStyleForTag(string tagName)
-    {
-        return TagRules.GetValueOrDefault(tagName);
-    }
-
-    /// <summary>
-    /// Deletes a class rule from the stylesheet.
-    /// </summary>
-    public static void DeleteClassRule(string className)
-    {
-        ClassRules.Remove(className);
-    }
-
-    /// <summary>
-    /// Deletes a tag rule from the stylesheet.
-    /// </summary>
-    public static void DeleteTagRule(string tagName)
-    {
-        TagRules.Remove(tagName);
+        public bool Matches(Node node)
+        {
+            return querySelector.ClassList.All(className => node.ClassList.Contains(className))
+                && querySelector.TagList.All(className => node.TagsList.Contains(className));
+        }
     }
 }

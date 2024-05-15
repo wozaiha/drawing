@@ -23,12 +23,29 @@ public partial class Node
     /// <see cref="Style"/> object.
     /// </remarks>
     /// <exception cref="ArgumentNullException"></exception>
-    public Style Style { get; set; } = new();
+    public Style Style {
+        get => _style;
+        set {
+            _style = value ?? throw new ArgumentNullException(nameof(value));
+            SignalReflowRecursive();
+        }
+    }
+
+    public Stylesheet? Stylesheet {
+        get => _stylesheet ?? ParentNode?.Stylesheet;
+        set {
+            _stylesheet = value;
+            SignalReflowRecursive();
+        }
+    }
 
     /// <summary>
     /// Defines the final computed style of this node.
     /// </summary>
     internal ComputedStyle ComputedStyle { get; private set; } = new();
+
+    private Style       _style = new();
+    private Stylesheet? _stylesheet;
 
     /// <summary>
     /// Generates the computed style of this node and its descendants.
@@ -37,14 +54,10 @@ public partial class Node
     {
         ComputedStyle.Reset();
 
-        foreach (string className in _classList) {
-            Style? cStyle = Stylesheet.GetStyleForClass(className);
-            if (cStyle is not null) ComputedStyle.Apply(cStyle);
-        }
-
-        foreach (string tagName in _tagsList) {
-            Style? tStyle = Stylesheet.GetStyleForTag(tagName);
-            if (tStyle is not null) ComputedStyle.Apply(tStyle);
+        if (Stylesheet is not null) {
+            foreach ((Stylesheet.Rule rule, Style style) in Stylesheet.Rules) {
+                if (rule.Matches(this)) ComputedStyle.Apply(style);
+            }
         }
 
         ComputedStyle.Apply(Style);
