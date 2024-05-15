@@ -49,7 +49,7 @@ public partial class Node
     /// <summary>
     /// Defines the final computed style of this node.
     /// </summary>
-    internal ComputedStyle ComputedStyle { get; private set; } = new();
+    public ComputedStyle ComputedStyle { get; private set; } = new();
 
     private Style       _style = new();
     private Stylesheet? _stylesheet;

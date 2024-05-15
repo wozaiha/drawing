@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace Una.Drawing;
 
-internal class ComputedStyle
+public sealed class ComputedStyle
 {
     /// <summary>
     /// Invoked when a property that affects the layout has changed.
@@ -30,132 +30,132 @@ internal class ComputedStyle
     }
 
     /// <inheritdoc cref="Style.IsVisible"/>
-    internal bool IsVisible { get; set; } = true;
+    public bool IsVisible { get; private set; } = true;
 
     /// <inheritdoc cref="Style.Anchor"/>
-    internal Anchor Anchor { get; set; } = Anchor.TopLeft;
+    public Anchor Anchor { get; private set; } = Anchor.TopLeft;
 
     /// <inheritdoc cref="Style.Size"/>
-    internal Size Size { get; set; } = new();
+    public Size Size { get; private set; } = new();
 
     /// <inheritdoc cref="Style.Flow"/>
-    internal Flow Flow { get; set; } = Flow.Horizontal;
+    public Flow Flow { get; private set; } = Flow.Horizontal;
 
     /// <inheritdoc cref="Style.Gap"/>
-    internal int Gap { get; set; }
+    public int Gap { get; private set; }
 
     /// <inheritdoc cref="Style.Padding"/>
-    internal EdgeSize Padding { get; set; } = new();
+    public EdgeSize Padding { get; private set; } = new();
 
     /// <inheritdoc cref="Style.Margin"/>
-    internal EdgeSize Margin { get; set; } = new();
+    public EdgeSize Margin { get; private set; } = new();
 
-    internal bool Stretch { get; set; }
+    public bool Stretch { get; private set; }
 
     /// <inheritdoc cref="Style.Color"/>
-    internal Color Color { get; set; } = new(0xFFC0C0C0);
+    public Color Color { get; private set; } = new(0xFFC0C0C0);
 
     /// <inheritdoc cref="Style.Font"/>
-    internal uint Font { get; set; }
+    public uint Font { get; private set; }
 
     /// <inheritdoc cref="Style.FontSize"/>
-    internal int FontSize { get; set; }
+    public int FontSize { get; private set; }
 
     /// <inheritdoc cref="Style.LineHeight"/>
-    internal float LineHeight { get; set; }
+    public float LineHeight { get; private set; }
 
     /// <inheritdoc cref="Style.WordWrap"/>
-    internal bool WordWrap { get; set; }
+    public bool WordWrap { get; private set; }
 
     /// <inheritdoc cref="Style.TextAlign"/>
-    internal Anchor TextAlign { get; set; } = Anchor.TopLeft;
+    public Anchor TextAlign { get; private set; } = Anchor.TopLeft;
 
     /// <inheritdoc cref="Style.OutlineSize"/>
-    internal float OutlineSize { get; set; }
+    public float OutlineSize { get; private set; }
 
     /// <inheritdoc cref="Style.TextOffset"/>
-    internal Vector2 TextOffset { get; set; }
+    public Vector2 TextOffset { get; private set; }
 
     /// <inheritdoc cref="Style.BackgroundColor"/>
-    internal Color? BackgroundColor { get; set; }
+    public Color? BackgroundColor { get; private set; }
 
     /// <inheritdoc cref="Style.BorderColor"/>
-    internal BorderColor? BorderColor { get; set; }
+    public BorderColor? BorderColor { get; private set; }
 
     /// <inheritdoc cref="Style.BorderInset"/>
-    internal EdgeSize BorderInset { get; set; } = new();
+    public EdgeSize BorderInset { get; private set; } = new();
 
     /// <inheritdoc cref="Style.BorderRadius"/>
-    internal int BorderRadius { get; set; }
+    public int BorderRadius { get; private set; }
 
     /// <inheritdoc cref="Style.BorderWidth"/>
-    internal EdgeSize BorderWidth { get; set; } = new();
+    public EdgeSize BorderWidth { get; private set; } = new();
 
     /// <inheritdoc cref="Style.StrokeColor"/>
-    internal Color? StrokeColor { get; set; }
+    public Color? StrokeColor { get; private set; }
 
     /// <inheritdoc cref="Style.StrokeWidth"/>
-    internal int StrokeWidth { get; set; }
+    public int StrokeWidth { get; private set; }
 
     /// <inheritdoc cref="Style.StrokeInset"/>
-    internal float StrokeInset { get; set; }
+    public float StrokeInset { get; private set; }
 
     /// <inheritdoc cref="Style.RoundedCorners"/>
-    internal float? StrokeRadius { get; set; }
+    public float? StrokeRadius { get; private set; }
 
     /// <inheritdoc cref="Style.RoundedCorners"/>
-    internal RoundedCorners RoundedCorners { get; set; }
+    public RoundedCorners RoundedCorners { get; private set; }
 
     /// <inheritdoc cref="Style.BackgroundGradient"/>
-    internal GradientColor? BackgroundGradient { get; set; }
+    public GradientColor? BackgroundGradient { get; private set; }
 
     /// <inheritdoc cref="Style.BackgroundGradientInset"/>
-    internal EdgeSize BackgroundGradientInset { get; set; } = new();
+    public EdgeSize BackgroundGradientInset { get; private set; } = new();
 
     /// <inheritdoc cref="Style.OutlineColor"/>
-    internal Color? OutlineColor { get; set; }
+    public Color? OutlineColor { get; private set; }
 
     /// <inheritdoc cref="Style.TextShadowSize"/>
-    internal float TextShadowSize { get; set; }
+    public float TextShadowSize { get; private set; }
 
     /// <inheritdoc cref="Style.TextShadowColor"/>
-    internal Color? TextShadowColor { get; set; }
+    public Color? TextShadowColor { get; private set; }
 
     /// <inheritdoc cref="Style.IconId"/>
-    internal uint? IconId { get; set; }
+    public uint? IconId { get; private set; }
 
     /// <inheritdoc cref="Style.IconInset"/>
-    internal EdgeSize? IconInset { get; set; }
+    public EdgeSize? IconInset { get; private set; }
 
     /// <inheritdoc cref="Style.IconOffset"/>
-    internal Vector2? IconOffset { get; set; }
+    public Vector2? IconOffset { get; private set; }
 
     /// <inheritdoc cref="Style.IconRounding"/>
-    internal float IconRounding { get; set; }
+    public float IconRounding { get; private set; }
 
     /// <inheritdoc cref="Style.IconRoundedCorners"/>
-    internal RoundedCorners IconRoundedCorners { get; set; }
+    public RoundedCorners IconRoundedCorners { get; private set; }
 
     /// <inheritdoc cref="Style.IconGrayscale"/>
-    internal bool IconGrayscale { get; set; }
+    public bool IconGrayscale { get; private set; }
 
     /// <inheritdoc cref="Style.IconContrast"/>
-    internal float IconContrast { get; set; }
+    public float IconContrast { get; private set; }
 
     /// <inheritdoc cref="Style.Opacity"/>
-    internal float Opacity { get; set; }
+    public float Opacity { get; private set; }
 
     /// <inheritdoc cref="Style.ShadowSize"/>
-    internal EdgeSize ShadowSize { get; set; } = new();
+    public EdgeSize ShadowSize { get; private set; } = new();
 
     /// <inheritdoc cref="Style.ShadowInset"/>
-    internal int ShadowInset { get; set; }
+    public int ShadowInset { get; private set; }
 
     /// <inheritdoc cref="Style.ShadowOffset"/>
-    internal Vector2 ShadowOffset { get; set; }
+    public Vector2 ShadowOffset { get; private set; }
 
     /// <inheritdoc cref="Style.IsAntialiased"/>
-    internal bool IsAntialiased { get; set; }
+    public bool IsAntialiased { get; private set; }
 
     internal void Apply(Style style)
     {
