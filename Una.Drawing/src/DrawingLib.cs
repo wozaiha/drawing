@@ -25,16 +25,22 @@ public class DrawingLib
         pluginInterface.Create<DalamudServices>();
         DalamudServices.UiBuilder = pluginInterface.UiBuilder;
 
-        #if DEBUG
+#if DEBUG
             DebugLogger.Writer = DalamudServices.PluginLog;
-        #endif
+#endif
 
         // Use the Noto Sans font that comes with Dalamud as the default font,
         // as it supports a wide range of characters, including Japanese.
-        FontRegistry.SetNativeFontFamily(0, new FileInfo(Path.Combine(
-            pluginInterface.DalamudAssetDirectory.FullName,
-            "UIRes", "NotoSansKR-Regular.otf"
-        )));
+        FontRegistry.SetNativeFontFamily(
+            0,
+            new FileInfo(
+                Path.Combine(
+                    pluginInterface.DalamudAssetDirectory.FullName,
+                    "UIRes",
+                    "NotoSansKR-Regular.otf"
+                )
+            )
+        );
 
         GfdIconRepository.Setup();
         Renderer.Setup();
@@ -57,6 +63,7 @@ internal class DalamudServices
     [PluginService] public static IDataManager                 DataManager                 { get; set; } = null!;
     [PluginService] public static ITextureProvider             TextureProvider             { get; set; } = null!;
     [PluginService] public static ITextureSubstitutionProvider TextureSubstitutionProvider { get; set; } = null!;
+    [PluginService] public static IPluginLog                   PluginLog                   { get; set; } = null!;
 
     public static UiBuilder UiBuilder { get; set; } = null!;
 }
