@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* Una.Drawing                                                 ____ ___
+ *   A declarative drawing library for FFXIV.                 |    |   \____ _____        ____                _
+ *                                                            |    |   /    \\__  \      |    \ ___ ___ _ _ _|_|___ ___
+ * By Una. Licensed under AGPL-3.                             |    |  |   |  \/ __ \_    |  |  |  _| .'| | | | |   | . |
+ * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
+ * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
+
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Dalamud.Interface.Internal;
@@ -9,6 +16,30 @@ namespace Una.Drawing;
 
 public partial class Node
 {
+    /// <summary>
+    /// <para>
+    /// A callback that is invoked before the node is drawn.
+    /// </para>
+    /// <para>
+    /// This method is guaranteed to be called before the node is drawn,
+    /// regardless of whether the node is visible or not, or if it needs to
+    /// reflow.
+    /// </para>
+    /// </summary>
+    public Action<Node>? BeforeDraw;
+
+    /// <summary>
+    /// <para>
+    /// A callback that is invoked after the node is drawn.
+    /// </para>
+    /// <para>
+    /// This method is guaranteed to be called before the node is drawn,
+    /// regardless of whether the node is visible or not, or if it needs to
+    /// reflow.
+    /// </para>
+    /// </summary>
+    public Action<Node>? AfterDraw;
+
     private IDalamudTextureWrap? _texture;
     private NodeSnapshot         _snapshot;
 
@@ -29,6 +60,8 @@ public partial class Node
 
     private void Draw(ImDrawListPtr drawList)
     {
+        BeforeDraw?.Invoke(this);
+
         if (!IsVisible) {
             _isVisibleSince = 0;
             return;
@@ -64,6 +97,8 @@ public partial class Node
         }
 
         EndInteractive();
+
+        AfterDraw?.Invoke(this);
     }
 
     private NodeSnapshot CreateSnapshot()

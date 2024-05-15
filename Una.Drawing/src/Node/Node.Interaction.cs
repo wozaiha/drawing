@@ -63,6 +63,16 @@ public partial class Node
     private void SetupInteractive(ImDrawListPtr drawList)
     {
         _didStartInteractive = false;
+
+        switch (IsDisabled) {
+            case true when !_tagsList.Contains("disabled"):
+                _tagsList.Add("disabled");
+                break;
+            case false when _tagsList.Contains("disabled"):
+                _tagsList.Remove("disabled");
+                break;
+        }
+
         if (IsDisabled || !IsInteractive || !IsVisible) return;
 
         if (_isVisibleSince == 0) _isVisibleSince = DateTimeOffset.Now.ToUnixTimeMilliseconds();

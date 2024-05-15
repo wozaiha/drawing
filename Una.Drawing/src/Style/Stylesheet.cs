@@ -48,7 +48,8 @@ public class Stylesheet
     {
         public bool Matches(Node node)
         {
-            return querySelector.ClassList.All(className => node.ClassList.Contains(className))
+            return (querySelector.Identifier is null || querySelector.Identifier.Equals(node.Id))
+                && querySelector.ClassList.All(className => node.ClassList.Contains(className))
                 && querySelector.TagList.All(className => node.TagsList.Contains(className));
         }
     }
