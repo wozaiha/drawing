@@ -52,7 +52,7 @@ public partial class Node
         if (_mustReflow) {
             ComputeBoundingBox();
             ComputeStretchedNodeSizes();
-            BeforeReflow?.Invoke(this);
+            InvokeReflowHook();
         }
 
         if (_mustReflow || _position != position) {
@@ -61,6 +61,15 @@ public partial class Node
         }
 
         _mustReflow = false;
+    }
+
+    private void InvokeReflowHook()
+    {
+        foreach (Node child in _childNodes) {
+            child.InvokeReflowHook();
+        }
+
+        BeforeReflow?.Invoke(this);
     }
 
     #region Reflow Stage #1

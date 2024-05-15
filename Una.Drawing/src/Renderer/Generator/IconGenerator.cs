@@ -59,6 +59,13 @@ internal class IconGenerator : IGenerator
 
         float radius = node.ComputedStyle.IconRounding;
 
+        rect = new(
+            rect.Left + (node.ComputedStyle.IconOffset?.X ?? 0),
+            rect.Top + (node.ComputedStyle.IconOffset?.Y ?? 0),
+            rect.Right + (node.ComputedStyle.IconOffset?.X ?? 0),
+            rect.Bottom + (node.ComputedStyle.IconOffset?.Y ?? 0)
+        );
+
         if (radius < 0.01f) {
             canvas.DrawRect(rect, paint);
             return;
