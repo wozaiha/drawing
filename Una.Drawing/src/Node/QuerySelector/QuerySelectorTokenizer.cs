@@ -40,6 +40,8 @@ internal static partial class QuerySelectorTokenizer
                 idBuffer = "";
             }
 
+            char[] separators = [' ', '.', '#', '[', '>', '+', '~', ':', ','];
+
             switch (c) {
                 case ' ':
                     tokens.Add(new(QuerySelectorTokenType.DeepChild, c.ToString()));
@@ -51,7 +53,7 @@ internal static partial class QuerySelectorTokenizer
                     continue;
                 case ':': {
                     int start = i;
-                    int end   = str.IndexOfAny([' ', '.', '#', '[', '>', '+', '~', ':'], start + 1);
+                    int end   = str.IndexOfAny(separators, start + 1);
 
                     if (end == -1) {
                         end = str.Length;
@@ -63,7 +65,7 @@ internal static partial class QuerySelectorTokenizer
                 }
                 case '.': {
                     int start = i;
-                    int end   = str.IndexOfAny([' ', '.', '#', '[', '>', '+', '~', ':'], start + 1);
+                    int end   = str.IndexOfAny(separators, start + 1);
 
                     if (end == -1) {
                         end = str.Length;
@@ -75,7 +77,7 @@ internal static partial class QuerySelectorTokenizer
                 }
                 case '#': {
                     int start = i;
-                    int end   = str.IndexOfAny([' ', '.', '#', '[', '>', '+', '~', ':'], start + 1);
+                    int end   = str.IndexOfAny(separators, start + 1);
 
                     if (end == -1) {
                         end = str.Length;
@@ -87,6 +89,7 @@ internal static partial class QuerySelectorTokenizer
                 }
                 case ',':
                     tokens.Add(new(QuerySelectorTokenType.Separator, c.ToString()));
+                    if (str[i+1] == ' ') i++;
                     i++;
                     break;
 

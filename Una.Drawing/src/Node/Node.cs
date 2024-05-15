@@ -246,7 +246,6 @@ public partial class Node
             }
         }
 
-        InvalidateQuerySelectorCache();
         SignalReflow();
         ReassignAnchorNodes();
     }
@@ -273,7 +272,6 @@ public partial class Node
             }
         }
 
-        InvalidateQuerySelectorCache();
         SignalReflow();
     }
 
@@ -299,7 +297,6 @@ public partial class Node
             }
         }
 
-        InvalidateQuerySelectorCache();
         SignalReflow();
     }
 

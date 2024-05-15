@@ -16,7 +16,9 @@ public partial class Node
     /// <summary>
     /// <para>
     /// Invoked immediate after the bounding boxes of all nodes have been
-    /// computed and immediately before the reflow process begins.
+    /// computed and immediately before the reflow process begins. This
+    /// hook must return TRUE if it made any changes to ensure that the
+    /// parent node's bounding boxes are recomputed.
     /// </para>
     /// <para>
     /// Use this hook to perform any resize operations on the Bounds of the
@@ -28,7 +30,9 @@ public partial class Node
     /// been modified that would affect its layout.
     /// </remarks>
     /// </summary>
-    public Action<Node>? BeforeReflow;
+    public ReflowDelegate? BeforeReflow;
+
+    public delegate bool ReflowDelegate(Node node);
 
     private readonly Dictionary<Anchor.AnchorPoint, List<Node>> _anchorToChildNodes = [];
     private readonly Dictionary<Node, Anchor.AnchorPoint>       _childNodeToAnchor  = [];
@@ -63,13 +67,29 @@ public partial class Node
         _mustReflow = false;
     }
 
-    private void InvokeReflowHook()
+    /// <summary>
+    /// Recomputes the size of this node. This method is typically used from
+    /// a Reflow hook of another node to recompute the size of this node based
+    /// on its child nodes.
+    /// </summary>
+    public void RecomputeSize()
     {
+        ComputeNodeSize(true);
+        ComputeStretchedNodeSizes(false);
+    }
+
+    private bool InvokeReflowHook()
+    {
+        var changed = false;
+
         foreach (Node child in _childNodes) {
-            child.InvokeReflowHook();
+            bool result = child.InvokeReflowHook();
+            if (result) changed = true;
         }
 
-        BeforeReflow?.Invoke(this);
+        if (changed) ComputeNodeSize(true);
+
+        return (BeforeReflow?.Invoke(this) ?? false) || changed;
     }
 
     #region Reflow Stage #1
@@ -98,9 +118,9 @@ public partial class Node
     /// Computes the size of this node based on its own value and the size of
     /// the child nodes, if any.
     /// </summary>
-    private void ComputeNodeSize()
+    private void ComputeNodeSize(bool force = false)
     {
-        if (!_mustReflow) return;
+        if (!force && !_mustReflow) return;
 
         // Always compute the content size from text, regardless of whether the
         // node size is fixed or not, since this also prepares the text for
@@ -177,11 +197,13 @@ public partial class Node
 
     #region Reflow Stage #2
 
-    private void ComputeStretchedNodeSizes()
+    private void ComputeStretchedNodeSizes(bool recursive = true)
     {
         // Start depth-first traversal of the node tree.
-        foreach (Node child in _childNodes) {
-            child.ComputeStretchedNodeSizes();
+        if (recursive) {
+            foreach (Node child in _childNodes) {
+                child.ComputeStretchedNodeSizes();
+            }
         }
 
         if (!ComputedStyle.Stretch || ParentNode is null) return;

@@ -12,9 +12,6 @@ namespace Una.Drawing;
 
 public partial class Node
 {
-    private readonly Dictionary<string, Node?>      _querySelectorCache    = [];
-    private readonly Dictionary<string, List<Node>> _querySelectorAllCache = [];
-
     /// <summary>
     /// Returns the first node that matches the given query selector, or NULL
     /// if no matching node was found.
@@ -23,19 +20,16 @@ public partial class Node
     /// <returns>A <see cref="Node"/> object or NULL if no such node exists.</returns>
     public Node? QuerySelector(string querySelectorString)
     {
-        if (_querySelectorCache.TryGetValue(querySelectorString, out var cachedResult)) return cachedResult;
         var querySelectors = QuerySelectorParser.Parse(querySelectorString);
 
         foreach (var querySelector in querySelectors) {
             Node? node = FindChildrenMatching(this, querySelector, true).FirstOrDefault();
 
             if (node != null) {
-                _querySelectorCache[querySelectorString] = node;
                 return node;
             }
         }
 
-        _querySelectorCache[querySelectorString] = null;
         return null;
     }
 
@@ -57,16 +51,12 @@ public partial class Node
     /// <returns>A list of matching <see cref="Node"/> instances.</returns>
     public IEnumerable<Node> QuerySelectorAll(string querySelectorString)
     {
-        if (_querySelectorAllCache.TryGetValue(querySelectorString, out var cachedResult)) return cachedResult;
-
         List<QuerySelector> querySelectors = QuerySelectorParser.Parse(querySelectorString);
         List<Node>          nodeListResult = [];
 
         foreach (var querySelector in querySelectors) {
             nodeListResult.AddRange(FindChildrenMatching(this, querySelector, true));
         }
-
-        _querySelectorAllCache[querySelectorString] = nodeListResult;
 
         return nodeListResult;
     }
@@ -80,15 +70,6 @@ public partial class Node
     public IEnumerable<T> QuerySelectorAll<T>(string querySelectorString) where T : Node
     {
         return QuerySelectorAll(querySelectorString).Cast<T>().ToList();
-    }
-
-    /// <summary>
-    /// Invalidates the query selector cache entries.
-    /// </summary>
-    private void InvalidateQuerySelectorCache(object? _ = null)
-    {
-        _querySelectorCache.Clear();
-        _querySelectorAllCache.Clear();
     }
 
     private static List<Node> FindChildrenMatching(Node node, QuerySelector querySelector, bool recursive)
@@ -115,7 +96,7 @@ public partial class Node
             nodeListResult.Add(child);
         }
 
-        if (recursive && nodeListResult.Count == 0 && node._childNodes.Count > 0) {
+        if (recursive && (querySelector.IsFirstSelector || nodeListResult.Count == 0) && node._childNodes.Count > 0) {
             foreach (var child in node._childNodes) {
                 nodeListResult.AddRange(FindChildrenMatching(child, querySelector, true));
             }

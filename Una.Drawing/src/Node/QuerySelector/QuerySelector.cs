@@ -18,6 +18,11 @@ internal record QuerySelector
     public string? Identifier;
 
     /// <summary>
+    /// Whether the current query selector is the first in the list.
+    /// </summary>
+    public bool IsFirstSelector = false;
+
+    /// <summary>
     /// A list of class-names that the current node must have.
     /// </summary>
     public List<string> ClassList = [];
@@ -38,4 +43,9 @@ internal record QuerySelector
     /// the current node recursively, until it finds one.
     /// </summary>
     public QuerySelector? NestedChild;
+
+    public override string ToString()
+    {
+        return $"QuerySelector: {Identifier} {ClassList.Aggregate("", (acc, x) => $"{acc}.{x}")}{TagList.Aggregate("", (acc, x) => $"{acc}:{x}")}";
+    }
 }

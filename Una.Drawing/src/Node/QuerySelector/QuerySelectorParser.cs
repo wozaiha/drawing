@@ -12,13 +12,19 @@ namespace Una.Drawing;
 
 internal static class QuerySelectorParser
 {
+    private static readonly Dictionary<string, List<QuerySelector>> Cache = [];
+
     internal static List<QuerySelector> Parse(string query)
     {
+        if (Cache.TryGetValue(query, out var cachedResult)) return cachedResult;
+
         List<QuerySelectorToken> tokens = QuerySelectorTokenizer.Tokenize(query);
         List<QuerySelector>      result = [];
 
         QuerySelector root  = new();
         QuerySelector scope = root;
+
+        root.IsFirstSelector = true;
 
         result.Add(root);
 
@@ -48,13 +54,15 @@ internal static class QuerySelectorParser
                     scope.TagList.Add(token.Value);
                     break;
                 case QuerySelectorTokenType.Separator:
-                    scope = new();
+                    scope = new() { IsFirstSelector = true };
                     result.Add(scope);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid token: [{token.Type}]");
             }
         }
+
+        Cache[query] = result;
 
         return result;
     }
