@@ -13,6 +13,23 @@ namespace Una.Drawing;
 
 public partial class Node
 {
+    /// <summary>
+    /// <para>
+    /// Invoked immediate after the bounding boxes of all nodes have been
+    /// computed and immediately before the reflow process begins.
+    /// </para>
+    /// <para>
+    /// Use this hook to perform any resize operations on the Bounds of the
+    /// node, for example, manually resizing the node with certain constraints.
+    /// </para>
+    /// <remarks>
+    /// This callback is only invoked if the node needs to reflow. This only
+    /// happens if any property of this node or any of its dependencies has
+    /// been modified that would affect its layout.
+    /// </remarks>
+    /// </summary>
+    public Action<Node>? BeforeReflow;
+
     private readonly Dictionary<Anchor.AnchorPoint, List<Node>> _anchorToChildNodes = [];
     private readonly Dictionary<Node, Anchor.AnchorPoint>       _childNodeToAnchor  = [];
 
@@ -35,6 +52,7 @@ public partial class Node
         if (_mustReflow) {
             ComputeBoundingBox();
             ComputeStretchedNodeSizes();
+            BeforeReflow?.Invoke(this);
         }
 
         if (_mustReflow || _position != position) {

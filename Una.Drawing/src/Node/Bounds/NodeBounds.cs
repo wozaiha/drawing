@@ -13,20 +13,20 @@ public class NodeBounds
     /// Represents the size of the entire bounding box area of this node, which
     /// is made up of the content area, padding, border, and margin spaces.
     /// </summary>
-    public Size MarginSize { get; internal set; } = new(0, 0);
+    public Size MarginSize { get; set; } = new(0, 0);
 
     /// <summary>
     /// Represents the size of the border area of this node, which is the area
     /// that surrounds the content and padding areas of the node.
     /// </summary>
-    public Size PaddingSize { get; internal set; } = new(0, 0);
+    public Size PaddingSize { get; set; } = new(0, 0);
 
     /// <summary>
     /// Represents the size of the content area of this node, which is the area
     /// that contains the bounding box areas of its children or the content of
     /// the node itself, depending which is larger.
     /// </summary>
-    public Size ContentSize  { get; internal set; } = new(0, 0);
+    public Size ContentSize  { get; set; } = new(0, 0);
 
     /// <summary>
     /// Represents the bounding box area of this node that makes up the entire
