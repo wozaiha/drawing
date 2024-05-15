@@ -53,92 +53,132 @@ internal class BorderGenerator : IGenerator
             paint.Color       = Color.ToSkColor(topColor);
             paint.StrokeWidth = topWidth;
 
-            canvas.DrawLine(rect.Left + cornerRadius, rect.Top, rect.Right - cornerRadius, rect.Top, paint);
-
-            canvas.DrawArc(
-                new(rect.Left, rect.Top, rect.Left + 2 * cornerRadius, rect.Top + 2 * cornerRadius),
-                -135,
-                45,
-                false,
+            canvas.DrawLine(
+                rect.Left + (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft) ? cornerRadius : 0),
+                rect.Top,
+                rect.Right - (style.RoundedCorners.HasFlag(RoundedCorners.TopRight) ? cornerRadius : 0),
+                rect.Top,
                 paint
             );
 
-            canvas.DrawArc(
-                new(rect.Right - 2 * cornerRadius, rect.Top, rect.Right, rect.Top + 2 * cornerRadius),
-                -90,
-                45,
-                false,
-                paint
-            );
+            if (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft)) {
+                canvas.DrawArc(
+                    new(rect.Left, rect.Top, rect.Left + 2 * cornerRadius, rect.Top + 2 * cornerRadius),
+                    -135,
+                    45,
+                    false,
+                    paint
+                );
+            }
+
+            if (style.RoundedCorners.HasFlag(RoundedCorners.TopRight)) {
+                canvas.DrawArc(
+                    new(rect.Right - 2 * cornerRadius, rect.Top, rect.Right, rect.Top + 2 * cornerRadius),
+                    -90,
+                    45,
+                    false,
+                    paint
+                );
+            }
         }
 
         if (rightWidth > 0 && rightColor is not null) {
             paint.Color       = Color.ToSkColor(rightColor);
             paint.StrokeWidth = rightWidth;
 
-            canvas.DrawLine(rect.Right, rect.Top + cornerRadius, rect.Right, rect.Bottom - cornerRadius, paint);
-
-            canvas.DrawArc(
-                new(rect.Right - 2 * cornerRadius, rect.Top, rect.Right, rect.Top + 2 * cornerRadius),
-                -45,
-                45,
-                false,
+            canvas.DrawLine(
+                rect.Right,
+                rect.Top + (style.RoundedCorners.HasFlag(RoundedCorners.TopRight) ? cornerRadius : 0),
+                rect.Right,
+                rect.Bottom - (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight) ? cornerRadius : 0),
                 paint
             );
 
-            canvas.DrawArc(
-                new(rect.Right - 2 * cornerRadius, rect.Bottom - 2 * cornerRadius, rect.Right, rect.Bottom),
-                0,
-                45,
-                false,
-                paint
-            );
+            if (style.RoundedCorners.HasFlag(RoundedCorners.TopRight)) {
+                canvas.DrawArc(
+                    new(rect.Right - 2 * cornerRadius, rect.Top, rect.Right, rect.Top + 2 * cornerRadius),
+                    -45,
+                    45,
+                    false,
+                    paint
+                );
+            }
+
+            if (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight)) {
+                canvas.DrawArc(
+                    new(rect.Right - 2 * cornerRadius, rect.Bottom - 2 * cornerRadius, rect.Right, rect.Bottom),
+                    0,
+                    45,
+                    false,
+                    paint
+                );
+            }
         }
 
         if (bottomWidth > 0 && bottomColor is not null) {
             paint.Color       = Color.ToSkColor(bottomColor);
             paint.StrokeWidth = bottomWidth;
 
-            canvas.DrawLine(rect.Left + cornerRadius, rect.Bottom, rect.Right - cornerRadius, rect.Bottom, paint);
-
-            canvas.DrawArc(
-                new(rect.Right - 2 * cornerRadius, rect.Bottom - 2 * cornerRadius, rect.Right, rect.Bottom),
-                45,
-                45,
-                false,
+            canvas.DrawLine(
+                rect.Left + (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft) ? cornerRadius : 0),
+                rect.Bottom,
+                rect.Right - (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight) ? cornerRadius : 0),
+                rect.Bottom,
                 paint
             );
 
-            canvas.DrawArc(
-                new(rect.Left, rect.Bottom - 2 * cornerRadius, rect.Left + 2 * cornerRadius, rect.Bottom),
-                90,
-                45,
-                false,
-                paint
-            );
+            if (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight)) {
+                canvas.DrawArc(
+                    new(rect.Right - 2 * cornerRadius, rect.Bottom - 2 * cornerRadius, rect.Right, rect.Bottom),
+                    45,
+                    45,
+                    false,
+                    paint
+                );
+            }
+
+            if (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft)) {
+                canvas.DrawArc(
+                    new(rect.Left, rect.Bottom - 2 * cornerRadius, rect.Left + 2 * cornerRadius, rect.Bottom),
+                    90,
+                    45,
+                    false,
+                    paint
+                );
+            }
         }
 
         if (leftWidth > 0 && leftColor is not null) {
             paint.Color       = Color.ToSkColor(leftColor);
             paint.StrokeWidth = leftWidth;
 
-            canvas.DrawLine(rect.Left, rect.Top + cornerRadius, rect.Left, rect.Bottom - cornerRadius, paint);
-
-            canvas.DrawArc(
-                new(rect.Left, rect.Top, rect.Left + 2 * cornerRadius, rect.Top + 2 * cornerRadius),
-                180,
-                45,
-                false,
+            canvas.DrawLine(
+                rect.Left,
+                rect.Top + (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft) ? cornerRadius : 0),
+                rect.Left,
+                rect.Bottom - (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft) ? cornerRadius : 0),
                 paint
             );
 
-            canvas.DrawArc(
-                new(rect.Left, rect.Bottom - 2 * cornerRadius, rect.Left + 2 * cornerRadius, rect.Bottom),
-                135,
-                45,
-                false,
-                paint
-            );
+            if (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft)) {
+                canvas.DrawArc(
+                    new(rect.Left, rect.Top, rect.Left + 2 * cornerRadius, rect.Top + 2 * cornerRadius),
+                    180,
+                    45,
+                    false,
+                    paint
+                );
+            }
+
+            if (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft)) {
+                canvas.DrawArc(
+                    new(rect.Left, rect.Bottom - 2 * cornerRadius, rect.Left + 2 * cornerRadius, rect.Bottom),
+                    135,
+                    45,
+                    false,
+                    paint
+                );
+            }
         }
     }
 
