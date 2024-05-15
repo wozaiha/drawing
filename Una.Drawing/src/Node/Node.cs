@@ -118,6 +118,20 @@ public partial class Node
     public Node? ParentNode { get; private set; }
 
     /// <summary>
+    /// Defines the sort index of this node. Nodes are sorted in ascending
+    /// order in the parent's child nodes list based on this value.
+    /// </summary>
+    public int SortIndex {
+        get => _sortIndex;
+        set {
+            if (_sortIndex == value) return;
+
+            _sortIndex = value;
+            OnSortIndexChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
     /// A reference to the root node of this node. Returns itself if the node
     /// where this property is accessed from has no parent node.
     /// </summary>
@@ -172,12 +186,18 @@ public partial class Node
     /// </summary>
     public event Action<string>? OnTagRemoved;
 
+    /// <summary>
+    /// Invoked when the sort index of this node has been changed.
+    /// </summary>
+    public event Action? OnSortIndexChanged;
+
     private string? _id;
     private object? _nodeValue;
+    private int     _sortIndex;
 
     private readonly ObservableCollection<string> _classList  = [];
     private readonly ObservableCollection<string> _tagsList   = [];
-    private readonly ObservableCollection<Node>   _childNodes = [];
+    private          ObservableCollection<Node>   _childNodes = [];
 
     public Node()
     {
@@ -286,35 +306,7 @@ public partial class Node
         node.ParentNode?.Remove();
 
         _childNodes.Add(node);
-        node.ParentNode = this;
-    }
-
-    /// <summary>
-    /// Inserts the given node before the reference node. Does nothing if the
-    /// reference node is not a child of this node.
-    /// </summary>
-    /// <param name="node">The node to insert.</param>
-    /// <param name="referenceNode">A reference to the node to which the new node is placed.</param>
-    public void InsertBefore(Node node, Node referenceNode)
-    {
-        if (_childNodes.Contains(node)) return;
-
-        int index = _childNodes.IndexOf(referenceNode);
-        _childNodes.Insert(index, node);
-    }
-
-    /// <summary>
-    /// Inserts the given node after the reference node. Does nothing if the
-    /// reference node is not a child of this node.
-    /// </summary>
-    /// <param name="node">The node to insert.</param>
-    /// <param name="referenceNode">A reference to the node to which the new node is placed.</param>
-    public void InsertAfter(Node node, Node referenceNode)
-    {
-        if (_childNodes.Contains(node)) return;
-
-        int index = _childNodes.IndexOf(referenceNode);
-        _childNodes.Insert(index + 1, node);
+        node.ParentNode         =  this;
     }
 
     /// <summary>
@@ -381,6 +373,9 @@ public partial class Node
         _anchorToChildNodes[node.ComputedStyle.Anchor.Point].Add(node);
         _childNodeToAnchor[node] = node.ComputedStyle.Anchor.Point;
 
+        node.OnSortIndexChanged += SortChildren;
+
+        SortChildren();
         SignalReflow();
         OnChildAdded?.Invoke(node);
     }
@@ -391,7 +386,8 @@ public partial class Node
     /// <param name="node">The removed node.</param>
     private void OnChildRemovedFromList(Node node)
     {
-        node.ParentNode = null;
+        node.ParentNode         =  null;
+        node.OnSortIndexChanged -= SortChildren;
 
         if (!_childNodeToAnchor.ContainsKey(node)) {
             return;
@@ -401,8 +397,24 @@ public partial class Node
             _anchorToChildNodes[anchor].Remove(node);
         }
 
+        SortChildren();
         SignalReflow();
         OnChildRemoved?.Invoke(node);
+    }
+
+    private void SortChildren()
+    {
+        if (_childNodes.Count < 2) return;
+
+        // Stable sort based on SortIndex. This code is only executed when
+        // nodes are added or removed from the node list, or when the
+        // SortIndex of a child node has been changed. This is a relatively
+        // rare operation that does not happen on every frame.
+        _childNodes.CollectionChanged -= HandleChildListChanged;
+        _childNodes                   =  new(_childNodes.OrderBy(n => n.SortIndex));
+        _childNodes.CollectionChanged += HandleChildListChanged;
+
+        foreach (var node in _childNodes) node.SignalReflow();
     }
 
     [GeneratedRegex("^[A-Za-z]{1}[A-Za-z0-9_-]+$")]

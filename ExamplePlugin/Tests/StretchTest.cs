@@ -35,14 +35,14 @@ public class StretchTest : ITest
             IsAntialiased   = true,
         },
         ChildNodes = [
-            CreateItem("Item1", "JA: グッデイワールド"),
-            CreateItem("Item2", "CN: 好日子世界"),
-            CreateItem("Item3", "KR: 굿데이월드"),
-            CreateItem("Item4", "Item 4"),
-            CreateItem("Item5", "Short"),
-            CreateItem("Item6", "Foobar"),
-            CreateItem("Item7", "Another one with very large text!"),
-            CreateItem("Item8", null)
+            CreateItem("Item1", "JA: グッデイワールド", 1),
+            CreateItem("Item2", "CN: 好日子世界", 2),
+            CreateItem("Item3", "KR: 굿데이월드", 3),
+            CreateItem("Item4", "Item 4", 4),
+            CreateItem("Item5", "Short", 5),
+            CreateItem("Item6", "Foobar", 6 ),
+            CreateItem("Item7", "Another one with very large text!", 7),
+            CreateItem("Item8", null, 8)
         ]
     };
 
@@ -50,8 +50,6 @@ public class StretchTest : ITest
 
     public StretchTest()
     {
-        _node.QuerySelector("Item6")!.Style.IsVisible = false;
-
         Color.AssignByName("stretch-test", 0xFF402070);
 
         SeString str = new SeStringBuilder()
@@ -69,27 +67,32 @@ public class StretchTest : ITest
     {
         _time += 1;
 
-        if (_time == 600) {
+        if (_time == 300) {
             // _node.QuerySelector("Item4")!.NodeValue       = "Now this text is much much much much much longer!";
             // _node.QuerySelector("Item6")!.Style.IsVisible = true;
             Color.AssignByName("stretch-test", 0xFF407070);
+
+            _node.QuerySelector("Item6")!.SortIndex = 1;
         }
 
-        if (_time == 1200) {
+        if (_time == 600) {
             // _node.QuerySelector("Item4")!.NodeValue       = "Yes";
             // _node.QuerySelector("Item6")!.Style.IsVisible = false;
             _time = 0;
             Color.AssignByName("stretch-test", 0xFF404050);
+
+            _node.QuerySelector("Item6")!.SortIndex = 6;
         }
 
         _node.Render(ImGui.GetBackgroundDrawList(), new(500, 100));
     }
 
-    private static Node CreateItem(string id, object? label)
+    private static Node CreateItem(string id, object? label, int sortIndex)
     {
         return new() {
             Id        = id,
             NodeValue = label,
+            SortIndex = sortIndex,
             Style = new() {
                 Stretch         = true,
                 Size            = new(0, 32),
