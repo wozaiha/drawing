@@ -16,6 +16,18 @@ namespace Una.Drawing;
 public partial class Node
 {
     /// <summary>
+    /// Defines the global scale factor across all nodes.
+    /// </summary>
+    public static float ScaleFactor { get; set; } = 1.0f;
+
+    /// <summary>
+    /// Whether the global scale factor should affect the borders of the nodes.
+    /// This should typically disabled when using a scale factor of less than 1
+    /// to prevent 1px-borders from becoming invisible.
+    /// </summary>
+    public static bool ScaleAffectsBorders { get; set; } = true;
+
+    /// <summary>
     /// Defines a unique identifier for the node.
     /// </summary>
     public string? Id {
@@ -416,6 +428,9 @@ public partial class Node
 
         foreach (var node in _childNodes) node.SignalReflow();
     }
+
+    private float _scaleFactor         = ScaleFactor;
+    private bool  _scaleAffectsBorders = ScaleAffectsBorders;
 
     [GeneratedRegex("^[A-Za-z]{1}[A-Za-z0-9_-]+$")]
     private static partial Regex IdentifierNamingRule();

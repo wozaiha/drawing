@@ -22,6 +22,16 @@ public partial class Node
 
     public void Reflow(Point? position = null)
     {
+        if (_scaleFactor != ScaleFactor) {
+            _scaleFactor = ScaleFactor;
+            _mustReflow  = true;
+        }
+
+        if (_scaleAffectsBorders != ScaleAffectsBorders) {
+            _scaleAffectsBorders = ScaleAffectsBorders;
+            _mustReflow          = true;
+        }
+
         if (_mustReflow) {
             ComputeBoundingBox();
             ComputeStretchedNodeSizes();

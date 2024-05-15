@@ -18,31 +18,32 @@ public class StretchTest : ITest
     private readonly Node _node = new() {
         Id = "Menu",
         Style = new() {
-            Anchor          = Anchor.TopCenter,
-            Flow            = Flow.Vertical,
-            BackgroundColor = new(0xFF212021),
-            StrokeColor     = new(0xFF4F4F4F),
-            BackgroundGradient = GradientColor.Vertical(new(0xFF212021), new(0xFF443911), 6),
-            StrokeWidth     = 1,
-            StrokeInset     = 5,
-            BorderRadius    = 9,
-            RoundedCorners  = RoundedCorners.TopLeft | RoundedCorners.TopRight,
-            Gap             = 18,
-            Padding         = new(16),
-            ShadowSize      = new(64, 64, 0, 64),
-            ShadowInset     = 2,
-            ShadowOffset    = new(0, 8),
-            IsAntialiased   = true,
+            Anchor                  = Anchor.TopCenter,
+            Flow                    = Flow.Vertical,
+            BackgroundColor         = new(0xFF212021),
+            BorderColor             = new(new(0xFF4F4F4F)),
+            BackgroundGradient      = GradientColor.Vertical(new(0xFF212021), new(0xFF443911)),
+            BackgroundGradientInset = new(6) { Bottom = 0 },
+            BorderWidth             = new() { Top = 1, Right = 1, Left = 1, Bottom = 0 },
+            BorderInset             = new(5) { Bottom = 0 },
+            BorderRadius            = 9,
+            RoundedCorners          = RoundedCorners.TopLeft | RoundedCorners.TopRight,
+            Gap                     = 18,
+            Padding                 = new(16),
+            ShadowSize              = new(64, 64, 0, 64),
+            ShadowInset             = 2,
+            ShadowOffset            = new(0, 8),
+            IsAntialiased           = true,
         },
         ChildNodes = [
-            CreateItem("Item1", "JA: グッデイワールド", 1),
-            CreateItem("Item2", "CN: 好日子世界", 2),
-            CreateItem("Item3", "KR: 굿데이월드", 3),
-            CreateItem("Item4", "Item 4", 4),
-            CreateItem("Item5", "Short", 5),
-            CreateItem("Item6", "Foobar", 6 ),
+            CreateItem("Item1", "JA: グッデイワールド",                      1),
+            CreateItem("Item2", "CN: 好日子世界",                         2),
+            CreateItem("Item3", "KR: 굿데이월드",                         3),
+            CreateItem("Item4", "Item 4",                            4),
+            CreateItem("Item5", "Short",                             5),
+            CreateItem("Item6", "Foobar",                            6),
             CreateItem("Item7", "Another one with very large text!", 7),
-            CreateItem("Item8", null, 8)
+            CreateItem("Item8", null,                                8)
         ]
     };
 
@@ -56,7 +57,7 @@ public class StretchTest : ITest
             .AddUiForeground(28)
             .AddText("SeString test with ")
             .AddUiForegroundOff()
-            .AddIcon(BitmapFontIcon.IslandSanctuary)
+            // .AddIcon(BitmapFontIcon.IslandSanctuary)
             .AddText(" a very nice icon. Neat stuff!")
             .Build();
 

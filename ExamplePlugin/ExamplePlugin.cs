@@ -26,23 +26,26 @@ public sealed class ExamplePlugin : IDalamudPlugin
         new() {
             {
                 ".button", new() {
-                    Size               = new(0, 26),
-                    Padding            = new(0, 6),
-                    BackgroundColor    = new(0xC01A1A1A),
-                    BorderColor        = new(new(0xFF787A7A)),
-                    BorderWidth        = new(1),
-                    BorderRadius       = 5,
-                    BorderInset        = 2,
-                    BackgroundGradient = GradientColor.Vertical(new(0xC02F2A2A), null, 5),
-                    TextAlign          = Anchor.MiddleCenter,
-                    FontSize           = 10,
+                    Size                    = new(0, 26),
+                    Padding                 = new(0, 6),
+                    BackgroundColor         = new(0xC01A1A1A),
+                    BorderColor             = new(new(0xFF787A7A)),
+                    BorderWidth             = new(1),
+                    BorderRadius            = 5,
+                    BorderInset             = new(2),
+                    BackgroundGradient      = GradientColor.Vertical(new(0xC02F2A2A), null),
+                    BackgroundGradientInset = new(5),
+                    TextAlign               = Anchor.MiddleCenter,
+                    TextOffset              = new(0, -1),
+                    FontSize                = 10,
                 }
             }, {
                 ".button:hover",
                 new() {
-                    Color              = new(0xFF101010),
-                    BackgroundColor    = new(0xC0EAEAEA),
-                    BackgroundGradient = GradientColor.Vertical(new(0xC02FFFFF), null, 5),
+                    Color                   = new(0xFF101010),
+                    BackgroundColor         = new(0xC0EAEAEA),
+                    BackgroundGradient      = GradientColor.Vertical(new(0xC02FFFFF), null),
+                    BackgroundGradientInset = new(5),
                 }
             }, {
                 ".button:active",
@@ -101,8 +104,8 @@ public sealed class ExamplePlugin : IDalamudPlugin
 
     private void OnDraw()
     {
-        ImGui.SetNextWindowSize(new(600, 84), ImGuiCond.Always);
-        ImGui.SetNextWindowPos(new(10, 10));
+        ImGui.SetNextWindowSize(new(600, 110), ImGuiCond.Once);
+        ImGui.SetNextWindowPos(new(10, 10), ImGuiCond.Once);
         ImGui.Begin("UnaDrawingTestSuite");
 
         if (ImGui.BeginCombo("Tests", _activeTest)) {
@@ -123,12 +126,30 @@ public sealed class ExamplePlugin : IDalamudPlugin
 
         ImGui.SetCursorPos(new(10, 56));
 
+        var last = _tests.Keys.Last();
+
         foreach (var test in _tests) {
             if (ImGui.Button(test.Key)) {
                 _activeTest = test.Key;
             }
 
-            ImGui.SameLine();
+            if (test.Key != last) {
+                ImGui.SameLine();
+            }
+        }
+
+        float scale = Node.ScaleFactor;
+
+        if (ImGui.DragFloat("UI Scale", ref scale, 0.1f, 0.5f, 3.0f)) {
+            Node.ScaleFactor = Math.Clamp(scale, 0.5f, 3.0f);
+        }
+
+        ImGui.SameLine();
+
+        bool b = Node.ScaleAffectsBorders;
+
+        if (ImGui.Checkbox("Affect borders", ref b)) {
+            Node.ScaleAffectsBorders = b;
         }
 
         ImGui.End();

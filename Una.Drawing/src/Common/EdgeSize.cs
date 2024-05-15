@@ -5,6 +5,8 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System;
+
 namespace Una.Drawing;
 
 /// <summary>
@@ -52,4 +54,11 @@ public readonly record struct EdgeSize(int Top, int Right, int Bottom, int Left)
 
     public static bool operator ==(EdgeSize? left, EdgeSize? right) => left is not null && left.Equals(right);
     public static bool operator !=(EdgeSize? left, EdgeSize? right) => !(left == right);
+
+    public static EdgeSize operator *(EdgeSize left, float right) => new(
+        (int)Math.Ceiling(left.Top * right),
+        (int)Math.Ceiling(left.Right * right),
+        (int)Math.Ceiling(left.Bottom * right),
+        (int)Math.Ceiling(left.Left * right)
+    );
 }

@@ -64,14 +64,15 @@ internal class IconGenerator : IGenerator
             return;
         }
 
-        var style  = node.ComputedStyle;
+        var style = node.ComputedStyle;
 
         RoundedCorners corners     = style.IconRoundedCorners;
         SKPoint        topLeft     = corners.HasFlag(RoundedCorners.TopLeft) ? new(radius, radius) : new(0, 0);
         SKPoint        topRight    = corners.HasFlag(RoundedCorners.TopRight) ? new(radius, radius) : new(0, 0);
         SKPoint        bottomRight = corners.HasFlag(RoundedCorners.BottomRight) ? new(radius, radius) : new(0, 0);
         SKPoint        bottomLeft  = corners.HasFlag(RoundedCorners.BottomLeft) ? new(radius, radius) : new(0, 0);
-        SKRoundRect    roundRect   = new SKRoundRect(rect, radius, radius);
+
+        using SKRoundRect roundRect = new SKRoundRect(rect, radius, radius);
 
         roundRect.SetRectRadii(rect, [topLeft, topRight, bottomRight, bottomLeft]);
         canvas.DrawRoundRect(roundRect, paint);

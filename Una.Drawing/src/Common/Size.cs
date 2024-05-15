@@ -5,6 +5,7 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System;
 using System.Numerics;
 
 namespace Una.Drawing;
@@ -58,6 +59,8 @@ public record Size(int Width = 0, int Height = 0)
 
     public static Size operator +(Size  left, Size right) => new(left.Width + right.Width, left.Height + right.Height);
     public static Size operator -(Size  left, Size right) => new(left.Width - right.Width, left.Height - right.Height);
+    public static Size operator *(Size left, float right) => new((int)Math.Ceiling(left.Width * right), (int)Math.Ceiling(left.Height * right));
+    public static Size operator /(Size left, float right) => new((int)Math.Floor(left.Width / right), (int)Math.Floor(left.Height / right));
 
     /// <summary>
     /// Creates a copy of this size object.

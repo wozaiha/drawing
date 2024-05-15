@@ -59,8 +59,6 @@ internal class TextGenerator : IGenerator
         sp.Color       = SKColors.White;
         sp.StrokeWidth = 2;
 
-        //canvas.DrawRect(x, y - font.GetLineHeight(node.ComputedStyle.FontSize), size.Width, size.Height, sp);
-
         using SKPaint paint = new();
         SKPoint       point = new(x, y);
 

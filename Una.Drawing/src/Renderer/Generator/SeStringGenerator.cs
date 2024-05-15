@@ -28,13 +28,13 @@ public class SeStringGenerator : IGenerator
         var   metrics    = font.GetMetrics(node.ComputedStyle.FontSize);
         int   spaceWidth = font.MeasureText(" ", node.ComputedStyle.FontSize).Size.Width;
 
-        var y = (int)(metrics.CapHeight + (int)node.ComputedStyle.TextOffset.Y + 1);
+        var y = (int)(metrics.CapHeight + node.ComputedStyle.TextOffset.Y);
         var x = (int)node.ComputedStyle.TextOffset.X;
 
         if (node.ComputedStyle.TextAlign.IsTop) y    += node.ComputedStyle.Padding.Top;
         if (node.ComputedStyle.TextAlign.IsLeft) x   += node.ComputedStyle.Padding.Left;
         if (node.ComputedStyle.TextAlign.IsRight) x  += -node.ComputedStyle.Padding.Right;
-        if (node.ComputedStyle.TextAlign.IsMiddle) y += (node.Height - size.Height) / 2 + 1;
+        if (node.ComputedStyle.TextAlign.IsMiddle) y += (node.Height - size.Height) / 2;
         if (node.ComputedStyle.TextAlign.IsBottom) y =  node.Height - size.Height;
         if (node.ComputedStyle.TextAlign.IsCenter) x += (node.Width - size.Width) / 2;
 

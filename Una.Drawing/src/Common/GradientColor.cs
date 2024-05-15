@@ -12,8 +12,7 @@ namespace Una.Drawing;
 public class GradientColor(
     Color?       color1 = null,
     Color?       color2 = null,
-    GradientType type   = GradientType.Vertical,
-    int          inset  = 0
+    GradientType type   = GradientType.Vertical
 )
 {
     /// <summary>
@@ -31,20 +30,14 @@ public class GradientColor(
     /// </summary>
     public GradientType Type { get; set; } = type;
 
-    /// <summary>
-    /// Defines the inset distance of the gradient relative to the bounding
-    /// box of the node.
-    /// </summary>
-    public int Inset { get; set; } = inset;
+    public static GradientColor Horizontal(Color? start, Color? end) =>
+        new(start, end, GradientType.Horizontal);
 
-    public static GradientColor Horizontal(Color? start, Color? end, int inset = 0) =>
-        new(start, end, GradientType.Horizontal, inset);
+    public static GradientColor Vertical(Color? start, Color? end) =>
+        new(start, end, GradientType.Vertical);
 
-    public static GradientColor Vertical(Color? start, Color? end, int inset = 0) =>
-        new(start, end, GradientType.Vertical, inset);
-
-    public static GradientColor Radial(Color? start, Color? end, int inset = 0) =>
-        new(start, end, GradientType.Radial, inset);
+    public static GradientColor Radial(Color? start, Color? end) =>
+        new(start, end, GradientType.Radial);
 
     /// <summary>
     /// Returns true if all color points are undefined or invisible.

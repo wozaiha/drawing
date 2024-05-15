@@ -35,7 +35,7 @@ public partial class Style
     /// Defines the inset of the border around the node, allowing the border to
     /// be drawn inside the node's bounds.
     /// </summary>
-    public float? BorderInset { get; set; }
+    public EdgeSize? BorderInset { get; set; }
 
     /// <summary>
     /// <para>

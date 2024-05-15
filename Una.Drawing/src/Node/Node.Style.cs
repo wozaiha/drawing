@@ -68,6 +68,7 @@ public partial class Node
         }
 
         ComputedStyle.Apply(Style);
+        ComputedStyle.ApplyScaleFactor();
 
         int res     = ComputedStyle.Commit();
         var updated = false;

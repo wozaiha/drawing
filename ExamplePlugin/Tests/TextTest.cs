@@ -65,7 +65,7 @@ public class TextTest : ITest
                 WordWrap        = width is not null,
                 BorderColor     = new(new(0xA0FFFFFF)),
                 BorderWidth     = new(1),
-                BorderInset     = 10,
+                BorderInset     = new(10),
             }
         };
     }

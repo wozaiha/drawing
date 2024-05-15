@@ -26,18 +26,23 @@ internal class BorderGenerator : IGenerator
         if (null == style.BorderColor) return;
         if (style.BorderWidth is { HorizontalSize: 0, VerticalSize: 0 }) return;
 
-        float inset        = style.BorderInset;
-        int   topWidth     = style.BorderWidth.Top;
-        int   rightWidth   = style.BorderWidth.Right;
-        int   bottomWidth  = style.BorderWidth.Bottom;
-        int   leftWidth    = style.BorderWidth.Left;
-        float cornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset));
+        EdgeSize inset       = style.BorderInset;
+        int      topWidth    = style.BorderWidth.Top;
+        int      rightWidth  = style.BorderWidth.Right;
+        int      bottomWidth = style.BorderWidth.Bottom;
+        int      leftWidth   = style.BorderWidth.Left;
+
+        // FIXME: This isn't right. Corner radius should respect individual edge sizes now.
+        float topCornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Top));
+        float rightCornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Right));
+        float bottomCornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Bottom));
+        float leftCornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Left));
 
         var rect = new SKRect(
-            inset + ((float)leftWidth / 2),
-            inset + ((float)topWidth / 2),
-            size.Width - 1 - inset - ((float)rightWidth / 2),
-            size.Height - 1 - inset - ((float)bottomWidth / 2)
+            inset.Left + ((float)leftWidth / 2),
+            inset.Top + ((float)topWidth / 2),
+            size.Width - 1 - inset.Right - ((float)rightWidth / 2),
+            size.Height - 1 - inset.Bottom - ((float)bottomWidth / 2)
         );
 
         Color? topColor    = style.BorderColor.Value.Top;
@@ -54,16 +59,16 @@ internal class BorderGenerator : IGenerator
             paint.StrokeWidth = topWidth;
 
             canvas.DrawLine(
-                rect.Left + (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft) ? cornerRadius : 0),
+                rect.Left + (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft) ? topCornerRadius : 0),
                 rect.Top,
-                rect.Right - (style.RoundedCorners.HasFlag(RoundedCorners.TopRight) ? cornerRadius : 0),
+                rect.Right - (style.RoundedCorners.HasFlag(RoundedCorners.TopRight) ? topCornerRadius : 0),
                 rect.Top,
                 paint
             );
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft)) {
                 canvas.DrawArc(
-                    new(rect.Left, rect.Top, rect.Left + 2 * cornerRadius, rect.Top + 2 * cornerRadius),
+                    new(rect.Left, rect.Top, rect.Left + 2 * leftCornerRadius, rect.Top + 2 * topCornerRadius),
                     -135,
                     45,
                     false,
@@ -73,7 +78,7 @@ internal class BorderGenerator : IGenerator
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.TopRight)) {
                 canvas.DrawArc(
-                    new(rect.Right - 2 * cornerRadius, rect.Top, rect.Right, rect.Top + 2 * cornerRadius),
+                    new(rect.Right - 2 * rightCornerRadius, rect.Top, rect.Right, rect.Top + 2 * topCornerRadius),
                     -90,
                     45,
                     false,
@@ -88,15 +93,15 @@ internal class BorderGenerator : IGenerator
 
             canvas.DrawLine(
                 rect.Right,
-                rect.Top + (style.RoundedCorners.HasFlag(RoundedCorners.TopRight) ? cornerRadius : 0),
+                rect.Top + (style.RoundedCorners.HasFlag(RoundedCorners.TopRight) ? topCornerRadius : 0),
                 rect.Right,
-                rect.Bottom - (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight) ? cornerRadius : 0),
+                rect.Bottom - (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight) ? bottomCornerRadius : 0),
                 paint
             );
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.TopRight)) {
                 canvas.DrawArc(
-                    new(rect.Right - 2 * cornerRadius, rect.Top, rect.Right, rect.Top + 2 * cornerRadius),
+                    new(rect.Right - 2 * rightCornerRadius, rect.Top, rect.Right, rect.Top + 2 * topCornerRadius),
                     -45,
                     45,
                     false,
@@ -106,7 +111,7 @@ internal class BorderGenerator : IGenerator
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight)) {
                 canvas.DrawArc(
-                    new(rect.Right - 2 * cornerRadius, rect.Bottom - 2 * cornerRadius, rect.Right, rect.Bottom),
+                    new(rect.Right - 2 * rightCornerRadius, rect.Bottom - 2 * bottomCornerRadius, rect.Right, rect.Bottom),
                     0,
                     45,
                     false,
@@ -120,16 +125,16 @@ internal class BorderGenerator : IGenerator
             paint.StrokeWidth = bottomWidth;
 
             canvas.DrawLine(
-                rect.Left + (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft) ? cornerRadius : 0),
+                rect.Left + (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft) ? leftCornerRadius : 0),
                 rect.Bottom,
-                rect.Right - (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight) ? cornerRadius : 0),
+                rect.Right - (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight) ? bottomCornerRadius : 0),
                 rect.Bottom,
                 paint
             );
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight)) {
                 canvas.DrawArc(
-                    new(rect.Right - 2 * cornerRadius, rect.Bottom - 2 * cornerRadius, rect.Right, rect.Bottom),
+                    new(rect.Right - 2 * rightCornerRadius, rect.Bottom - 2 * bottomCornerRadius, rect.Right, rect.Bottom),
                     45,
                     45,
                     false,
@@ -139,7 +144,7 @@ internal class BorderGenerator : IGenerator
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft)) {
                 canvas.DrawArc(
-                    new(rect.Left, rect.Bottom - 2 * cornerRadius, rect.Left + 2 * cornerRadius, rect.Bottom),
+                    new(rect.Left, rect.Bottom - 2 * leftCornerRadius, rect.Left + 2 * bottomCornerRadius, rect.Bottom),
                     90,
                     45,
                     false,
@@ -154,15 +159,15 @@ internal class BorderGenerator : IGenerator
 
             canvas.DrawLine(
                 rect.Left,
-                rect.Top + (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft) ? cornerRadius : 0),
+                rect.Top + (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft) ? topCornerRadius : 0),
                 rect.Left,
-                rect.Bottom - (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft) ? cornerRadius : 0),
+                rect.Bottom - (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft) ? bottomCornerRadius : 0),
                 paint
             );
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.TopLeft)) {
                 canvas.DrawArc(
-                    new(rect.Left, rect.Top, rect.Left + 2 * cornerRadius, rect.Top + 2 * cornerRadius),
+                    new(rect.Left, rect.Top, rect.Left + 2 * leftCornerRadius, rect.Top + 2 * topCornerRadius),
                     180,
                     45,
                     false,
@@ -172,7 +177,7 @@ internal class BorderGenerator : IGenerator
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft)) {
                 canvas.DrawArc(
-                    new(rect.Left, rect.Bottom - 2 * cornerRadius, rect.Left + 2 * cornerRadius, rect.Bottom),
+                    new(rect.Left, rect.Bottom - 2 * leftCornerRadius, rect.Left + 2 * bottomCornerRadius, rect.Bottom),
                     135,
                     45,
                     false,
@@ -210,7 +215,7 @@ internal class BorderGenerator : IGenerator
 
         SKPoint bottomLeft = style.RoundedCorners.HasFlag(RoundedCorners.BottomLeft) ? new(radius, radius) : new(0, 0);
 
-        SKRoundRect roundRect = new SKRoundRect(rect, radius, radius);
+        using SKRoundRect roundRect = new SKRoundRect(rect, radius, radius);
         roundRect.SetRectRadii(rect, [topLeft, topRight, bottomRight, bottomLeft]);
 
         canvas.DrawRoundRect(roundRect, paint);

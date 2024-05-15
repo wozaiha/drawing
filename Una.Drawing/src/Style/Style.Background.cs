@@ -30,4 +30,10 @@ public partial class Style
     /// </para>
     /// </summary>
     public GradientColor? BackgroundGradient { get; set; }
+
+    /// <summary>
+    /// Defines the inset of the gradient background which determines the space
+    /// between the gradient background and the element's border.
+    /// </summary>
+    public EdgeSize? BackgroundGradientInset { get; set; }
 }

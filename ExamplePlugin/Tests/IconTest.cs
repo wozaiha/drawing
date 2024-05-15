@@ -52,7 +52,7 @@ public class IconTest : ITest
                 BackgroundColor = new(0x80232223),
                 BorderColor     = new(new(0xFFC0C0C0)),
                 BorderWidth     = new(2),
-                BorderInset     = 1,
+                BorderInset     = new(1),
                 BorderRadius    = 8,
                 IconRounding    = 16,
                 IconInset       = new(4),

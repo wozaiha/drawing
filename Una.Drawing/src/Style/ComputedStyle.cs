@@ -83,7 +83,7 @@ internal class ComputedStyle
     internal BorderColor? BorderColor { get; set; }
 
     /// <inheritdoc cref="Style.BorderInset"/>
-    internal float BorderInset { get; set; }
+    internal EdgeSize BorderInset { get; set; } = new();
 
     /// <inheritdoc cref="Style.BorderRadius"/>
     internal int BorderRadius { get; set; }
@@ -108,6 +108,9 @@ internal class ComputedStyle
 
     /// <inheritdoc cref="Style.BackgroundGradient"/>
     internal GradientColor? BackgroundGradient { get; set; }
+
+    /// <inheritdoc cref="Style.BackgroundGradientInset"/>
+    internal EdgeSize BackgroundGradientInset { get; set; } = new();
 
     /// <inheritdoc cref="Style.OutlineColor"/>
     internal Color? OutlineColor { get; set; }
@@ -156,94 +159,126 @@ internal class ComputedStyle
 
     internal void Apply(Style style)
     {
-        IsVisible          = style.IsVisible ?? IsVisible;
-        Anchor             = style.Anchor ?? Anchor;
-        Size               = style.Size ?? Size;
-        Flow               = style.Flow ?? Flow;
-        Gap                = style.Gap ?? Gap;
-        Stretch            = style.Stretch ?? Stretch;
-        Padding            = style.Padding ?? Padding;
-        Margin             = style.Margin ?? Margin;
-        Color              = style.Color ?? Color;
-        Font               = style.Font ?? Font;
-        FontSize           = style.FontSize ?? FontSize;
-        LineHeight         = style.LineHeight ?? LineHeight;
-        WordWrap           = style.WordWrap ?? WordWrap;
-        TextAlign          = style.TextAlign ?? TextAlign;
-        OutlineSize        = style.OutlineSize ?? OutlineSize;
-        TextOffset         = style.TextOffset ?? TextOffset;
-        BackgroundColor    = style.BackgroundColor ?? BackgroundColor;
-        BorderColor        = style.BorderColor ?? BorderColor;
-        BorderInset        = style.BorderInset ?? BorderInset;
-        BorderRadius       = style.BorderRadius ?? BorderRadius;
-        BorderWidth        = style.BorderWidth ?? BorderWidth;
-        StrokeColor        = style.StrokeColor ?? StrokeColor;
-        StrokeWidth        = style.StrokeWidth ?? StrokeWidth;
-        StrokeInset        = style.StrokeInset ?? StrokeInset;
-        StrokeRadius       = style.StrokeRadius ?? StrokeRadius;
-        RoundedCorners     = style.RoundedCorners ?? RoundedCorners;
-        BackgroundGradient = style.BackgroundGradient ?? BackgroundGradient;
-        OutlineColor       = style.OutlineColor ?? OutlineColor;
-        TextShadowSize     = style.TextShadowSize ?? TextShadowSize;
-        TextShadowColor    = style.TextShadowColor ?? TextShadowColor;
-        IconId             = style.IconId ?? IconId;
-        IconInset          = style.IconInset ?? IconInset;
-        IconOffset         = style.IconOffset ?? IconOffset;
-        IconRounding       = style.IconRounding ?? IconRounding;
-        IconRoundedCorners = style.IconRoundedCorners ?? IconRoundedCorners;
-        IconGrayscale      = style.IconGrayscale ?? IconGrayscale;
-        IconContrast       = style.IconContrast ?? IconContrast;
-        Opacity            = style.Opacity ?? Opacity;
-        ShadowSize         = style.ShadowSize ?? ShadowSize;
-        ShadowInset        = style.ShadowInset ?? ShadowInset;
-        ShadowOffset       = style.ShadowOffset ?? ShadowOffset;
-        IsAntialiased      = style.IsAntialiased ?? IsAntialiased;
+        IsVisible               = style.IsVisible ?? IsVisible;
+        Anchor                  = style.Anchor ?? Anchor;
+        Size                    = style.Size ?? Size;
+        Flow                    = style.Flow ?? Flow;
+        Gap                     = style.Gap ?? Gap;
+        Stretch                 = style.Stretch ?? Stretch;
+        Padding                 = style.Padding ?? Padding;
+        Margin                  = style.Margin ?? Margin;
+        Color                   = style.Color ?? Color;
+        Font                    = style.Font ?? Font;
+        FontSize                = style.FontSize ?? FontSize;
+        LineHeight              = style.LineHeight ?? LineHeight;
+        WordWrap                = style.WordWrap ?? WordWrap;
+        TextAlign               = style.TextAlign ?? TextAlign;
+        OutlineSize             = style.OutlineSize ?? OutlineSize;
+        TextOffset              = style.TextOffset ?? TextOffset;
+        BackgroundColor         = style.BackgroundColor ?? BackgroundColor;
+        BorderColor             = style.BorderColor ?? BorderColor;
+        BorderInset             = style.BorderInset ?? BorderInset;
+        BorderRadius            = style.BorderRadius ?? BorderRadius;
+        BorderWidth             = style.BorderWidth ?? BorderWidth;
+        StrokeColor             = style.StrokeColor ?? StrokeColor;
+        StrokeWidth             = style.StrokeWidth ?? StrokeWidth;
+        StrokeInset             = style.StrokeInset ?? StrokeInset;
+        StrokeRadius            = style.StrokeRadius ?? StrokeRadius;
+        RoundedCorners          = style.RoundedCorners ?? RoundedCorners;
+        BackgroundGradient      = style.BackgroundGradient ?? BackgroundGradient;
+        BackgroundGradientInset = style.BackgroundGradientInset ?? BackgroundGradientInset;
+        OutlineColor            = style.OutlineColor ?? OutlineColor;
+        TextShadowSize          = style.TextShadowSize ?? TextShadowSize;
+        TextShadowColor         = style.TextShadowColor ?? TextShadowColor;
+        IconId                  = style.IconId ?? IconId;
+        IconInset               = style.IconInset ?? IconInset;
+        IconOffset              = style.IconOffset ?? IconOffset;
+        IconRounding            = style.IconRounding ?? IconRounding;
+        IconRoundedCorners      = style.IconRoundedCorners ?? IconRoundedCorners;
+        IconGrayscale           = style.IconGrayscale ?? IconGrayscale;
+        IconContrast            = style.IconContrast ?? IconContrast;
+        Opacity                 = style.Opacity ?? Opacity;
+        ShadowSize              = style.ShadowSize ?? ShadowSize;
+        ShadowInset             = style.ShadowInset ?? ShadowInset;
+        ShadowOffset            = style.ShadowOffset ?? ShadowOffset;
+        IsAntialiased           = style.IsAntialiased ?? IsAntialiased;
+    }
+
+    internal void ApplyScaleFactor()
+    {
+        Size         *= Node.ScaleFactor;
+        Padding      *= Node.ScaleFactor;
+        Margin       *= Node.ScaleFactor;
+        FontSize     =  (int)(FontSize * Node.ScaleFactor);
+        LineHeight   *= Node.ScaleFactor;
+        TextOffset   *= Node.ScaleFactor;
+        BorderInset  *= Node.ScaleFactor;
+        OutlineSize  *= Node.ScaleFactor;
+        BorderRadius =  (int)(BorderRadius * Node.ScaleFactor);
+
+        BackgroundGradientInset *= Node.ScaleFactor;
+
+        if (Node.ScaleAffectsBorders) {
+            BorderWidth *= Node.ScaleFactor;
+            StrokeWidth =  (int)Math.Ceiling(StrokeWidth * Node.ScaleFactor);
+        }
+
+        StrokeInset    *= Node.ScaleFactor;
+        StrokeRadius   *= Node.ScaleFactor;
+        TextShadowSize *= Node.ScaleFactor;
+        IconRounding   *= Node.ScaleFactor;
+        IconOffset     *= Node.ScaleFactor;
+        ShadowSize     *= Node.ScaleFactor;
+        ShadowOffset   *= Node.ScaleFactor;
+        ShadowInset    =  (int)(ShadowInset * Node.ScaleFactor);
+        IconInset      *= Node.ScaleFactor;
     }
 
     internal void Reset()
     {
-        IsVisible          = true;
-        Anchor             = Anchor.TopLeft;
-        Size               = new();
-        Flow               = Flow.Horizontal;
-        Gap                = 0;
-        Stretch            = false;
-        Padding            = new();
-        Margin             = new();
-        Color              = new(0xFFC0C0C0);
-        Font               = 0;
-        FontSize           = 12;
-        LineHeight         = 1.2f;
-        WordWrap           = false;
-        TextAlign          = Anchor.TopLeft;
-        OutlineSize        = 0;
-        TextOffset         = Vector2.Zero;
-        BackgroundColor    = null;
-        BorderColor        = null;
-        BorderInset        = 0;
-        BorderRadius       = 0;
-        BorderWidth        = new();
-        StrokeColor        = null;
-        StrokeWidth        = 0;
-        StrokeInset        = 0;
-        StrokeRadius       = null;
-        RoundedCorners     = RoundedCorners.All;
-        BackgroundGradient = null;
-        OutlineColor       = null;
-        TextShadowSize     = 0;
-        TextShadowColor    = null;
-        IconId             = null;
-        IconInset          = null;
-        IconOffset         = null;
-        IconRounding       = 0;
-        IconRoundedCorners = RoundedCorners.All;
-        IconGrayscale      = false;
-        IconContrast       = 0;
-        Opacity            = 1;
-        ShadowSize         = new();
-        ShadowInset        = 0;
-        ShadowOffset       = Vector2.Zero;
-        IsAntialiased      = true;
+        IsVisible               = true;
+        Anchor                  = Anchor.TopLeft;
+        Size                    = new();
+        Flow                    = Flow.Horizontal;
+        Gap                     = 0;
+        Stretch                 = false;
+        Padding                 = new();
+        Margin                  = new();
+        Color                   = new(0xFFC0C0C0);
+        Font                    = 0;
+        FontSize                = 12;
+        LineHeight              = 1.2f;
+        WordWrap                = false;
+        TextAlign               = Anchor.TopLeft;
+        OutlineSize             = 0;
+        TextOffset              = Vector2.Zero;
+        BackgroundColor         = null;
+        BorderColor             = null;
+        BorderInset             = new();
+        BorderRadius            = 0;
+        BorderWidth             = new();
+        StrokeColor             = null;
+        StrokeWidth             = 0;
+        StrokeInset             = 0;
+        StrokeRadius            = null;
+        RoundedCorners          = RoundedCorners.All;
+        BackgroundGradient      = null;
+        BackgroundGradientInset = new();
+        OutlineColor            = null;
+        TextShadowSize          = 0;
+        TextShadowColor         = null;
+        IconId                  = null;
+        IconInset               = null;
+        IconOffset              = null;
+        IconRounding            = 0;
+        IconRoundedCorners      = RoundedCorners.All;
+        IconGrayscale           = false;
+        IconContrast            = 0;
+        Opacity                 = 1;
+        ShadowSize              = new();
+        ShadowInset             = 0;
+        ShadowOffset            = Vector2.Zero;
+        IsAntialiased           = true;
     }
 
     internal LayoutStyle CommittedLayoutStyle;
@@ -274,43 +309,49 @@ internal class ComputedStyle
         };
 
         PaintStyle ps = new() {
-            Color                   = Color.ToUInt(),
-            TextAlign               = TextAlign.Point,
-            OutlineSize             = OutlineSize,
-            TextOffset              = TextOffset,
-            BackgroundColor         = BackgroundColor?.ToUInt(),
-            BorderTopColor          = BorderColor?.Top?.ToUInt(),
-            BorderRightColor        = BorderColor?.Right?.ToUInt(),
-            BorderBottomColor       = BorderColor?.Bottom?.ToUInt(),
-            BorderLeftColor         = BorderColor?.Left?.ToUInt(),
-            BorderInset             = BorderInset,
-            BorderRadius            = BorderRadius,
-            BorderTopWidth          = BorderWidth.Top,
-            BorderRightWidth        = BorderWidth.Right,
-            BorderBottomWidth       = BorderWidth.Bottom,
-            BorderLeftWidth         = BorderWidth.Left,
-            StrokeColor             = StrokeColor?.ToUInt(),
-            StrokeWidth             = StrokeWidth,
-            StrokeInset             = StrokeInset,
-            StrokeRadius            = StrokeRadius,
-            BackgroundGradient1     = BackgroundGradient?.Color1?.ToUInt(),
-            BackgroundGradient2     = BackgroundGradient?.Color2?.ToUInt(),
-            BackgroundGradientInset = BackgroundGradient?.Inset,
-            OutlineColor            = OutlineColor?.ToUInt(),
-            TextShadowSize          = TextShadowSize,
-            TextShadowColor         = TextShadowColor?.ToUInt(),
-            IconId                  = IconId,
-            IconInsetTop            = IconInset?.Top,
-            IconInsetRight          = IconInset?.Right,
-            IconInsetBottom         = IconInset?.Bottom,
-            IconInsetLeft           = IconInset?.Left,
-            IconOffsetX             = IconOffset?.X,
-            IconOffsetY             = IconOffset?.Y,
-            IconRounding            = IconRounding,
-            IconRoundedCorners      = IconRoundedCorners,
-            IconGrayscale           = IconGrayscale,
-            IconContrast            = IconContrast,
-            IsAntialiased           = IsAntialiased
+            Color                         = Color.ToUInt(),
+            TextAlign                     = TextAlign.Point,
+            OutlineSize                   = OutlineSize,
+            TextOffset                    = TextOffset,
+            BackgroundColor               = BackgroundColor?.ToUInt(),
+            BorderTopColor                = BorderColor?.Top?.ToUInt(),
+            BorderRightColor              = BorderColor?.Right?.ToUInt(),
+            BorderBottomColor             = BorderColor?.Bottom?.ToUInt(),
+            BorderLeftColor               = BorderColor?.Left?.ToUInt(),
+            BorderInsetTop                = BorderInset.Top,
+            BorderInsetRight              = BorderInset.Right,
+            BorderInsetBottom             = BorderInset.Bottom,
+            BorderInsetLeft               = BorderInset.Left,
+            BorderRadius                  = BorderRadius,
+            BorderTopWidth                = BorderWidth.Top,
+            BorderRightWidth              = BorderWidth.Right,
+            BorderBottomWidth             = BorderWidth.Bottom,
+            BorderLeftWidth               = BorderWidth.Left,
+            StrokeColor                   = StrokeColor?.ToUInt(),
+            StrokeWidth                   = StrokeWidth,
+            StrokeInset                   = StrokeInset,
+            StrokeRadius                  = StrokeRadius,
+            BackgroundGradient1           = BackgroundGradient?.Color1?.ToUInt(),
+            BackgroundGradient2           = BackgroundGradient?.Color2?.ToUInt(),
+            BackgroundGradientInsetTop    = BackgroundGradientInset.Top,
+            BackgroundGradientInsetRight  = BackgroundGradientInset.Right,
+            BackgroundGradientInsetBottom = BackgroundGradientInset.Bottom,
+            BackgroundGradientInsetLeft   = BackgroundGradientInset.Left,
+            OutlineColor                  = OutlineColor?.ToUInt(),
+            TextShadowSize                = TextShadowSize,
+            TextShadowColor               = TextShadowColor?.ToUInt(),
+            IconId                        = IconId,
+            IconInsetTop                  = IconInset?.Top,
+            IconInsetRight                = IconInset?.Right,
+            IconInsetBottom               = IconInset?.Bottom,
+            IconInsetLeft                 = IconInset?.Left,
+            IconOffsetX                   = IconOffset?.X,
+            IconOffsetY                   = IconOffset?.Y,
+            IconRounding                  = IconRounding,
+            IconRoundedCorners            = IconRoundedCorners,
+            IconGrayscale                 = IconGrayscale,
+            IconContrast                  = IconContrast,
+            IsAntialiased                 = IsAntialiased
         };
 
         var result = 0;
@@ -374,7 +415,10 @@ internal struct PaintStyle
     internal uint?              BorderRightColor;
     internal uint?              BorderBottomColor;
     internal uint?              BorderLeftColor;
-    internal float              BorderInset;
+    internal float              BorderInsetTop;
+    internal float              BorderInsetRight;
+    internal float              BorderInsetBottom;
+    internal float              BorderInsetLeft;
     internal int                BorderRadius;
     internal int                BorderTopWidth;
     internal int                BorderRightWidth;
@@ -387,7 +431,10 @@ internal struct PaintStyle
     internal RoundedCorners?    RoundedCorners;
     internal uint?              BackgroundGradient1;
     internal uint?              BackgroundGradient2;
-    internal int?               BackgroundGradientInset;
+    internal float?             BackgroundGradientInsetTop;
+    internal float?             BackgroundGradientInsetRight;
+    internal float?             BackgroundGradientInsetBottom;
+    internal float?             BackgroundGradientInsetLeft;
     internal uint?              OutlineColor;
     internal float              TextShadowSize;
     internal uint?              TextShadowColor;
