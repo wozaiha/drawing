@@ -174,18 +174,19 @@ public partial class Node
         if (Overflow) return;
 
         ImGui.PushStyleVar(ImGuiStyleVar.FramePadding,      new Vector2(0, 0));
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding,     new Vector2(0, 0));
         ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize,   0);
-        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding,     5);
+        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding,     ComputedStyle.BorderRadius);
+        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding,     ComputedStyle.BorderRadius);
         ImGui.PushStyleVar(ImGuiStyleVar.ScrollbarSize,     10);
         ImGui.PushStyleVar(ImGuiStyleVar.ScrollbarRounding, 0);
         ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize,   0);
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding,     new Vector2(0, 0));
 
         ImGui.PushStyleColor(ImGuiCol.FrameBg,              0);
-        ImGui.PushStyleColor(ImGuiCol.ScrollbarBg,          0);
-        ImGui.PushStyleColor(ImGuiCol.ScrollbarGrab,        new Color("Window.Border").ToUInt());
-        ImGui.PushStyleColor(ImGuiCol.ScrollbarGrabActive,  new Color("Window.Border").ToUInt());
-        ImGui.PushStyleColor(ImGuiCol.ScrollbarGrabHovered, new Color("Window.Border").ToUInt());
+        ImGui.PushStyleColor(ImGuiCol.ScrollbarBg,          ComputedStyle.ScrollbarTrackColor.ToUInt());
+        ImGui.PushStyleColor(ImGuiCol.ScrollbarGrab,        ComputedStyle.ScrollbarThumbColor.ToUInt());
+        ImGui.PushStyleColor(ImGuiCol.ScrollbarGrabActive,  ComputedStyle.ScrollbarThumbActiveColor.ToUInt());
+        ImGui.PushStyleColor(ImGuiCol.ScrollbarGrabHovered, ComputedStyle.ScrollbarThumbHoverColor.ToUInt());
 
         ImGui.SetCursorScreenPos(Bounds.PaddingRect.TopLeft);
 
@@ -225,7 +226,7 @@ public partial class Node
         ImGui.SetCursorPos(new(totalSize.Width, totalSize.Height));
 
         ImGui.EndChildFrame();
-        ImGui.PopStyleVar(7);
+        ImGui.PopStyleVar(8);
         ImGui.PopStyleColor(5);
 
         PopDrawList();
