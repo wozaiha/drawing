@@ -6,6 +6,8 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Dalamud.Interface.Internal;
@@ -40,8 +42,67 @@ public partial class Node
     /// </summary>
     public Action<Node>? AfterDraw;
 
-    private IDalamudTextureWrap? _texture;
-    private NodeSnapshot         _snapshot;
+    /// <summary>
+    /// Whether children of this node should overflow the bounds of the node.
+    /// Defaults to <c>true</c>. Settings this to false will clip children to
+    /// the bounds of the node and show a scrollbar if necessary.
+    /// </summary>
+    /// <remarks>
+    /// A side effect of setting this to <c>false</c> is that the node will
+    /// render its children in a separate draw list. Child nodes that are not
+    /// visible due to them being outside the bounds of the parent node will
+    /// be set to "invisible" and will not be drawn. This may cause issues
+    /// if the child nodes have their visibility toggled manually.
+    /// </remarks>
+    public bool Overflow { get; set; } = true;
+
+    /// <summary>
+    /// Shows a horizontal scrollbar if the children exceed the width of the
+    /// bounds of the node. Defaults to <c>false</c>.
+    /// </summary>
+    /// <remarks>
+    /// Only applicable when <see cref="Overflow"/> is set to <c>false</c>.
+    /// </remarks>
+    public bool HorizontalScrollbar { get; set; } = false;
+
+    /// <summary>
+    /// Represents the current horizontal scroll position of the node.
+    /// </summary>
+    /// <remarks>
+    /// Only applicable when <see cref="Overflow"/> is set to <c>false</c>.
+    /// </remarks>
+    public uint ScrollX { get; private set; }
+
+    /// <summary>
+    /// Represents the current vertical scroll position of the node.
+    /// </summary>
+    /// <remarks>
+    /// Only applicable when <see cref="Overflow"/> is set to <c>false</c>.
+    /// </remarks>
+    public uint ScrollY { get; private set; }
+
+    /// <summary>
+    /// Represents the current width of the scroll area of the node.
+    /// </summary>
+    /// <remarks>
+    /// Only applicable when <see cref="Overflow"/> is set to <c>false</c>.
+    /// </remarks>
+    public uint ScrollWidth { get; private set; }
+
+    /// <summary>
+    /// Represents the current height of the scroll area of the node.
+    /// </summary>
+    /// <remarks>
+    /// Only applicable when <see cref="Overflow"/> is set to <c>false</c>.
+    /// </remarks>
+    public uint ScrollHeight { get; private set; }
+
+    private static uint _globalInstanceId;
+    private        uint InstanceId { get; } = _globalInstanceId++;
+
+    private          IDalamudTextureWrap? _texture;
+    private          NodeSnapshot         _snapshot;
+    private readonly List<ImDrawListPtr>  _drawLists = [];
 
     public void Render(ImDrawListPtr drawList, Point position)
     {
@@ -76,6 +137,8 @@ public partial class Node
             _snapshot = snapshot;
         }
 
+        PushDrawList(drawList);
+        BeginOverflowContainer();
         SetupInteractive(drawList);
         RenderShadow(drawList);
 
@@ -92,13 +155,80 @@ public partial class Node
 
         DrawDebugBounds();
 
+        var childDrawList = _drawLists.Last();
+
         foreach (var childNode in ChildNodes) {
-            childNode.Draw(drawList);
+            childNode.Draw(childDrawList);
         }
 
         EndInteractive();
+        EndOverflowContainer();
 
         AfterDraw?.Invoke(this);
+
+        PopDrawList();
+    }
+
+    private void BeginOverflowContainer()
+    {
+        if (Overflow) return;
+
+        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding,      new Vector2(0, 0));
+        ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize,   0);
+        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding,     5);
+        ImGui.PushStyleVar(ImGuiStyleVar.ScrollbarSize,     10);
+        ImGui.PushStyleVar(ImGuiStyleVar.ScrollbarRounding, 0);
+        ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize,   0);
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding,     new Vector2(0, 0));
+
+        ImGui.PushStyleColor(ImGuiCol.FrameBg,              0);
+        ImGui.PushStyleColor(ImGuiCol.ScrollbarBg,          0);
+        ImGui.PushStyleColor(ImGuiCol.ScrollbarGrab,        new Color("Window.Border").ToUInt());
+        ImGui.PushStyleColor(ImGuiCol.ScrollbarGrabActive,  new Color("Window.Border").ToUInt());
+        ImGui.PushStyleColor(ImGuiCol.ScrollbarGrabHovered, new Color("Window.Border").ToUInt());
+
+        ImGui.SetCursorScreenPos(Bounds.PaddingRect.TopLeft);
+
+        ImGui.BeginChildFrame(
+            InstanceId,
+            Bounds.PaddingSize.ToVector2() + new Vector2(1, 0),
+            HorizontalScrollbar ? ImGuiWindowFlags.HorizontalScrollbar : ImGuiWindowFlags.None
+        );
+
+        PushDrawList(ImGui.GetWindowDrawList());
+        ImGui.SetCursorPos(Vector2.Zero);
+
+        var scrollX      = (uint)ImGui.GetScrollX();
+        var scrollY      = (uint)ImGui.GetScrollY();
+        var scrollWidth  = (uint)ImGui.GetScrollMaxX();
+        var scrollHeight = (uint)ImGui.GetScrollMaxY();
+
+        // Recompute the layout for the children if needed.
+        if (scrollX != ScrollX || scrollY != ScrollY || scrollWidth != ScrollWidth || scrollHeight != ScrollHeight) {
+            ScrollX      = scrollX;
+            ScrollY      = scrollY;
+            ScrollWidth  = scrollWidth;
+            ScrollHeight = scrollHeight;
+
+            foreach (var child in _childNodes) {
+                var pos = ImGui.GetCursorScreenPos();
+                child.Reflow(new((int)pos.X, (int)pos.Y));
+            }
+        }
+    }
+
+    private void EndOverflowContainer()
+    {
+        if (Overflow) return;
+
+        var totalSize = GetTotalSizeOfChildren(_childNodes);
+        ImGui.SetCursorPos(new(totalSize.Width, totalSize.Height));
+
+        ImGui.EndChildFrame();
+        ImGui.PopStyleVar(7);
+        ImGui.PopStyleColor(5);
+
+        PopDrawList();
     }
 
     private NodeSnapshot CreateSnapshot()
@@ -137,7 +267,7 @@ public partial class Node
         uint color = GetRenderColor();
         if (color == 0) return;
 
-        var  rect  = Bounds.PaddingRect.Copy();
+        var rect = Bounds.PaddingRect.Copy();
 
         if (ComputedStyle.ShadowInset > 0) rect.Shrink(new(ComputedStyle.ShadowInset));
 
@@ -146,17 +276,17 @@ public partial class Node
         rect.X2 += (int)ComputedStyle.ShadowOffset.X;
         rect.Y2 += (int)ComputedStyle.ShadowOffset.Y;
 
-        const float uv0  = 0.0f;
-        const float uv1  = 0.333333f;
-        const float uv2  = 0.666666f;
-        const float uv3  = 1.0f;
+        const float uv0 = 0.0f;
+        const float uv1 = 0.333333f;
+        const float uv2 = 0.666666f;
+        const float uv3 = 1.0f;
 
-        ImDrawListPtr dl    = drawList;
-        IntPtr        id    = TextureLoader.GetEmbeddedTexture("Shadow.png").ImGuiHandle;
-        Vector2       p     = rect.TopLeft;
-        Vector2       s     = new(rect.Width, rect.Height);
-        Vector2       m     = new(p.X + s.X, p.Y + s.Y);
-        EdgeSize      side  = ComputedStyle.ShadowSize;
+        ImDrawListPtr dl   = drawList;
+        IntPtr        id   = TextureLoader.GetEmbeddedTexture("Shadow.png").ImGuiHandle;
+        Vector2       p    = rect.TopLeft;
+        Vector2       s    = new(rect.Width, rect.Height);
+        Vector2       m    = new(p.X + s.X, p.Y + s.Y);
+        EdgeSize      side = ComputedStyle.ShadowSize;
 
         if (IsInWindowDrawList(dl)) dl.PushClipRectFullScreen();
 
@@ -167,7 +297,14 @@ public partial class Node
             dl.AddImage(id, p with { Y = p.Y - side.Top }, new(m.X, p.Y), new(uv1, uv0), new(uv2, uv1), color);
 
         if (side.Top > 0 || side.Right > 0)
-            dl.AddImage(id, m with { Y = p.Y - side.Top }, p with { X = m.X + side.Right }, new(uv2, uv0), new(uv3, uv1), color);
+            dl.AddImage(
+                id,
+                m with { Y = p.Y - side.Top },
+                p with { X = m.X + side.Right },
+                new(uv2, uv0),
+                new(uv3, uv1),
+                color
+            );
 
         if (side.Left > 0)
             dl.AddImage(id, p with { X = p.X - side.Left }, new(p.X, m.Y), new(uv0, uv1), new(uv1, uv2), color);
@@ -176,15 +313,39 @@ public partial class Node
             dl.AddImage(id, new(m.X, p.Y), m with { X = m.X + side.Right }, new(uv2, uv1), new(uv3, uv2), color);
 
         if (side.Bottom > 0 || side.Left > 0)
-            dl.AddImage(id, m with { X = p.X - side.Left }, p with { Y = m.Y + side.Bottom }, new(uv0, uv2), new(uv1, uv3), color);
+            dl.AddImage(
+                id,
+                m with { X = p.X - side.Left },
+                p with { Y = m.Y + side.Bottom },
+                new(uv0, uv2),
+                new(uv1, uv3),
+                color
+            );
 
         if (side.Bottom > 0)
             dl.AddImage(id, new(p.X, m.Y), m with { Y = m.Y + side.Bottom }, new(uv1, uv2), new(uv2, uv3), color);
 
         if (side.Bottom > 0 || side.Right > 0)
-            dl.AddImage(id, new(m.X, m.Y), new(m.X + side.Right, m.Y + side.Bottom), new(uv2, uv2), new(uv3, uv3), color);
+            dl.AddImage(
+                id,
+                new(m.X, m.Y),
+                new(m.X + side.Right, m.Y + side.Bottom),
+                new(uv2, uv2),
+                new(uv3, uv3),
+                color
+            );
 
         if (IsInWindowDrawList(drawList)) dl.PopClipRect();
+    }
+
+    private void PushDrawList(ImDrawListPtr drawList)
+    {
+        _drawLists.Add(drawList);
+    }
+
+    private void PopDrawList()
+    {
+        _drawLists.RemoveAt(_drawLists.Count - 1);
     }
 }
 
