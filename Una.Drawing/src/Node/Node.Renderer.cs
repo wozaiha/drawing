@@ -205,16 +205,14 @@ public partial class Node
         var scrollHeight = (uint)ImGui.GetScrollMaxY();
 
         // Recompute the layout for the children if needed.
-        if (scrollX != ScrollX || scrollY != ScrollY || scrollWidth != ScrollWidth || scrollHeight != ScrollHeight) {
-            ScrollX      = scrollX;
-            ScrollY      = scrollY;
-            ScrollWidth  = scrollWidth;
-            ScrollHeight = scrollHeight;
+        ScrollX      = scrollX;
+        ScrollY      = scrollY;
+        ScrollWidth  = scrollWidth;
+        ScrollHeight = scrollHeight;
 
-            foreach (var child in _childNodes) {
-                var pos = ImGui.GetCursorScreenPos();
-                child.Reflow(new((int)pos.X, (int)pos.Y));
-            }
+        foreach (var child in _childNodes) {
+            var pos = ImGui.GetCursorScreenPos();
+            child.Reflow(new((int)pos.X, (int)pos.Y));
         }
     }
 

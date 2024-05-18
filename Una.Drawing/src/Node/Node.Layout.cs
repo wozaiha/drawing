@@ -232,6 +232,9 @@ public partial class Node
     /// </summary>
     private void ComputeBoundingRects(Point position)
     {
+        // Use own position if configured; required for overflow nodes.
+        if (_position.X != 0 && _position.Y != 0) position = _position;
+
         Bounds.MarginRect.X1 = position.X;
         Bounds.MarginRect.Y1 = position.Y;
         Bounds.MarginRect.X2 = Bounds.MarginRect.X1 + OuterWidth;
