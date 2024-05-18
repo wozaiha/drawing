@@ -27,7 +27,12 @@ internal sealed class FontNativeImpl : IFont
 
     /// <inheritdoc/>
     public MeasuredText MeasureText(
-        string text, int fontSize = 14, float? maxLineWidth = null, bool wordWrap = false, bool textOverflow = false
+        string text,
+        int    fontSize         = 14,
+        float? maxLineWidth     = null,
+        bool   wordWrap         = false,
+        bool   textOverflow     = true,
+        float  lineHeightFactor = 1.2f
     )
     {
         var maxWidth   = 0;
@@ -77,9 +82,9 @@ internal sealed class FontNativeImpl : IFont
             text      =  text[chunkSize..];
 
             if (chunk.Length > 0) {
-                lines.Add(chunk);
+                lines.Add(chunk.Trim());
                 maxWidth  =  (int)Math.Ceiling(Math.Max(maxWidth, font.MeasureText(chunk)));
-                maxHeight += lineHeight;
+                maxHeight += lines.Count < 2 ? lineHeight : (int)(lineHeight * lineHeightFactor);
             }
         }
 
@@ -88,9 +93,9 @@ internal sealed class FontNativeImpl : IFont
             float   lastWidth = lastLine is not null ? font.MeasureText(lastLine) : 0;
 
             if (lastWidth == 0 || lastWidth + font.MeasureText(text) > maxLineWidth) {
-                lines.Add(text);
+                lines.Add(text.Trim());
                 maxWidth  =  (int)Math.Ceiling(Math.Max(maxWidth, font.MeasureText(text)));
-                maxHeight += lineHeight;
+                maxHeight += lines.Count < 2 ? lineHeight : (int)(lineHeight * lineHeightFactor);
             } else {
                 lines[^1] += text;
                 maxWidth  =  (int)Math.Ceiling(Math.Max(maxWidth, font.MeasureText(lines[^1])));

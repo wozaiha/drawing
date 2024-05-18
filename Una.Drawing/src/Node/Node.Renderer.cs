@@ -157,6 +157,8 @@ public partial class Node
 
         var childDrawList = _drawLists.Last();
 
+        OnDraw(childDrawList);
+
         foreach (var childNode in ChildNodes) {
             childNode.Draw(childDrawList);
         }
@@ -167,6 +169,13 @@ public partial class Node
         AfterDraw?.Invoke(this);
 
         PopDrawList();
+    }
+
+    /// <summary>
+    /// Allows the node to draw custom content on the node's draw list.
+    /// </summary>
+    protected virtual void OnDraw(ImDrawListPtr drawList)
+    {
     }
 
     private void BeginOverflowContainer()
@@ -193,7 +202,7 @@ public partial class Node
         ImGui.BeginChildFrame(
             InstanceId,
             Bounds.PaddingSize.ToVector2() + new Vector2(1, 0),
-            HorizontalScrollbar ? ImGuiWindowFlags.HorizontalScrollbar : ImGuiWindowFlags.None
+            (HorizontalScrollbar ? ImGuiWindowFlags.HorizontalScrollbar : ImGuiWindowFlags.None)
         );
 
         PushDrawList(ImGui.GetWindowDrawList());
@@ -221,8 +230,14 @@ public partial class Node
         if (Overflow) return;
 
         var totalSize = GetTotalSizeOfChildren(_childNodes);
-        ImGui.SetCursorPos(new(totalSize.Width, totalSize.Height));
+        var maxSize   = GetMaxSizeOfChildren(_childNodes);
 
+        Vector2 size = new(
+            ComputedStyle.Flow == Flow.Horizontal ? totalSize.Width : maxSize.Width,
+            ComputedStyle.Flow == Flow.Vertical ? totalSize.Height : maxSize.Height
+        );
+
+        ImGui.SetCursorPos(size);
         ImGui.EndChildFrame();
         ImGui.PopStyleVar(8);
         ImGui.PopStyleColor(5);

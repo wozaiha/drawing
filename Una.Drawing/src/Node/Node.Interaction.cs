@@ -31,7 +31,8 @@ public partial class Node
         || null != OnMiddleClick
         || null != OnRightClick
         || null != OnMouseEnter
-        || null != OnMouseLeave;
+        || null != OnMouseLeave
+        || null != OnMouseUp;
 
     /// <summary>
     /// True if the mouse cursor is currently inside the bounding box of the element.

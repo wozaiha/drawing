@@ -388,8 +388,8 @@ public partial class Node
     {
         if (nodes.Count == 0) return new();
 
-        int width  = nodes.Sum(node => node.OuterWidth);
-        int height = nodes.Sum(node => node.OuterHeight);
+        double width  = nodes.Sum(node => (double)node.OuterWidth);
+        double height = nodes.Sum(node => (double)node.OuterHeight);
 
         if (ComputedStyle.Flow == Flow.Horizontal) {
             width += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
@@ -397,7 +397,7 @@ public partial class Node
             height += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
         }
 
-        return new(width, height);
+        return new((int)width, (int)height);
     }
 
     #endregion

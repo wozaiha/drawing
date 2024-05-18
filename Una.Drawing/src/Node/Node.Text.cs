@@ -65,9 +65,10 @@ public partial class Node
         NodeValueMeasurement = font.MeasureText(
             str,
             ComputedStyle.FontSize,
-            ComputedStyle.Size.Width / _scaleFactor,
+            ComputedStyle.Size.Width,
             ComputedStyle.WordWrap,
-            ComputedStyle.TextOverflow
+            ComputedStyle.TextOverflow,
+            ComputedStyle.LineHeight
         );
 
         return NodeValueMeasurement.Value.Size;

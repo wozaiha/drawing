@@ -236,7 +236,6 @@ public sealed class ComputedStyle
         Padding      *= Node.ScaleFactor;
         Margin       *= Node.ScaleFactor;
         FontSize     =  (int)(FontSize * Node.ScaleFactor);
-        LineHeight   *= Node.ScaleFactor;
         TextOffset   *= Node.ScaleFactor;
         BorderInset  *= Node.ScaleFactor;
         OutlineSize  *= Node.ScaleFactor;

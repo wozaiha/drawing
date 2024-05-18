@@ -41,7 +41,7 @@ internal class TextGenerator : IGenerator
 
         foreach (string line in node.NodeValueMeasurement!.Value.Lines) {
             PrintLine(canvas, font, node, line, x, y, size);
-            y += lineHeight;
+            y += (int)(lineHeight * node.ComputedStyle.LineHeight);
         }
     }
 
