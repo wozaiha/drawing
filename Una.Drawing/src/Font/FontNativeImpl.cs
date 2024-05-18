@@ -25,15 +25,17 @@ internal sealed class FontNativeImpl : IFont
     public float GetLineHeight(int fontSize) => (96 / 72) * GetFont(fontSize).Size;
 
     /// <inheritdoc/>
-    public MeasuredText MeasureText(string text, int fontSize = 14, float? maxLineWidth = null, bool wordWrap = false)
+    public MeasuredText MeasureText(
+        string text, int fontSize = 14, float? maxLineWidth = null, bool wordWrap = false, bool textOverflow = false
+    )
     {
         var maxWidth   = 0;
         var maxHeight  = 0;
         var font       = GetFont(fontSize);
         var lineHeight = (int)Math.Ceiling(GetLineHeight(fontSize));
 
-        if (maxLineWidth is null or 0) {
-            maxWidth  = (int)Math.Ceiling(font.MeasureText(text));
+        if (textOverflow || maxLineWidth is null or 0) {
+            maxWidth = (int)Math.Ceiling(font.MeasureText(text));
 
             return new() {
                 Size      = new(maxWidth, lineHeight),
@@ -42,35 +44,49 @@ internal sealed class FontNativeImpl : IFont
             };
         }
 
-        List<string> lines           = [];
-        var          line            = string.Empty;
-        float        totalLineLength = 0;
+        if (wordWrap == false) {
+            int charCount = font.BreakText(text, maxLineWidth.Value);
 
-        foreach (string word in text.Split(' ')) {
-            string wordWithSpace = word + ' ';
-            float  wordLength    = font.MeasureText(line + wordWithSpace);
+            if (charCount < text.Length) {
+                text = text[..(Math.Max(0, charCount - 2))] + "…";
+            }
 
-            if (totalLineLength + wordLength > maxLineWidth) {
-                maxWidth        =  (int)Math.Ceiling(Math.Max(maxWidth, totalLineLength + wordLength));
-                maxHeight       += lineHeight;
-                totalLineLength =  0;
+            return new() {
+                Size      = new((int)maxLineWidth.Value, lineHeight),
+                Lines     = [text],
+                LineCount = 1,
+            };
+        }
 
-                if (wordWrap == false) {
-                    lines.Add(line + "…");
-                    line = "";
-                    break;
-                }
+        List<string> lines = [];
 
-                lines.Add(line);
-                line = wordWithSpace;
-            } else {
-                line            += word + ' ';
-                totalLineLength += wordLength;
+        int totalChars = text.Length;
+        var usedChars  = 0;
+
+        for (var i = 0; i < totalChars; i++) {
+            int    chunkSize = font.BreakText(text, maxLineWidth.Value);
+            string chunk     = text[..chunkSize];
+
+            // Find the last space in the chunk.
+            int lastSpace = chunk.LastIndexOf(' ');
+
+            chunk     = chunk[..(lastSpace == -1 ? chunkSize : lastSpace)];
+            chunkSize = chunk.Length;
+
+            i         += chunkSize;
+            usedChars += chunkSize;
+            text      =  text[chunkSize..];
+
+            if (chunk.Length > 0) {
+                lines.Add(chunk);
+                maxWidth  =  (int)Math.Ceiling(Math.Max(maxWidth, font.MeasureText(chunk)));
+                maxHeight += lineHeight;
             }
         }
 
-        if (line.Length > 0) {
-            lines.Add(line);
+        if (usedChars < totalChars) {
+            lines.Add(text);
+            maxWidth  =  (int)Math.Ceiling(Math.Max(maxWidth, font.MeasureText(text)));
             maxHeight += lineHeight;
         }
 

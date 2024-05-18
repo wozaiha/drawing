@@ -83,6 +83,15 @@ public partial class Style
     public Vector2? TextOffset { get; set; }
 
     /// <summary>
+    /// Whether text is allowed to overflow the bounds of the node. When set to
+    /// <c>false</c>, text will be truncated and an ellipsis will be appended to
+    /// the end of the text. If <see cref="WordWrap"/> is enabled, text will be
+    /// split into multiple lines instead. Defaults to <c>true</c> for best
+    /// performance.
+    /// </summary>
+    public bool? TextOverflow { get; set; }
+
+    /// <summary>
     /// <para>
     /// Whether to wrap text contents to the next line when they exceed the
     /// defined width of the node.

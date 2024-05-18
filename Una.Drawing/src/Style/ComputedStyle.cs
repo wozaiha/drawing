@@ -76,6 +76,9 @@ public sealed class ComputedStyle
     /// <inheritdoc cref="Style.TextOffset"/>
     public Vector2 TextOffset { get; private set; }
 
+    /// <inheritdoc cref="Style.TextOverflow"/>
+    public bool TextOverflow { get; private set; } = true;
+
     /// <inheritdoc cref="Style.BackgroundColor"/>
     public Color? BackgroundColor { get; private set; }
 
@@ -187,6 +190,7 @@ public sealed class ComputedStyle
         TextAlign                 = style.TextAlign ?? TextAlign;
         OutlineSize               = style.OutlineSize ?? OutlineSize;
         TextOffset                = style.TextOffset ?? TextOffset;
+        TextOverflow              = style.TextOverflow ?? TextOverflow;
         BackgroundColor           = style.BackgroundColor ?? BackgroundColor;
         BorderColor               = style.BorderColor ?? BorderColor;
         BorderInset               = style.BorderInset ?? BorderInset;
@@ -268,6 +272,7 @@ public sealed class ComputedStyle
         TextAlign                 = Anchor.TopLeft;
         OutlineSize               = 0;
         TextOffset                = Vector2.Zero;
+        TextOverflow              = true;
         BackgroundColor           = null;
         BorderColor               = null;
         BorderInset               = new();
@@ -325,7 +330,8 @@ public sealed class ComputedStyle
             WordWrap      = WordWrap,
             Font          = Font,
             FontSize      = FontSize,
-            LineHeight    = LineHeight
+            LineHeight    = LineHeight,
+            TextOverflow  = TextOverflow
         };
 
         PaintStyle ps = new() {
@@ -421,6 +427,7 @@ internal struct LayoutStyle
     internal uint               Font;
     internal int                FontSize;
     internal float              LineHeight;
+    internal bool               TextOverflow;
 }
 
 [StructLayout(LayoutKind.Sequential)]

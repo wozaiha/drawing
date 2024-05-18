@@ -19,6 +19,7 @@ public partial class Node
     private uint?    _textCachedFontId;
     private float?   _textCachedFontSize;
     private bool?    _textCachedWordWrap;
+    private Size?    _textCachedNodeSize;
 
     internal MeasuredText? NodeValueMeasurement { get; private set; }
 
@@ -57,14 +58,16 @@ public partial class Node
         _textCachedPadding   = ComputedStyle.Padding;
         _textCachedFontId    = ComputedStyle.Font;
         _textCachedFontSize  = ComputedStyle.FontSize;
+        _textCachedNodeSize  = ComputedStyle.Size;
 
         var font = FontRegistry.Fonts[ComputedStyle.Font];
 
         NodeValueMeasurement = font.MeasureText(
             str,
             ComputedStyle.FontSize,
-            ComputedStyle.Size.Width,
-            ComputedStyle.WordWrap
+            ComputedStyle.Size.Width / _scaleFactor,
+            ComputedStyle.WordWrap,
+            ComputedStyle.TextOverflow
         );
 
         return NodeValueMeasurement.Value.Size;
@@ -120,6 +123,7 @@ public partial class Node
         return _nodeValue != null
             && (
                 _textCachedFontId != ComputedStyle.Font
+                || _textCachedNodeSize != ComputedStyle.Size
                 || _textCachedFontSize != ComputedStyle.FontSize
                 || _textCachedNodeValue != _nodeValue
                 || _textCachedWordWrap != ComputedStyle.WordWrap
