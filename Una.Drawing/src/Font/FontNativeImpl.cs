@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SkiaSharp;
 
 namespace Una.Drawing.Font;
@@ -66,9 +67,7 @@ internal sealed class FontNativeImpl : IFont
         for (var i = 0; i < totalChars; i++) {
             int    chunkSize = font.BreakText(text, maxLineWidth.Value);
             string chunk     = text[..chunkSize];
-
-            // Find the last space in the chunk.
-            int lastSpace = chunk.LastIndexOf(' ');
+            int    lastSpace = chunk.LastIndexOf(' ');
 
             chunk     = chunk[..(lastSpace == -1 ? chunkSize : lastSpace)];
             chunkSize = chunk.Length;
@@ -85,9 +84,17 @@ internal sealed class FontNativeImpl : IFont
         }
 
         if (usedChars < totalChars) {
-            lines.Add(text);
-            maxWidth  =  (int)Math.Ceiling(Math.Max(maxWidth, font.MeasureText(text)));
-            maxHeight += lineHeight;
+            string? lastLine  = lines.LastOrDefault();
+            float   lastWidth = lastLine is not null ? font.MeasureText(lastLine) : 0;
+
+            if (lastWidth == 0 || lastWidth + font.MeasureText(text) > maxLineWidth) {
+                lines.Add(text);
+                maxWidth  =  (int)Math.Ceiling(Math.Max(maxWidth, font.MeasureText(text)));
+                maxHeight += lineHeight;
+            } else {
+                lines[^1] += text;
+                maxWidth  =  (int)Math.Ceiling(Math.Max(maxWidth, font.MeasureText(lines[^1])));
+            }
         }
 
         return new() {

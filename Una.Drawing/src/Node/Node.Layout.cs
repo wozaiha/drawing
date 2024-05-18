@@ -34,9 +34,32 @@ public partial class Node
 
     public delegate bool ReflowDelegate(Node node);
 
+    /// <summary>
+    /// <para>
+    /// Whether to inherit tags from the parent node.
+    /// </para>
+    /// <para>
+    /// This can be useful if the parent node is interactive and children have
+    /// style definitions that are affected by the parent's interactivity tags,
+    /// such as ":hover", ":active" and ":disabled".
+    /// </para>
+    /// </summary>
+    /// <remarks>
+    /// Custom tags are overwritten by the parent's tags for as long as this
+    /// option is enabled.
+    /// </remarks>
+    public bool InheritTags {
+        get => _inheritTags;
+        set {
+            _inheritTags = value;
+            SignalReflow();
+        }
+    }
+
     private readonly Dictionary<Anchor.AnchorPoint, List<Node>> _anchorToChildNodes = [];
     private readonly Dictionary<Node, Anchor.AnchorPoint>       _childNodeToAnchor  = [];
 
+    private bool  _inheritTags;
     private bool  _isInReflow;
     private bool  _mustReflow = true;
     private Point _position   = new(0, 0);
@@ -52,6 +75,8 @@ public partial class Node
             _scaleAffectsBorders = ScaleAffectsBorders;
             _mustReflow          = true;
         }
+
+        InheritTagsFromParent();
 
         if (_mustReflow) {
             ComputeBoundingBox();
@@ -83,13 +108,24 @@ public partial class Node
         var changed = false;
 
         foreach (Node child in _childNodes) {
-            bool result = child.InvokeReflowHook();
+            bool result         = child.InvokeReflowHook();
             if (result) changed = true;
         }
 
         if (changed) ComputeNodeSize(true);
 
         return (BeforeReflow?.Invoke(this) ?? false) || changed;
+    }
+
+    private void InheritTagsFromParent()
+    {
+        if (_inheritTags && ParentNode is not null) {
+            TagsList = ParentNode.TagsList;
+        }
+
+        foreach (Node child in _childNodes) {
+            child.InheritTagsFromParent();
+        }
     }
 
     #region Reflow Stage #1
