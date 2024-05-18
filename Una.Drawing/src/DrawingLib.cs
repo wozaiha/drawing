@@ -42,6 +42,28 @@ public class DrawingLib
             )
         );
 
+        FontRegistry.SetNativeFontFamily(
+            1,
+            new FileInfo(
+                Path.Combine(
+                    pluginInterface.DalamudAssetDirectory.FullName,
+                    "UIRes",
+                    "Inconsolata-Regular.ttf"
+                )
+            )
+        );
+
+        FontRegistry.SetNativeFontFamily(
+            2,
+            new FileInfo(
+                Path.Combine(
+                    pluginInterface.DalamudAssetDirectory.FullName,
+                    "UIRes",
+                    "FontAwesomeFreeSolid.otf"
+                )
+            )
+        );
+
         GfdIconRepository.Setup();
         Renderer.Setup();
     }
