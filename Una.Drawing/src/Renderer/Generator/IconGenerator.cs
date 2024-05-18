@@ -18,16 +18,23 @@ internal class IconGenerator : IGenerator
     /// <inheritdoc/>
     public void Generate(SKCanvas canvas, Node node)
     {
-        if (node.ComputedStyle.IconId is null) return;
+        SKImage? image;
 
-        SKImage? image = TextureLoader.LoadIcon(node.ComputedStyle.IconId.Value);
+        if (node.ComputedStyle.ImageBytes is not null) {
+            image = TextureLoader.LoadFromBytes(node.ComputedStyle.ImageBytes);
+        } else if (node.ComputedStyle.IconId is not null) {
+            image = TextureLoader.LoadIcon(node.ComputedStyle.IconId.Value);
+        } else {
+            return;
+        }
+
         if (image == null) return;
 
         SKRect rect = new(
-            node.ComputedStyle.IconInset?.Left ?? 0,
-            node.ComputedStyle.IconInset?.Top ?? 0,
-            node.Bounds.PaddingSize.Width - (node.ComputedStyle.IconInset?.Right ?? 0),
-            node.Bounds.PaddingSize.Height - (node.ComputedStyle.IconInset?.Bottom ?? 0)
+            node.ComputedStyle.ImageInset?.Left ?? 0,
+            node.ComputedStyle.ImageInset?.Top ?? 0,
+            node.Bounds.PaddingSize.Width - (node.ComputedStyle.ImageInset?.Right ?? 0),
+            node.Bounds.PaddingSize.Height - (node.ComputedStyle.ImageInset?.Bottom ?? 0)
         );
 
         if (rect.IsEmpty) return;
@@ -37,8 +44,8 @@ internal class IconGenerator : IGenerator
             rect.Height / image.Height
         );
 
-        matrix.TransX = (node.ComputedStyle.IconOffset?.X ?? 0) + (node.ComputedStyle.IconInset?.Left ?? 0);
-        matrix.TransY = (node.ComputedStyle.IconOffset?.Y ?? 0) + (node.ComputedStyle.IconInset?.Top ?? 0);
+        matrix.TransX = (node.ComputedStyle.ImageOffset?.X ?? 0) + (node.ComputedStyle.ImageInset?.Left ?? 0);
+        matrix.TransY = (node.ComputedStyle.ImageOffset?.Y ?? 0) + (node.ComputedStyle.ImageInset?.Top ?? 0);
 
         using SKPaint  paint  = new();
         using SKShader shader = SKShader.CreateImage(image, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, matrix);
@@ -51,19 +58,19 @@ internal class IconGenerator : IGenerator
             SKShader.CreateImage(image, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, matrix),
             SKColorFilter.CreateHighContrast(
                 new() {
-                    Grayscale = node.ComputedStyle.IconGrayscale,
-                    Contrast  = node.ComputedStyle.IconContrast
+                    Grayscale = node.ComputedStyle.ImageGrayscale,
+                    Contrast  = node.ComputedStyle.ImageContrast
                 }
             )
         );
 
-        float radius = node.ComputedStyle.IconRounding;
+        float radius = node.ComputedStyle.ImageRounding;
 
         rect = new(
-            rect.Left + (node.ComputedStyle.IconOffset?.X ?? 0),
-            rect.Top + (node.ComputedStyle.IconOffset?.Y ?? 0),
-            rect.Right + (node.ComputedStyle.IconOffset?.X ?? 0),
-            rect.Bottom + (node.ComputedStyle.IconOffset?.Y ?? 0)
+            rect.Left + (node.ComputedStyle.ImageOffset?.X ?? 0),
+            rect.Top + (node.ComputedStyle.ImageOffset?.Y ?? 0),
+            rect.Right + (node.ComputedStyle.ImageOffset?.X ?? 0),
+            rect.Bottom + (node.ComputedStyle.ImageOffset?.Y ?? 0)
         );
 
         if (radius < 0.01f) {
@@ -73,7 +80,7 @@ internal class IconGenerator : IGenerator
 
         var style = node.ComputedStyle;
 
-        RoundedCorners corners     = style.IconRoundedCorners;
+        RoundedCorners corners     = style.ImageRoundedCorners;
         SKPoint        topLeft     = corners.HasFlag(RoundedCorners.TopLeft) ? new(radius, radius) : new(0, 0);
         SKPoint        topRight    = corners.HasFlag(RoundedCorners.TopRight) ? new(radius, radius) : new(0, 0);
         SKPoint        bottomRight = corners.HasFlag(RoundedCorners.BottomRight) ? new(radius, radius) : new(0, 0);

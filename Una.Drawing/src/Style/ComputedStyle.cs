@@ -6,8 +6,10 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System;
+using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Dalamud.Interface.Internal;
 
 namespace Una.Drawing;
 
@@ -127,23 +129,26 @@ public sealed class ComputedStyle
     /// <inheritdoc cref="Style.IconId"/>
     public uint? IconId { get; private set; }
 
-    /// <inheritdoc cref="Style.IconInset"/>
-    public EdgeSize? IconInset { get; private set; }
+    /// <inheritdoc cref="Style.ImageBytes"/>
+    public byte[]? ImageBytes { get; private set; }
 
-    /// <inheritdoc cref="Style.IconOffset"/>
-    public Vector2? IconOffset { get; private set; }
+    /// <inheritdoc cref="Style.ImageInset"/>
+    public EdgeSize? ImageInset { get; private set; }
 
-    /// <inheritdoc cref="Style.IconRounding"/>
-    public float IconRounding { get; private set; }
+    /// <inheritdoc cref="Style.ImageOffset"/>
+    public Vector2? ImageOffset { get; private set; }
 
-    /// <inheritdoc cref="Style.IconRoundedCorners"/>
-    public RoundedCorners IconRoundedCorners { get; private set; }
+    /// <inheritdoc cref="Style.ImageRounding"/>
+    public float ImageRounding { get; private set; }
 
-    /// <inheritdoc cref="Style.IconGrayscale"/>
-    public bool IconGrayscale { get; private set; }
+    /// <inheritdoc cref="Style.ImageRoundedCorners"/>
+    public RoundedCorners ImageRoundedCorners { get; private set; }
 
-    /// <inheritdoc cref="Style.IconContrast"/>
-    public float IconContrast { get; private set; }
+    /// <inheritdoc cref="Style.ImageGrayscale"/>
+    public bool ImageGrayscale { get; private set; }
+
+    /// <inheritdoc cref="Style.ImageContrast"/>
+    public float ImageContrast { get; private set; }
 
     /// <inheritdoc cref="Style.Opacity"/>
     public float Opacity { get; private set; }
@@ -207,12 +212,13 @@ public sealed class ComputedStyle
         TextShadowSize            = style.TextShadowSize ?? TextShadowSize;
         TextShadowColor           = style.TextShadowColor ?? TextShadowColor;
         IconId                    = style.IconId ?? IconId;
-        IconInset                 = style.IconInset ?? IconInset;
-        IconOffset                = style.IconOffset ?? IconOffset;
-        IconRounding              = style.IconRounding ?? IconRounding;
-        IconRoundedCorners        = style.IconRoundedCorners ?? IconRoundedCorners;
-        IconGrayscale             = style.IconGrayscale ?? IconGrayscale;
-        IconContrast              = style.IconContrast ?? IconContrast;
+        ImageBytes                = style.ImageBytes ?? ImageBytes;
+        ImageInset                = style.ImageInset ?? ImageInset;
+        ImageOffset               = style.ImageOffset ?? ImageOffset;
+        ImageRounding             = style.ImageRounding ?? ImageRounding;
+        ImageRoundedCorners       = style.ImageRoundedCorners ?? ImageRoundedCorners;
+        ImageGrayscale            = style.ImageGrayscale ?? ImageGrayscale;
+        ImageContrast             = style.ImageContrast ?? ImageContrast;
         Opacity                   = style.Opacity ?? Opacity;
         ShadowSize                = style.ShadowSize ?? ShadowSize;
         ShadowInset               = style.ShadowInset ?? ShadowInset;
@@ -246,12 +252,12 @@ public sealed class ComputedStyle
         StrokeInset    *= Node.ScaleFactor;
         StrokeRadius   *= Node.ScaleFactor;
         TextShadowSize *= Node.ScaleFactor;
-        IconRounding   *= Node.ScaleFactor;
-        IconOffset     *= Node.ScaleFactor;
+        ImageRounding  *= Node.ScaleFactor;
+        ImageOffset    *= Node.ScaleFactor;
         ShadowSize     *= Node.ScaleFactor;
         ShadowOffset   *= Node.ScaleFactor;
         ShadowInset    =  (int)(ShadowInset * Node.ScaleFactor);
-        IconInset      *= Node.ScaleFactor;
+        ImageInset     *= Node.ScaleFactor;
     }
 
     internal void Reset()
@@ -289,12 +295,13 @@ public sealed class ComputedStyle
         TextShadowSize            = 0;
         TextShadowColor           = null;
         IconId                    = null;
-        IconInset                 = null;
-        IconOffset                = null;
-        IconRounding              = 0;
-        IconRoundedCorners        = RoundedCorners.All;
-        IconGrayscale             = false;
-        IconContrast              = 0;
+        ImageBytes                = null;
+        ImageInset                = null;
+        ImageOffset               = null;
+        ImageRounding             = 0;
+        ImageRoundedCorners       = RoundedCorners.All;
+        ImageGrayscale            = false;
+        ImageContrast             = 0;
         Opacity                   = 1;
         ShadowSize                = new();
         ShadowInset               = 0;
@@ -367,17 +374,18 @@ public sealed class ComputedStyle
             TextShadowSize                = TextShadowSize,
             TextShadowColor               = TextShadowColor?.ToUInt(),
             IconId                        = IconId,
-            IconInsetTop                  = IconInset?.Top,
-            IconInsetRight                = IconInset?.Right,
-            IconInsetBottom               = IconInset?.Bottom,
-            IconInsetLeft                 = IconInset?.Left,
-            IconOffsetX                   = IconOffset?.X,
-            IconOffsetY                   = IconOffset?.Y,
-            IconRounding                  = IconRounding,
-            IconRoundedCorners            = IconRoundedCorners,
-            IconGrayscale                 = IconGrayscale,
-            IconContrast                  = IconContrast,
-            IsAntialiased                 = IsAntialiased
+
+            ImageInsetTop       = ImageInset?.Top,
+            ImageInsetRight     = ImageInset?.Right,
+            ImageInsetBottom    = ImageInset?.Bottom,
+            ImageInsetLeft      = ImageInset?.Left,
+            ImageOffsetX        = ImageOffset?.X,
+            ImageOffsetY        = ImageOffset?.Y,
+            ImageRounding       = ImageRounding,
+            ImageRoundedCorners = ImageRoundedCorners,
+            ImageGrayscale      = ImageGrayscale,
+            ImageContrast       = ImageContrast,
+            IsAntialiased       = IsAntialiased
         };
 
         var result = 0;
@@ -466,15 +474,15 @@ internal struct PaintStyle
     internal float              TextShadowSize;
     internal uint?              TextShadowColor;
     internal uint?              IconId;
-    internal int?               IconInsetTop;
-    internal int?               IconInsetRight;
-    internal int?               IconInsetBottom;
-    internal int?               IconInsetLeft;
-    internal float?             IconOffsetX;
-    internal float?             IconOffsetY;
-    internal float?             IconRounding;
-    internal RoundedCorners?    IconRoundedCorners;
-    internal bool?              IconGrayscale;
-    internal float?             IconContrast;
+    internal int?               ImageInsetTop;
+    internal int?               ImageInsetRight;
+    internal int?               ImageInsetBottom;
+    internal int?               ImageInsetLeft;
+    internal float?             ImageOffsetX;
+    internal float?             ImageOffsetY;
+    internal float?             ImageRounding;
+    internal RoundedCorners?    ImageRoundedCorners;
+    internal bool?              ImageGrayscale;
+    internal float?             ImageContrast;
     internal bool               IsAntialiased;
 }

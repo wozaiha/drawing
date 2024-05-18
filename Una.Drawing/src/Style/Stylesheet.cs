@@ -15,12 +15,9 @@ public class Stylesheet
 {
     internal Dictionary<Rule, Style> Rules = [];
 
-    public Stylesheet(Dictionary<string, Style>? rules = null)
+    public Stylesheet(List<StyleDefinition> rules)
     {
-        if (rules is null) return;
-
-        foreach ((string query, Style style) in rules)
-            AddRule(query, style);
+        foreach (var rule in rules) AddRule(rule.Query, rule.Style);
     }
 
     /// <summary>
@@ -33,8 +30,7 @@ public class Stylesheet
     {
         List<QuerySelector> results = QuerySelectorParser.Parse(query);
 
-        foreach (var qs in results)
-        {
+        foreach (var qs in results) {
             // Don't allow nested selectors in a stylesheet. This is a
             // deliberate design choice to keep performance high.
             if (qs.DirectChild is not null || qs.NestedChild is not null)
@@ -52,5 +48,11 @@ public class Stylesheet
                 && querySelector.ClassList.All(className => node.ClassList.Contains(className))
                 && querySelector.TagList.All(className => node.TagsList.Contains(className));
         }
+    }
+
+    public readonly struct StyleDefinition(string query, Style style)
+    {
+        public string Query => query;
+        public Style  Style => style;
     }
 }

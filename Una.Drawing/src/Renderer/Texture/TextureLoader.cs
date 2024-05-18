@@ -37,6 +37,23 @@ internal static class TextureLoader
         return texture;
     }
 
+    internal static SKImage? LoadFromBytes(byte[] bytes)
+    {
+        using MemoryStream stream = new(bytes);
+        using SKImage      image  = SKImage.FromEncodedData(stream);
+        using SKBitmap     bitmap = SKBitmap.FromImage(image);
+
+        // We need to do some fuckery to swap from BGRA to RGBA...
+        SKImageInfo info = new(image.Width, image.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
+
+        IntPtr pixelPtr = Marshal.AllocHGlobal(bitmap.ByteCount);
+
+        Marshal.Copy(bitmap.Bytes, 0, pixelPtr, bitmap.ByteCount);
+        SKImage? output = SKImage.FromPixels(info, pixelPtr);
+
+        return output;
+    }
+
     internal static SKImage? LoadIcon(uint iconId)
     {
         if (IconToImageCache.TryGetValue(iconId, out SKImage? cachedImage)) return cachedImage;
