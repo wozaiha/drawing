@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 
 namespace Una.Drawing;
 
-public partial class Node
+public partial class Node : IDisposable
 {
     /// <summary>
     /// Defines the global scale factor across all nodes.
@@ -225,6 +225,22 @@ public partial class Node
 
         OnChildAdded   += child => child.OnReflow += SignalReflow;
         OnChildRemoved += child => child.OnReflow -= SignalReflow;
+
+        FontRegistry.FontChanged += OnFontConfigurationChanged;
+    }
+
+    public void Dispose()
+    {
+        foreach (var child in _childNodes) child.Dispose();
+
+        FontRegistry.FontChanged -= OnFontConfigurationChanged;
+
+        GC.SuppressFinalize(this);
+    }
+
+    private void OnFontConfigurationChanged()
+    {
+        _texture = null;
     }
 
     private void HandleChildListChanged(object? _, NotifyCollectionChangedEventArgs e)

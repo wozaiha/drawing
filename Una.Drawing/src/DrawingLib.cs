@@ -10,6 +10,7 @@ using Dalamud.Interface;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using SkiaSharp;
 using Una.Drawing.Texture;
 
 namespace Una.Drawing;
@@ -33,7 +34,7 @@ public class DrawingLib
         // as it supports a wide range of characters, including Japanese.
         FontRegistry.SetNativeFontFamily(
             0,
-            new FileInfo(
+            new(
                 Path.Combine(
                     pluginInterface.DalamudAssetDirectory.FullName,
                     "UIRes",
@@ -44,7 +45,7 @@ public class DrawingLib
 
         FontRegistry.SetNativeFontFamily(
             1,
-            new FileInfo(
+            new(
                 Path.Combine(
                     pluginInterface.DalamudAssetDirectory.FullName,
                     "UIRes",
@@ -55,7 +56,7 @@ public class DrawingLib
 
         FontRegistry.SetNativeFontFamily(
             2,
-            new FileInfo(
+            new(
                 Path.Combine(
                     pluginInterface.DalamudAssetDirectory.FullName,
                     "UIRes",
@@ -63,6 +64,8 @@ public class DrawingLib
                 )
             )
         );
+
+        FontRegistry.SetNativeFontFamily(3, "Tahoma", SKFontStyleWeight.ExtraBold);
 
         GfdIconRepository.Setup();
         Renderer.Setup();

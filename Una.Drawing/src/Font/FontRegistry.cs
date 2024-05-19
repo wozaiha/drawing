@@ -5,15 +5,34 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
+using System.Linq;
+using SkiaSharp;
 using Una.Drawing.Font;
 
 namespace Una.Drawing;
 
 public static class FontRegistry
 {
+    internal static event Action? FontChanged;
+
     internal static readonly Dictionary<uint, IFont> Fonts = [];
+
+    public static List<string> GetFontFamilies()
+    {
+        List<string> result = [];
+
+        InstalledFontCollection installedFontCollection = new();
+        FontFamily[]            fontFamilies            = installedFontCollection.Families;
+
+        result.AddRange(fontFamilies.Select(fontFamily => fontFamily.Name));
+
+        return result;
+    }
 
     /// <summary>
     /// Creates a font from the given font family and registers it with the
@@ -25,11 +44,15 @@ public static class FontRegistry
     /// </example>
     /// <param name="id"></param>
     /// <param name="fontFamily"></param>
-    public static void SetNativeFontFamily(uint id, string fontFamily)
+    /// <param name="weight"></param>
+    public static void SetNativeFontFamily(
+        uint id, string fontFamily, SKFontStyleWeight weight = SKFontStyleWeight.Normal
+    )
     {
         if (Fonts.TryGetValue(id, out IFont? existingFont)) existingFont.Dispose();
 
-        Fonts[id] = FontFactory.CreateFromFontFamily(fontFamily);
+        Fonts[id] = FontFactory.CreateFromFontFamily(fontFamily, weight);
+        FontChanged?.Invoke();
     }
 
     /// <summary>
@@ -45,7 +68,7 @@ public static class FontRegistry
     /// <exception cref="FileNotFoundException"></exception>
     public static void SetNativeFontFamily(uint id, FileInfo fontFile)
     {
-        if (! fontFile.Exists) throw new FileNotFoundException("Font file not found.", fontFile.FullName);
+        if (!fontFile.Exists) throw new FileNotFoundException("Font file not found.", fontFile.FullName);
 
         if (Fonts.TryGetValue(id, out IFont? existingFont)) existingFont.Dispose();
 
