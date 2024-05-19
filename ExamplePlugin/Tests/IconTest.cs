@@ -3,14 +3,14 @@ using Una.Drawing;
 
 namespace ExamplePlugin.Tests;
 
-public class IconTest : ITest
+public class ImageTest : ITest
 {
-    public string Name => "Icons";
+    public string Name => "Images";
 
-    private static readonly Stylesheet IconStyles = new();
+    private static readonly Stylesheet ImageStyles = new([]);
 
     private readonly Node _node = new() {
-        Stylesheet = IconStyles,
+        Stylesheet = ImageStyles,
         Style = new() {
             Flow = Flow.Vertical,
             Gap  = 4,
@@ -29,9 +29,9 @@ public class IconTest : ITest
         ]
     };
 
-    public IconTest()
+    public ImageTest()
     {
-        IconStyles.AddRule(
+        ImageStyles.AddRule(
             ".icon-row",
             new() {
                 Anchor          = Anchor.TopLeft,
@@ -45,7 +45,7 @@ public class IconTest : ITest
             }
         );
 
-        IconStyles.AddRule(
+        ImageStyles.AddRule(
             ".icon",
             new() {
                 Size            = new(32, 32),
@@ -54,13 +54,13 @@ public class IconTest : ITest
                 BorderWidth     = new(2),
                 BorderInset     = new(1),
                 BorderRadius    = 8,
-                IconRounding    = 16,
-                IconInset       = new(4),
-                IconGrayscale   = true,
+                ImageRounding   = 16,
+                ImageInset      = new(4),
+                ImageGrayscale  = true,
             }
         );
 
-        IconStyles.AddRule(
+        ImageStyles.AddRule(
             ".icon-desc",
             new() {
                 Size         = new(0, 32),
@@ -93,19 +93,19 @@ public class IconTest : ITest
                 },
                 new() {
                     ClassList = ["icon-desc"],
-                    NodeValue = $"Icon #{iconId}"
+                    NodeValue = $"Image #{iconId}"
                 },
             ]
         };
 
         box.OnMouseEnter += _ => {
-            box.QuerySelector(".icon")!.Style.IconGrayscale = false;
-            box.QuerySelector(".icon")!.Style.IconInset     = new(-4);
+            box.QuerySelector(".icon")!.Style.ImageGrayscale = false;
+            box.QuerySelector(".icon")!.Style.ImageInset     = new(-4);
         };
 
         box.OnMouseLeave += _ => {
-            box.QuerySelector(".icon")!.Style.IconGrayscale = true;
-            box.QuerySelector(".icon")!.Style.IconInset     = new(4);
+            box.QuerySelector(".icon")!.Style.ImageGrayscale = true;
+            box.QuerySelector(".icon")!.Style.ImageInset     = new(4);
         };
 
         return box;

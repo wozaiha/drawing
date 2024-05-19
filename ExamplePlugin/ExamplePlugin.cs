@@ -23,9 +23,10 @@ public sealed class ExamplePlugin : IDalamudPlugin
     private string _activeTest = "Stretch";
 
     public static Stylesheet GlobalStylesheet = new(
-        new() {
-            {
-                ".button", new() {
+        [
+            new(
+                ".button",
+                new() {
                     Size                    = new(0, 26),
                     Padding                 = new(0, 6),
                     BackgroundColor         = new(0xC01A1A1A),
@@ -39,7 +40,8 @@ public sealed class ExamplePlugin : IDalamudPlugin
                     TextOffset              = new(0, -1),
                     FontSize                = 10,
                 }
-            }, {
+            ),
+            new(
                 ".button:hover",
                 new() {
                     Color                   = new(0xFF101010),
@@ -47,13 +49,14 @@ public sealed class ExamplePlugin : IDalamudPlugin
                     BackgroundGradient      = GradientColor.Vertical(new(0xC02FFFFF), null),
                     BackgroundGradientInset = new(5),
                 }
-            }, {
+            ),
+            new(
                 ".button:active",
                 new() {
                     FontSize = 14,
                 }
-            }
-        }
+            )
+        ]
     );
 
     public ExamplePlugin(IPluginLog logger, DalamudPluginInterface plugin)
