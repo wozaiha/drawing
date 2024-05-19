@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -140,6 +141,7 @@ public partial class Node
 
             _sortIndex = value;
             OnSortIndexChanged?.Invoke();
+            OnPropertyChanged?.Invoke("SortIndex", _childNodes);
         }
     }
 
@@ -312,10 +314,10 @@ public partial class Node
     {
         if (_childNodes.Contains(node)) return;
 
-        node.ParentNode?.Remove();
+        node.ParentNode?.RemoveChild(this);
 
         _childNodes.Add(node);
-        node.ParentNode         =  this;
+        node.ParentNode = this;
     }
 
     /// <summary>
@@ -407,7 +409,6 @@ public partial class Node
         }
 
         SortChildren();
-        SignalReflow();
         OnChildRemoved?.Invoke(node);
     }
 
@@ -423,7 +424,11 @@ public partial class Node
         _childNodes                   =  new(_childNodes.OrderBy(n => n.SortIndex));
         _childNodes.CollectionChanged += HandleChildListChanged;
 
-        foreach (var node in _childNodes) node.SignalReflow();
+        foreach ((Anchor.AnchorPoint pt, List<Node> nodes) in _anchorToChildNodes) {
+            _anchorToChildNodes[pt] = [..nodes.OrderBy(n => n.SortIndex)];
+        }
+
+        SignalReflow();
     }
 
     private float _scaleFactor         = ScaleFactor;
