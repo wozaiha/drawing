@@ -56,7 +56,8 @@ public partial class Node
     public object? NodeValue {
         get => _nodeValue;
         set {
-            if (_nodeValue == value) return;
+            if ((_nodeValue is null && value is null) || (_nodeValue?.Equals(value) ?? false))
+                return;
 
             _nodeValue = value;
 

@@ -61,4 +61,9 @@ public readonly record struct EdgeSize(int Top, int Right, int Bottom, int Left)
         (int)Math.Ceiling(left.Bottom * right),
         (int)Math.Ceiling(left.Left * right)
     );
+
+    public EdgeSize Copy()
+    {
+        return new(Top, Right, Bottom, Left);
+    }
 }

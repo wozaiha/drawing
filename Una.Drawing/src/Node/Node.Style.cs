@@ -74,14 +74,16 @@ public partial class Node
         var updated = false;
 
         foreach (Node child in _childNodes) {
-            updated |= child.ComputeStyle();
+            if (child.ComputeStyle()) {
+                updated = true;
+            }
         }
 
         if (updated) {
             ReassignAnchorNodes();
         }
 
-        return _textCachedNodeValue != _nodeValue || res is 1 or 3;
+        return updated || res is 1 or 3;
     }
 
     /// <summary>

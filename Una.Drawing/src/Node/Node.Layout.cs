@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Una.Drawing;
 
@@ -51,6 +50,7 @@ public partial class Node
     public bool InheritTags {
         get => _inheritTags;
         set {
+            if (_inheritTags.Equals(value)) return;
             _inheritTags = value;
             SignalReflow();
         }
@@ -66,6 +66,8 @@ public partial class Node
 
     public void Reflow(Point? position = null)
     {
+        if (!ComputedStyle.IsVisible) return;
+
         if (_scaleFactor != ScaleFactor) {
             _scaleFactor = ScaleFactor;
             _mustReflow  = true;
@@ -144,7 +146,8 @@ public partial class Node
     private void ComputeBoundingBox()
     {
         foreach (Node child in _childNodes) {
-            child.ComputeBoundingBox();
+            if (child.ComputedStyle.IsVisible)
+                child.ComputeBoundingBox();
         }
 
         ComputeNodeSize();
@@ -314,7 +317,7 @@ public partial class Node
 
             if (anchor.IsBottom) y += Height;
 
-            Node lastNode = childNodes.Last();
+            Node lastNode = childNodes[^1];
 
             foreach (Node childNode in childNodes) {
                 if (!childNode.IsVisible) continue;
@@ -372,8 +375,13 @@ public partial class Node
     {
         if (nodes.Count == 0) return new();
 
-        int width  = nodes.Max(node => node.OuterWidth);
-        int height = nodes.Max(node => node.OuterHeight);
+        var width  = 0;
+        var height = 0;
+
+        foreach (var node in nodes) {
+            width  = Math.Max(width,  node.OuterWidth);
+            height = Math.Max(height, node.OuterHeight);
+        }
 
         if (ComputedStyle.Flow == Flow.Horizontal) {
             width += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
@@ -388,8 +396,13 @@ public partial class Node
     {
         if (nodes.Count == 0) return new();
 
-        double width  = nodes.Sum(node => (double)node.OuterWidth);
-        double height = nodes.Sum(node => (double)node.OuterHeight);
+        var width  = 0;
+        var height = 0;
+
+        foreach (var node in nodes) {
+            width  += node.OuterWidth;
+            height += node.OuterHeight;
+        }
 
         if (ComputedStyle.Flow == Flow.Horizontal) {
             width += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
@@ -397,7 +410,7 @@ public partial class Node
             height += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
         }
 
-        return new((int)width, (int)height);
+        return new(width, height);
     }
 
     #endregion

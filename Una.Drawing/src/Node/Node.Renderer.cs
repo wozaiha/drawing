@@ -174,9 +174,7 @@ public partial class Node
     /// <summary>
     /// Allows the node to draw custom content on the node's draw list.
     /// </summary>
-    protected virtual void OnDraw(ImDrawListPtr drawList)
-    {
-    }
+    protected virtual void OnDraw(ImDrawListPtr drawList) { }
 
     private void BeginOverflowContainer()
     {
@@ -213,15 +211,15 @@ public partial class Node
         var scrollWidth  = (uint)ImGui.GetScrollMaxX();
         var scrollHeight = (uint)ImGui.GetScrollMaxY();
 
-        // Recompute the layout for the children if needed.
         ScrollX      = scrollX;
         ScrollY      = scrollY;
         ScrollWidth  = scrollWidth;
         ScrollHeight = scrollHeight;
 
+        Vector2 pos = ImGui.GetCursorScreenPos();
+
         foreach (var child in _childNodes) {
-            var pos = ImGui.GetCursorScreenPos();
-            child.Reflow(new((int)pos.X, (int)pos.Y));
+            child.ComputeBoundingRects(new((int)pos.X, (int)pos.Y));
         }
     }
 

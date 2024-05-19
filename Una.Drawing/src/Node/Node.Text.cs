@@ -55,10 +55,10 @@ public partial class Node
 
         _textCachedNodeValue = _nodeValue;
         _textCachedWordWrap  = ComputedStyle.WordWrap;
-        _textCachedPadding   = ComputedStyle.Padding;
+        _textCachedPadding   = ComputedStyle.Padding.Copy();
         _textCachedFontId    = ComputedStyle.Font;
         _textCachedFontSize  = ComputedStyle.FontSize;
-        _textCachedNodeSize  = ComputedStyle.Size;
+        _textCachedNodeSize  = ComputedStyle.Size.Copy();
 
         var font = FontRegistry.Fonts[ComputedStyle.Font];
 
@@ -116,19 +116,19 @@ public partial class Node
     /// </summary>
     private bool MustRecomputeNodeValue()
     {
-        if (_nodeValue == null && !(NodeValueMeasurement?.Size.IsZero ?? false)) {
+        if (_nodeValue is null && !(NodeValueMeasurement?.Size.IsZero ?? false)) {
             NodeValueMeasurement = new();
             return false;
         }
 
-        return _nodeValue != null
+        return _nodeValue is not null
             && (
-                _textCachedFontId != ComputedStyle.Font
-                || _textCachedNodeSize != ComputedStyle.Size
-                || _textCachedFontSize != ComputedStyle.FontSize
-                || _textCachedNodeValue != _nodeValue
-                || _textCachedWordWrap != ComputedStyle.WordWrap
-                || _textCachedPadding != ComputedStyle.Padding
+                !_textCachedFontId.Equals(ComputedStyle.Font)
+                || (!_textCachedNodeSize?.Equals(ComputedStyle.Size) ?? true)
+                || (!_textCachedFontSize?.Equals(ComputedStyle.FontSize) ?? true)
+                || (!_textCachedWordWrap?.Equals(ComputedStyle.WordWrap) ?? true)
+                || (!_textCachedNodeValue?.Equals(_nodeValue) ?? true)
+                || !_textCachedPadding.Equals(ComputedStyle.Padding)
             );
     }
 }
