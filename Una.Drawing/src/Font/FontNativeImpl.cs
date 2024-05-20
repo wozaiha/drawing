@@ -16,10 +16,12 @@ internal sealed class FontNativeImpl : IFont
 {
     private readonly SKTypeface              _typeface;
     private readonly Dictionary<int, SKFont> _fontCache = [];
+    private readonly float                   _sizeOffset;
 
-    internal FontNativeImpl(SKTypeface typeface)
+    internal FontNativeImpl(SKTypeface typeface, float sizeOffset)
     {
-        _typeface = typeface;
+        _typeface   = typeface;
+        _sizeOffset = sizeOffset;
     }
 
     /// <inheritdoc/>
@@ -131,7 +133,7 @@ internal sealed class FontNativeImpl : IFont
     {
         if (_fontCache.TryGetValue(fontSize, out SKFont? cachedFont)) return cachedFont;
 
-        var font = new SKFont(_typeface, (int)((float)fontSize));
+        var font = new SKFont(_typeface, fontSize + _sizeOffset);
         font.Hinting  = SKFontHinting.Full;
         font.Edging   = SKFontEdging.SubpixelAntialias;
         font.Subpixel = true;

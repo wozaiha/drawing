@@ -40,7 +40,8 @@ public class DrawingLib
                     "UIRes",
                     "NotoSansKR-Regular.otf"
                 )
-            )
+            ),
+            0
         );
 
         FontRegistry.SetNativeFontFamily(
@@ -51,7 +52,7 @@ public class DrawingLib
                     "UIRes",
                     "Inconsolata-Regular.ttf"
                 )
-            )
+            ), 0
         );
 
         FontRegistry.SetNativeFontFamily(
@@ -62,10 +63,11 @@ public class DrawingLib
                     "UIRes",
                     "FontAwesomeFreeSolid.otf"
                 )
-            )
+            ),
+            0
         );
 
-        FontRegistry.SetNativeFontFamily(3, "Tahoma", SKFontStyleWeight.ExtraBold);
+        FontRegistry.SetNativeFontFamily(3, "Arial", SKFontStyleWeight.ExtraBold);
 
         GfdIconRepository.Setup();
         Renderer.Setup();

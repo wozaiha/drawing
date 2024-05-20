@@ -45,13 +45,17 @@ public static class FontRegistry
     /// <param name="id"></param>
     /// <param name="fontFamily"></param>
     /// <param name="weight"></param>
+    /// <param name="sizeOffset"></param>
     public static void SetNativeFontFamily(
-        uint id, string fontFamily, SKFontStyleWeight weight = SKFontStyleWeight.Normal
+        uint id,
+        string fontFamily,
+        SKFontStyleWeight weight = SKFontStyleWeight.Normal,
+        float sizeOffset = 0
     )
     {
         if (Fonts.TryGetValue(id, out IFont? existingFont)) existingFont.Dispose();
 
-        Fonts[id] = FontFactory.CreateFromFontFamily(fontFamily, weight);
+        Fonts[id] = FontFactory.CreateFromFontFamily(fontFamily, weight, sizeOffset);
         FontChanged?.Invoke();
     }
 
@@ -65,14 +69,16 @@ public static class FontRegistry
     /// </example>
     /// <param name="id"></param>
     /// <param name="fontFile"></param>
+    /// <param name="sizeOffset"></param>
     /// <exception cref="FileNotFoundException"></exception>
-    public static void SetNativeFontFamily(uint id, FileInfo fontFile)
+    public static void SetNativeFontFamily(uint id, FileInfo fontFile, float sizeOffset = 0)
     {
         if (!fontFile.Exists) throw new FileNotFoundException("Font file not found.", fontFile.FullName);
 
         if (Fonts.TryGetValue(id, out IFont? existingFont)) existingFont.Dispose();
 
-        Fonts[id] = FontFactory.CreateFromFontFile(fontFile);
+        Fonts[id] = FontFactory.CreateFromFontFile(fontFile, sizeOffset);
+        FontChanged?.Invoke();
     }
 
     internal static void Dispose()

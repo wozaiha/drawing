@@ -56,8 +56,7 @@ public partial class Node : IDisposable
     public object? NodeValue {
         get => _nodeValue;
         set {
-            if ((_nodeValue is null && value is null) || (_nodeValue?.Equals(value) ?? false))
-                return;
+            if ((_nodeValue is null && value is null) || (_nodeValue?.Equals(value) ?? false)) return;
 
             _nodeValue = value;
 
@@ -240,7 +239,10 @@ public partial class Node : IDisposable
 
     private void OnFontConfigurationChanged()
     {
-        _texture = null;
+        _texture            = null;
+        _textCachedFontId   = null;
+        _textCachedFontSize = null;
+        _mustReflow         = true;
     }
 
     private void HandleChildListChanged(object? _, NotifyCollectionChangedEventArgs e)
