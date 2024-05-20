@@ -53,12 +53,6 @@ internal class TextGenerator : IGenerator
         if (node.ComputedStyle.TextAlign.IsCenter) x += (node.Bounds.PaddingSize.Width - lineWidth) / 2;
         if (node.ComputedStyle.TextAlign.IsRight) x  += node.Bounds.PaddingSize.Width - lineWidth;
 
-        using SKPaint sp = new();
-        sp.IsStroke    = true;
-        sp.Style       = SKPaintStyle.Stroke;
-        sp.Color       = SKColors.White;
-        sp.StrokeWidth = 2;
-
         using SKPaint paint = new();
         SKPoint       point = new(x, y);
 

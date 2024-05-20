@@ -1,6 +1,12 @@
-﻿using System.IO;
+﻿/* Una.Drawing                                                 ____ ___
+ *   A declarative drawing library for FFXIV.                 |    |   \____ _____        ____                _
+ *                                                            |    |   /    \\__  \      |    \ ___ ___ _ _ _|_|___ ___
+ * By Una. Licensed under AGPL-3.                             |    |  |   |  \/ __ \_    |  |  |  _| .'| | | | |   | . |
+ * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
+ * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
+
 using System.Numerics;
-using Dalamud.Interface.Internal;
+using Dalamud.Game.Text;
 
 namespace Una.Drawing;
 
@@ -16,6 +22,21 @@ public partial class Style
     /// This property takes precedence over <see cref="IconId"/>.
     /// </summary>
     public byte[]? ImageBytes { get; set; }
+
+    /// <summary>
+    /// Draws the given game glyph in the node.
+    /// </summary>
+    public SeIconChar? Glyph { get; set; }
+
+    /// <summary>
+    /// A translation offset for the glyph.
+    /// </summary>
+    public Vector2? GlyphOffset { get; set; }
+
+    /// <summary>
+    /// Defines the color of the glyph. Defaults to white.
+    /// </summary>
+    public Color? GlyphColor { get; set; }
 
     /// <summary>
     /// Defines the space between the icon and the border edges of the node.

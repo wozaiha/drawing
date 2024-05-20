@@ -10,7 +10,7 @@ using Una.Drawing.Texture;
 
 namespace Una.Drawing.Generator;
 
-internal class IconGenerator : IGenerator
+internal class ImageGenerator : IGenerator
 {
     /// <inheritdoc/>
     public int RenderOrder => 3;

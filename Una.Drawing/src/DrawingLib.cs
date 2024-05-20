@@ -6,29 +6,32 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System.IO;
+using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using SkiaSharp;
+using Una.Drawing.Font;
 using Una.Drawing.Texture;
+using Una.Drawing.Texture.GameGlyph;
 
 namespace Una.Drawing;
 
 public class DrawingLib
 {
     /// <summary>
-    /// Setup the drawing library. Make sure to call this method in your plugin
-    /// before using any of the drawing library's features.
+    /// Set up the drawing library. Make sure to call this method in your
+    /// plugin before using any of the drawing library's features.
     /// </summary>
     public static void Setup(DalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<DalamudServices>();
         DalamudServices.UiBuilder = pluginInterface.UiBuilder;
 
-#if DEBUG
-            DebugLogger.Writer = DalamudServices.PluginLog;
-#endif
+        #if DEBUG
+        DebugLogger.Writer = DalamudServices.PluginLog;
+        #endif
 
         // Use the Noto Sans font that comes with Dalamud as the default font,
         // as it supports a wide range of characters, including Japanese.
@@ -69,6 +72,7 @@ public class DrawingLib
 
         FontRegistry.SetNativeFontFamily(3, "Arial", SKFontStyleWeight.ExtraBold);
 
+        GameGlyphRegistry.Setup();
         GfdIconRepository.Setup();
         Renderer.Setup();
     }
@@ -82,6 +86,7 @@ public class DrawingLib
         Renderer.Dispose();
         FontRegistry.Dispose();
         GfdIconRepository.Dispose();
+        GameGlyphRegistry.Dispose();
     }
 }
 

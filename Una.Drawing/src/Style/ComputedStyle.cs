@@ -6,10 +6,9 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System;
-using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Dalamud.Interface.Internal;
+using Dalamud.Game.Text;
 
 namespace Una.Drawing;
 
@@ -132,6 +131,15 @@ public sealed class ComputedStyle
     /// <inheritdoc cref="Style.ImageBytes"/>
     public byte[]? ImageBytes { get; private set; }
 
+    /// <inheritdoc cref="Style.Glyph"/>
+    public SeIconChar? Glyph { get; private set; }
+
+    /// <inheritdoc cref="Style.GlyphOffset"/>
+    public Vector2 GlyphOffset { get; private set; }
+
+    /// <inheritdoc cref="Style.GlyphColor"/>
+    public Color GlyphColor { get; private set; } = new(0xFFFFFFFF);
+
     /// <inheritdoc cref="Style.ImageInset"/>
     public EdgeSize? ImageInset { get; private set; }
 
@@ -213,6 +221,9 @@ public sealed class ComputedStyle
         TextShadowColor           = style.TextShadowColor ?? TextShadowColor;
         IconId                    = style.IconId ?? IconId;
         ImageBytes                = style.ImageBytes ?? ImageBytes;
+        Glyph                     = style.Glyph ?? Glyph;
+        GlyphOffset               = style.GlyphOffset ?? GlyphOffset;
+        GlyphColor                = style.GlyphColor ?? GlyphColor;
         ImageInset                = style.ImageInset ?? ImageInset;
         ImageOffset               = style.ImageOffset ?? ImageOffset;
         ImageRounding             = style.ImageRounding ?? ImageRounding;
@@ -253,6 +264,7 @@ public sealed class ComputedStyle
         TextShadowSize *= Node.ScaleFactor;
         ImageRounding  *= Node.ScaleFactor;
         ImageOffset    *= Node.ScaleFactor;
+        GlyphOffset    *= Node.ScaleFactor;
         ShadowSize     *= Node.ScaleFactor;
         ShadowOffset   *= Node.ScaleFactor;
         ShadowInset    =  (int)(ShadowInset * Node.ScaleFactor);
@@ -295,6 +307,9 @@ public sealed class ComputedStyle
         TextShadowColor           = null;
         IconId                    = null;
         ImageBytes                = null;
+        Glyph                     = null;
+        GlyphOffset               = Vector2.Zero;
+        GlyphColor                = new(0xFFFFFFFF);
         ImageInset                = null;
         ImageOffset               = null;
         ImageRounding             = 0;
@@ -373,18 +388,20 @@ public sealed class ComputedStyle
             TextShadowSize                = TextShadowSize,
             TextShadowColor               = TextShadowColor?.ToUInt(),
             IconId                        = IconId,
-
-            ImageInsetTop       = ImageInset?.Top,
-            ImageInsetRight     = ImageInset?.Right,
-            ImageInsetBottom    = ImageInset?.Bottom,
-            ImageInsetLeft      = ImageInset?.Left,
-            ImageOffsetX        = ImageOffset?.X,
-            ImageOffsetY        = ImageOffset?.Y,
-            ImageRounding       = ImageRounding,
-            ImageRoundedCorners = ImageRoundedCorners,
-            ImageGrayscale      = ImageGrayscale,
-            ImageContrast       = ImageContrast,
-            IsAntialiased       = IsAntialiased
+            Glyph                         = Glyph?.ToIconChar(),
+            GlyphOffset                   = GlyphOffset,
+            GlyphColor                    = GlyphColor.ToUInt(),
+            ImageInsetTop                 = ImageInset?.Top,
+            ImageInsetRight               = ImageInset?.Right,
+            ImageInsetBottom              = ImageInset?.Bottom,
+            ImageInsetLeft                = ImageInset?.Left,
+            ImageOffsetX                  = ImageOffset?.X,
+            ImageOffsetY                  = ImageOffset?.Y,
+            ImageRounding                 = ImageRounding,
+            ImageRoundedCorners           = ImageRoundedCorners,
+            ImageGrayscale                = ImageGrayscale,
+            ImageContrast                 = ImageContrast,
+            IsAntialiased                 = IsAntialiased
         };
 
         var result = 0;
@@ -473,6 +490,9 @@ internal struct PaintStyle
     internal float              TextShadowSize;
     internal uint?              TextShadowColor;
     internal uint?              IconId;
+    internal int?               Glyph;
+    internal Vector2            GlyphOffset;
+    internal uint               GlyphColor;
     internal int?               ImageInsetTop;
     internal int?               ImageInsetRight;
     internal int?               ImageInsetBottom;

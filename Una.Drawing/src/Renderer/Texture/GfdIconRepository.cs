@@ -60,8 +60,6 @@ internal static class GfdIconRepository
             EntryCache[icon] = entry;
         }
 
-        var texSize = new Vector2(FontIconHandle.Width, FontIconHandle.Height);
-
         return new() {
             Texture = FontIconHandle,
             Uv0     = new Vector2(entry.Left,               entry.Top + 170) * 2,
