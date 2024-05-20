@@ -83,7 +83,8 @@ public partial class Node
         IFont font       = FontRegistry.Fonts[ComputedStyle.Font];
         var   maxWidth   = 0;
         var   maxHeight  = 0;
-        int   spaceWidth = font.MeasureText(" ", ComputedStyle.FontSize).Size.Width;
+        Size  charSize   = font.MeasureText(" ", ComputedStyle.FontSize).Size;
+        int   spaceWidth = charSize.Width;
 
         foreach (var payload in str.Payloads) {
             switch (payload) {
@@ -96,7 +97,6 @@ public partial class Node
                     continue;
                 case IconPayload:
                     maxWidth  += spaceWidth + 20 + spaceWidth;
-                    maxHeight =  Math.Max(16, maxHeight);
                     continue;
             }
         }

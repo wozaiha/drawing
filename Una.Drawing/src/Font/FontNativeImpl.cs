@@ -136,7 +136,8 @@ internal sealed class FontNativeImpl : IFont
         var font = new SKFont(_typeface, fontSize + _sizeOffset);
         font.Hinting  = SKFontHinting.Full;
         font.Edging   = SKFontEdging.SubpixelAntialias;
-        font.Subpixel = true;
+        font.Subpixel = false;
+        font.Embolden = false;
 
         _fontCache[fontSize] = font;
 

@@ -118,7 +118,9 @@ public partial class Node : IDisposable
         set {
             if (_childNodes.SequenceEqual(value)) return;
 
-            foreach (var node in _childNodes) node.Remove();
+            List<Node> toRemove = _childNodes.ToList();
+
+            foreach (var node in toRemove) node.Remove();
             foreach (var node in value) AppendChild(node);
 
             OnPropertyChanged?.Invoke("ChildNodes", _childNodes);

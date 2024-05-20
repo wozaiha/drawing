@@ -55,7 +55,7 @@ public class SeStringGenerator : IGenerator
 
                     continue;
                 case TextPayload text:
-                    x += DrawText(canvas, new(x, y), color, node, text.Text ?? "");
+                    x += DrawText(canvas, new(x, y + node.ComputedStyle.TextOffset.Y), color, node, text.Text ?? "");
                     continue;
                 case IconPayload icon: {
                     x += spaceWidth;
@@ -69,9 +69,9 @@ public class SeStringGenerator : IGenerator
                         new(gfdIcon.Uv0.X, gfdIcon.Uv0.Y, gfdIcon.Uv1.X, gfdIcon.Uv1.Y),
                         new SKRect(
                             x - 4,
-                            y - (metrics.CapHeight) - 7,
-                            x + 24,
-                            y - (metrics.CapHeight) + 21
+                            y - (metrics.CapHeight) - 6,
+                            x + 22,
+                            y - (metrics.CapHeight) + 19
                         ),
                         gfdPaint
                     );

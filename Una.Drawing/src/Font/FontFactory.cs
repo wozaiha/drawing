@@ -12,10 +12,14 @@ namespace Una.Drawing.Font;
 
 internal class FontFactory
 {
-    internal static IFont CreateFromFontFamily(string fontFamily, SKFontStyleWeight weight = SKFontStyleWeight.Normal, float sizeOffset = 0)
+    internal static IFont CreateFromFontFamily(
+        string fontFamily, SKFontStyleWeight weight = SKFontStyleWeight.Normal, float sizeOffset = 0
+    )
     {
-        SKFontStyle fontStyle = new(weight, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
-        return new FontNativeImpl(SKTypeface.FromFamilyName(fontFamily, fontStyle), sizeOffset);
+        SKFontStyle fontStyle   = new(weight, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
+        SKTypeface  srcTypeface = SKTypeface.FromFamilyName(fontFamily, fontStyle);
+
+        return new FontNativeImpl(srcTypeface, sizeOffset);
     }
 
     internal static IFont CreateFromFontFile(FileInfo file, float sizeOffset)
