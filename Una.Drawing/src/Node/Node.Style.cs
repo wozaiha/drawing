@@ -34,7 +34,7 @@ public partial class Node
         get => _style;
         set {
             _style = value ?? throw new ArgumentNullException(nameof(value));
-            SignalReflowRecursive();
+            SignalReflow();
         }
     }
 
@@ -42,7 +42,7 @@ public partial class Node
         get => _stylesheet ?? ParentNode?.Stylesheet;
         set {
             _stylesheet = value;
-            SignalReflowRecursive();
+            SignalReflow();
         }
     }
 

@@ -7,6 +7,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Una.Drawing;
 
@@ -64,9 +66,11 @@ public partial class Node
     private bool  _mustReflow = true;
     private Point _position   = new(0, 0);
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void Reflow(Point? position = null)
     {
         if (!ComputedStyle.IsVisible) return;
+        if (Style.IsVisible is false) return;
 
         if (_scaleFactor != ScaleFactor) {
             _scaleFactor = ScaleFactor;
@@ -99,12 +103,14 @@ public partial class Node
     /// a Reflow hook of another node to recompute the size of this node based
     /// on its child nodes.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void RecomputeSize()
     {
         ComputeNodeSize(true);
         ComputeStretchedNodeSizes(false);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private bool InvokeReflowHook()
     {
         var changed = false;
@@ -119,8 +125,11 @@ public partial class Node
         return (BeforeReflow?.Invoke(this) ?? false) || changed;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void InheritTagsFromParent()
     {
+        if (Style.IsVisible is false) return;
+
         if (_inheritTags && ParentNode is not null) {
             TagsList = ParentNode.TagsList;
         }
@@ -143,6 +152,7 @@ public partial class Node
     /// to be stretched (See <see cref="ComputedStyle.Stretch"/>).
     /// </para>
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void ComputeBoundingBox()
     {
         foreach (Node child in _childNodes) {
@@ -157,9 +167,11 @@ public partial class Node
     /// Computes the size of this node based on its own value and the size of
     /// the child nodes, if any.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void ComputeNodeSize(bool force = false)
     {
         if (!force && !_mustReflow) return;
+        if (Style.IsVisible is false) return;
 
         // Always compute the content size from text, regardless of whether the
         // node size is fixed or not, since this also prepares the text for
@@ -191,6 +203,7 @@ public partial class Node
     /// Computes the content (inner) size of this node based on the size of
     /// its child nodes.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Size ComputeContentSizeFromChildren()
     {
         Size result = new();
@@ -236,11 +249,13 @@ public partial class Node
 
     #region Reflow Stage #2
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void ComputeStretchedNodeSizes(bool recursive = true)
     {
         // Start depth-first traversal of the node tree.
         if (recursive) {
             foreach (Node child in _childNodes) {
+                if (child.ComputedStyle.IsVisible == false) continue;
                 child.ComputeStretchedNodeSizes();
             }
         }
@@ -269,8 +284,11 @@ public partial class Node
     /// Computes the bounding rectangles that define the position and size of
     /// each child node within this node recursively.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void ComputeBoundingRects(Point position)
     {
+        if (ComputedStyle.IsVisible is false) return;
+
         // Use own position if configured; required for overflow nodes.
         if (_position.X != 0 && _position.Y != 0) position = _position;
 
@@ -371,6 +389,7 @@ public partial class Node
         _mustReflow = false;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Size GetMaxSizeOfChildren(IReadOnlyCollection<Node> nodes)
     {
         if (nodes.Count == 0) return new();
@@ -379,6 +398,7 @@ public partial class Node
         var height = 0;
 
         foreach (var node in nodes) {
+            if (!node.IsVisible) continue;
             width  = Math.Max(width,  node.OuterWidth);
             height = Math.Max(height, node.OuterHeight);
         }
@@ -392,6 +412,7 @@ public partial class Node
         return new(width, height);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Size GetTotalSizeOfChildren(IReadOnlyCollection<Node> nodes)
     {
         if (nodes.Count == 0) return new();
@@ -400,6 +421,7 @@ public partial class Node
         var height = 0;
 
         foreach (var node in nodes) {
+            if (!node.IsVisible) continue;
             width  += node.OuterWidth;
             height += node.OuterHeight;
         }
@@ -415,6 +437,7 @@ public partial class Node
 
     #endregion
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void ReassignAnchorNodes()
     {
         _childNodeToAnchor.Clear();
@@ -432,6 +455,7 @@ public partial class Node
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void UpdateParentBounds()
     {
         if (ParentNode is not null) return;

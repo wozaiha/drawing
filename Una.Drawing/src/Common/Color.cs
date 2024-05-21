@@ -6,13 +6,22 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System.Collections.Generic;
+using System.Linq;
 using SkiaSharp;
 
 namespace Una.Drawing;
 
 public class Color(byte r, byte g, byte b, float a = 1.0f)
 {
+    /// <summary>
+    /// Specifies the name of this color.
+    /// </summary>
     public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Represents the current version of the color theme.
+    /// </summary>
+    public static uint ThemeVersion { get; private set; } = 0;
 
     private static readonly Dictionary<string, uint> NamedColors = [];
 
@@ -78,6 +87,27 @@ public class Color(byte r, byte g, byte b, float a = 1.0f)
     public static void AssignByName(string name, uint color)
     {
         NamedColors[name] = color;
+        ThemeVersion++;
+
+        if (ThemeVersion >= uint.MaxValue - 1) {
+            ThemeVersion = 1;
+        }
+    }
+
+    /// <summary>
+    /// Returns a list of all assigned color names.
+    /// </summary>
+    public static List<string> GetAssignedNames()
+    {
+        return NamedColors.Keys.ToList();
+    }
+
+    /// <summary>
+    /// Returns the named color as a UInt32.
+    /// </summary>
+    public static uint GetNamedColor(string name)
+    {
+        return NamedColors.TryGetValue(name, out uint color) ? color : 0;
     }
 
     /// <summary>
@@ -96,9 +126,9 @@ public class Color(byte r, byte g, byte b, float a = 1.0f)
     public Color(byte r, byte g, byte b, byte a) : this(r, g, b, a * 255) { }
 
     public Color(uint color) : this(
-        (byte)(color & 0xFF),
-        (byte)((color >> 8) & 0xFF),
         (byte)((color >> 16) & 0xFF),
+        (byte)((color >> 8) & 0xFF),
+        (byte)((color) & 0xFF),
         (byte)((color >> 24) & 0xFF)
     ) { }
 
@@ -123,6 +153,6 @@ public class Color(byte r, byte g, byte b, float a = 1.0f)
     {
         return color is null
             ? SKColor.Empty
-            : new(color.B, color.G, color.R, (byte)(color.A * 255));
+            : new(color.R, color.G, color.B, (byte)(color.A * 255));
     }
 }

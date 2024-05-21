@@ -21,8 +21,9 @@ public class GlyphGenerator : IGenerator
     {
         if (node.ComputedStyle.Glyph is null) return;
 
-        SKImage glyph = GameGlyphRegistry.GetGlyphTexture(node.ComputedStyle.Glyph.Value.ToIconChar());
-        SKRect  rect  = new(0, 0, node.Width, node.Height);
+        EdgeSize inset = node.ComputedStyle.GlyphInset ?? new();
+        SKImage  glyph = GameGlyphRegistry.GetGlyphTexture(node.ComputedStyle.Glyph.Value.ToIconChar());
+        SKRect   rect  = new(inset.Left, inset.Top, node.Width , node.Height - inset.Bottom);
 
         if (rect.IsEmpty) return;
 

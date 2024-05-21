@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using ImGuiNET;
 
 namespace Una.Drawing;
@@ -68,6 +69,7 @@ public partial class Node
     /// <summary>
     /// Draws debug information for this node.
     /// </summary>
+    [Conditional("DEBUG")]
     private void DrawDebugBounds()
     {
         if (! DrawDebugInfo) return;

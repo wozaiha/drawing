@@ -34,6 +34,11 @@ public partial class Style
     public Vector2? GlyphOffset { get; set; }
 
     /// <summary>
+    /// Defines the inset spacing of the glyph.
+    /// </summary>
+    public EdgeSize? GlyphInset { get; set; }
+
+    /// <summary>
     /// Defines the color of the glyph. Defaults to white.
     /// </summary>
     public Color? GlyphColor { get; set; }

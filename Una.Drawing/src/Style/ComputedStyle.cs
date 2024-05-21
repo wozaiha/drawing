@@ -7,6 +7,7 @@
 
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Dalamud.Game.Text;
 
@@ -140,6 +141,9 @@ public sealed class ComputedStyle
     /// <inheritdoc cref="Style.GlyphColor"/>
     public Color GlyphColor { get; private set; } = new(0xFFFFFFFF);
 
+    /// <inheritdoc cref="Style.GlyphInset"/>
+    public EdgeSize? GlyphInset { get; private set; }
+
     /// <inheritdoc cref="Style.ImageInset"/>
     public EdgeSize? ImageInset { get; private set; }
 
@@ -185,6 +189,7 @@ public sealed class ComputedStyle
     /// <inheritdoc cref="Style.ScrollbarThumbActiveColor"/>
     public Color ScrollbarThumbActiveColor { get; private set; } = new(0xFFFFFFFF);
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     internal void Apply(Style style)
     {
         IsVisible                 = style.IsVisible ?? IsVisible;
@@ -224,6 +229,7 @@ public sealed class ComputedStyle
         Glyph                     = style.Glyph ?? Glyph;
         GlyphOffset               = style.GlyphOffset ?? GlyphOffset;
         GlyphColor                = style.GlyphColor ?? GlyphColor;
+        GlyphInset                = style.GlyphInset ?? GlyphInset;
         ImageInset                = style.ImageInset ?? ImageInset;
         ImageOffset               = style.ImageOffset ?? ImageOffset;
         ImageRounding             = style.ImageRounding ?? ImageRounding;
@@ -241,6 +247,7 @@ public sealed class ComputedStyle
         ScrollbarThumbActiveColor = style.ScrollbarThumbActiveColor ?? ScrollbarThumbActiveColor;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     internal void ApplyScaleFactor()
     {
         Size         *= Node.ScaleFactor;
@@ -262,15 +269,17 @@ public sealed class ComputedStyle
         StrokeInset    *= Node.ScaleFactor;
         StrokeRadius   *= Node.ScaleFactor;
         TextShadowSize *= Node.ScaleFactor;
+        ImageInset     *= Node.ScaleFactor;
         ImageRounding  *= Node.ScaleFactor;
         ImageOffset    *= Node.ScaleFactor;
         GlyphOffset    *= Node.ScaleFactor;
+        GlyphInset     *= Node.ScaleFactor;
         ShadowSize     *= Node.ScaleFactor;
         ShadowOffset   *= Node.ScaleFactor;
         ShadowInset    =  (int)(ShadowInset * Node.ScaleFactor);
-        ImageInset     *= Node.ScaleFactor;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     internal void Reset()
     {
         IsVisible                 = true;
@@ -310,6 +319,7 @@ public sealed class ComputedStyle
         Glyph                     = null;
         GlyphOffset               = Vector2.Zero;
         GlyphColor                = new(0xFFFFFFFF);
+        GlyphInset                = null;
         ImageInset                = null;
         ImageOffset               = null;
         ImageRounding             = 0;
@@ -330,6 +340,7 @@ public sealed class ComputedStyle
     internal LayoutStyle CommittedLayoutStyle;
     internal PaintStyle  CommittedPaintStyle;
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     internal int Commit()
     {
         LayoutStyle ls = new() {
@@ -391,6 +402,10 @@ public sealed class ComputedStyle
             Glyph                         = Glyph?.ToIconChar(),
             GlyphOffset                   = GlyphOffset,
             GlyphColor                    = GlyphColor.ToUInt(),
+            GlyphInsetTop                 = GlyphInset?.Top,
+            GlyphInsetRight               = GlyphInset?.Right,
+            GlyphInsetBottom              = GlyphInset?.Bottom,
+            GlyphInsetLeft                = GlyphInset?.Left,
             ImageInsetTop                 = ImageInset?.Top,
             ImageInsetRight               = ImageInset?.Right,
             ImageInsetBottom              = ImageInset?.Bottom,
@@ -421,6 +436,7 @@ public sealed class ComputedStyle
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static bool AreStructsEqual<T>(ref readonly T a, ref readonly T b) where T : unmanaged
     {
         return MemoryMarshal
@@ -493,6 +509,10 @@ internal struct PaintStyle
     internal int?               Glyph;
     internal Vector2            GlyphOffset;
     internal uint               GlyphColor;
+    internal int?               GlyphInsetTop;
+    internal int?               GlyphInsetRight;
+    internal int?               GlyphInsetBottom;
+    internal int?               GlyphInsetLeft;
     internal int?               ImageInsetTop;
     internal int?               ImageInsetRight;
     internal int?               ImageInsetBottom;

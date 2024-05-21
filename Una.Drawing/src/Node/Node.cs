@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Dalamud.Game.Text.SeStringHandling;
 
 namespace Una.Drawing;
 
@@ -23,7 +24,7 @@ public partial class Node : IDisposable
 
     /// <summary>
     /// Whether the global scale factor should affect the borders of the nodes.
-    /// This should typically disabled when using a scale factor of less than 1
+    /// This should typically be disabled when using a scale factor of less than 1
     /// to prevent 1px-borders from becoming invisible.
     /// </summary>
     public static bool ScaleAffectsBorders { get; set; } = true;
@@ -50,18 +51,30 @@ public partial class Node : IDisposable
         }
     }
 
+    private byte[] _seStringPayload = [];
+
     /// <summary>
     /// Defines the textual content of this node.
     /// </summary>
     public object? NodeValue {
         get => _nodeValue;
         set {
-            if ((_nodeValue is null && value is null) || (_nodeValue?.Equals(value) ?? false)) return;
+            byte[] seStringPayload = _seStringPayload;
 
-            _nodeValue = value;
+            if (_nodeValue is SeString prev && value is SeString next) {
+                if (ReferenceEquals(prev, next)) return;
+
+                seStringPayload = next.Encode();
+                if (_seStringPayload.SequenceEqual(seStringPayload)) return;
+            } else if ((_nodeValue is null && value is null) || (_nodeValue?.Equals(value) ?? false)) return;
+
+            _nodeValue           = value;
+            _textCachedNodeValue = null;
+            _texture             = null;
+            _seStringPayload     = seStringPayload;
 
             OnPropertyChanged?.Invoke("NodeValue", _nodeValue);
-            SignalReflowRecursive();
+            SignalReflow();
         }
     }
 
@@ -221,7 +234,7 @@ public partial class Node : IDisposable
         _classList.CollectionChanged  += HandleClassListChanged;
         _tagsList.CollectionChanged   += HandleTagsListChanged;
 
-        ComputedStyle.OnLayoutPropertyChanged += SignalReflowRecursive;
+        ComputedStyle.OnLayoutPropertyChanged += SignalReflow;
         ComputedStyle.OnPaintPropertyChanged  += SignalRepaint;
 
         OnChildAdded   += child => child.OnReflow += SignalReflow;

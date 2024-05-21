@@ -9,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Dalamud.Interface.Internal;
 using ImGuiNET;
 using Una.Drawing.Texture;
@@ -99,6 +101,7 @@ public partial class Node
 
     private static uint _globalInstanceId;
     private        uint InstanceId { get; } = _globalInstanceId++;
+    private        uint _colorThemeVersion;
 
     private          IDalamudTextureWrap? _texture;
     private          NodeSnapshot         _snapshot;
@@ -109,6 +112,7 @@ public partial class Node
         if (ParentNode is not null)
             throw new InvalidOperationException("Cannot render a node that has a parent or is not a root node.");
 
+        // TODO: Try to move some stuff to another thread...
         ComputeStyle();
         Reflow(position);
         Draw(drawList);
@@ -119,9 +123,17 @@ public partial class Node
     /// </summary>
     public bool IsVisible => ComputedStyle.IsVisible && !Bounds.PaddingSize.IsZero;
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void Draw(ImDrawListPtr drawList)
     {
         BeforeDraw?.Invoke(this);
+
+        if (Color.ThemeVersion != _colorThemeVersion) {
+            _colorThemeVersion = Color.ThemeVersion;
+            _texture           = null;
+        }
+
+        if (Style.IsVisible is false) return;
 
         if (!IsVisible) {
             _isVisibleSince = 0;
@@ -130,13 +142,7 @@ public partial class Node
 
         if (_isVisibleSince == 0) _isVisibleSince = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
-        NodeSnapshot snapshot = CreateSnapshot();
-
-        if (_texture is null || NodeSnapshot.AreEqual(ref snapshot, ref _snapshot) is false) {
-            _texture  = Renderer.CreateTexture(this);
-            _snapshot = snapshot;
-        }
-
+        UpdateTexture();
         PushDrawList(drawList);
         BeginOverflowContainer();
         SetupInteractive(drawList);
@@ -171,11 +177,22 @@ public partial class Node
         PopDrawList();
     }
 
+    private void UpdateTexture()
+    {
+        NodeSnapshot snapshot = CreateSnapshot();
+
+        if (_texture is null || NodeSnapshot.AreEqual(ref snapshot, ref _snapshot) is false) {
+            _texture  = Renderer.CreateTexture(this);
+            _snapshot = snapshot;
+        }
+    }
+
     /// <summary>
     /// Allows the node to draw custom content on the node's draw list.
     /// </summary>
     protected virtual void OnDraw(ImDrawListPtr drawList) { }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void BeginOverflowContainer()
     {
         if (Overflow) return;
@@ -223,6 +240,7 @@ public partial class Node
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void EndOverflowContainer()
     {
         if (Overflow) return;
@@ -243,6 +261,7 @@ public partial class Node
         PopDrawList();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private NodeSnapshot CreateSnapshot()
     {
         return new() {
@@ -255,6 +274,7 @@ public partial class Node
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private uint GetRenderColor()
     {
         float opacity = ComputedStyle.Opacity;
@@ -272,6 +292,7 @@ public partial class Node
         return (uint)(opacity * 255) << 24 | 0x00FFFFFF;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void RenderShadow(ImDrawListPtr drawList)
     {
         if (ComputedStyle.ShadowSize.IsZero) return;
