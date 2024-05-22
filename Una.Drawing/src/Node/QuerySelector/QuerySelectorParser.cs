@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Una.Drawing;
 
@@ -14,6 +15,7 @@ internal static class QuerySelectorParser
 {
     private static readonly Dictionary<string, List<QuerySelector>> Cache = [];
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     internal static List<QuerySelector> Parse(string query)
     {
         if (Cache.TryGetValue(query, out var cachedResult)) return cachedResult;

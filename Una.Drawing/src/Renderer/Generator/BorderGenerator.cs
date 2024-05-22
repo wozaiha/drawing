@@ -33,10 +33,10 @@ internal class BorderGenerator : IGenerator
         int      leftWidth   = style.BorderWidth.Left;
 
         // FIXME: This isn't right. Corner radius should respect individual edge sizes now.
-        float topCornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Top));
-        float rightCornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Right));
+        float topCornerRadius    = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Top));
+        float rightCornerRadius  = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Right));
         float bottomCornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Bottom));
-        float leftCornerRadius = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Left));
+        float leftCornerRadius   = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Left));
 
         var rect = new SKRect(
             inset.Left + ((float)leftWidth / 2),
@@ -52,6 +52,7 @@ internal class BorderGenerator : IGenerator
 
         using SKPaint paint = new SKPaint();
         paint.IsAntialias = node.ComputedStyle.IsAntialiased;
+        paint.IsStroke    = true;
         paint.Style       = SKPaintStyle.Stroke;
 
         if (topWidth > 0 && topColor is not null) {
@@ -111,7 +112,12 @@ internal class BorderGenerator : IGenerator
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight)) {
                 canvas.DrawArc(
-                    new(rect.Right - 2 * rightCornerRadius, rect.Bottom - 2 * bottomCornerRadius, rect.Right, rect.Bottom),
+                    new(
+                        rect.Right - 2 * rightCornerRadius,
+                        rect.Bottom - 2 * bottomCornerRadius,
+                        rect.Right,
+                        rect.Bottom
+                    ),
                     0,
                     45,
                     false,
@@ -134,7 +140,12 @@ internal class BorderGenerator : IGenerator
 
             if (style.RoundedCorners.HasFlag(RoundedCorners.BottomRight)) {
                 canvas.DrawArc(
-                    new(rect.Right - 2 * rightCornerRadius, rect.Bottom - 2 * bottomCornerRadius, rect.Right, rect.Bottom),
+                    new(
+                        rect.Right - 2 * rightCornerRadius,
+                        rect.Bottom - 2 * bottomCornerRadius,
+                        rect.Right,
+                        rect.Bottom
+                    ),
                     45,
                     45,
                     false,

@@ -234,7 +234,7 @@ public partial class Node : IDisposable
         _classList.CollectionChanged  += HandleClassListChanged;
         _tagsList.CollectionChanged   += HandleTagsListChanged;
 
-        ComputedStyle.OnLayoutPropertyChanged += SignalReflow;
+        ComputedStyle.OnLayoutPropertyChanged += SignalReflowRecursive;
         ComputedStyle.OnPaintPropertyChanged  += SignalRepaint;
 
         OnChildAdded   += child => child.OnReflow += SignalReflow;

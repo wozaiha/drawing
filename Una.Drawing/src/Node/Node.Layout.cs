@@ -262,7 +262,7 @@ public partial class Node
 
         if (!ComputedStyle.Stretch || ParentNode is null) return;
 
-        Size size = ParentNode!.Bounds.ContentSize.Copy();
+        Size size = ParentNode!.Bounds.ContentSize;
         Size newContentSize;
 
         if (ParentNode.ComputedStyle.Flow == Flow.Horizontal) {

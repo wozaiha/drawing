@@ -7,6 +7,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Una.Drawing;
 
@@ -18,6 +19,7 @@ public partial class Node
     /// </summary>
     /// <param name="querySelectorString">The query selector string.</param>
     /// <returns>A <see cref="Node"/> object or NULL if no such node exists.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public Node? QuerySelector(string querySelectorString)
     {
         var querySelectors = QuerySelectorParser.Parse(querySelectorString);
@@ -39,6 +41,7 @@ public partial class Node
     /// </summary>
     /// <param name="querySelectorString">The query selector string.</param>
     /// <returns>An instance of T that inherits <see cref="Node"/> or NULL.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public T? QuerySelector<T>(string querySelectorString) where T : Node
     {
         return QuerySelector(querySelectorString) as T;
@@ -49,6 +52,7 @@ public partial class Node
     /// </summary>
     /// <param name="querySelectorString">The query selector string.</param>
     /// <returns>A list of matching <see cref="Node"/> instances.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public IEnumerable<Node> QuerySelectorAll(string querySelectorString)
     {
         List<QuerySelector> querySelectors = QuerySelectorParser.Parse(querySelectorString);
@@ -67,11 +71,13 @@ public partial class Node
     /// </summary>
     /// <param name="querySelectorString">The query selector string.</param>
     /// <returns>A list of matching nodes.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public IEnumerable<T> QuerySelectorAll<T>(string querySelectorString) where T : Node
     {
         return QuerySelectorAll(querySelectorString).Cast<T>().ToList();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static List<Node> FindChildrenMatching(Node node, QuerySelector querySelector, bool recursive)
     {
         List<Node> nodeListResult = [];
@@ -105,6 +111,7 @@ public partial class Node
         return nodeListResult;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static bool MatchesQuerySelector(Node node, QuerySelector querySelector)
     {
         if (querySelector.Identifier != null && node.Id != querySelector.Identifier) {

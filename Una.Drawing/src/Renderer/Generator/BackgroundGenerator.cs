@@ -25,12 +25,13 @@ internal class BackgroundGenerator : IGenerator
 
         paint.Color       = Color.ToSkColor(node.ComputedStyle.BackgroundColor);
         paint.Style       = SKPaintStyle.Fill;
-        paint.IsAntialias = node.ComputedStyle.IsAntialiased;
 
         if (node.ComputedStyle.BorderRadius == 0) {
             canvas.DrawRect(0, 0, size.Width, size.Height, paint);
             return;
         }
+
+        paint.IsAntialias = node.ComputedStyle.IsAntialiased;
 
         var style  = node.ComputedStyle;
         var radius = (float)style.BorderRadius;
