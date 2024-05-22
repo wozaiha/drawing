@@ -43,6 +43,8 @@ public partial class Node
     /// True if one of the mouse buttons in held down while the cursor is over the element.
     /// </summary>
     public bool IsMouseDown { get; private set; }
+    public bool IsMiddleMouseDown { get; private set; }
+    public bool IsRightMouseDown { get; private set; }
 
     /// <summary>
     /// True if this element currently has focus.
@@ -163,6 +165,8 @@ public partial class Node
                 OnMouseLeave?.Invoke(this);
                 _didStartDelayedMouseEnter = false;
                 IsMouseDown                = false;
+                IsMiddleMouseDown          = false;
+                IsRightMouseDown           = false;
                 break;
         }
 
@@ -181,19 +185,29 @@ public partial class Node
                     IsMouseDown = true;
                 }
             } else if (ImGui.IsMouseDown(ImGuiMouseButton.Middle)) {
-                if (!IsMouseDown) {
+                if (!IsMiddleMouseDown) {
                     OnMouseDown?.Invoke(this);
                     OnMiddleClick?.Invoke(this);
+                    IsMiddleMouseDown = true;
                 }
             } else if (ImGui.IsMouseDown(ImGuiMouseButton.Right)) {
-                if (!IsMouseDown) {
+                if (!IsRightMouseDown) {
                     OnMouseDown?.Invoke(this);
                     OnRightClick?.Invoke(this);
+                    IsRightMouseDown = true;
                 }
             } else {
                 if (IsMouseDown) {
                     OnMouseUp?.Invoke(this);
                     IsMouseDown = false;
+                }
+                if (IsMiddleMouseDown) {
+                    OnMouseUp?.Invoke(this);
+                    IsMiddleMouseDown = false;
+                }
+                if (IsRightMouseDown) {
+                    OnMouseUp?.Invoke(this);
+                    IsRightMouseDown = false;
                 }
             }
         }
