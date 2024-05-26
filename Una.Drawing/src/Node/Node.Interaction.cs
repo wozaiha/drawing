@@ -202,11 +202,9 @@ public partial class Node
                     IsMouseDown = false;
                 }
                 if (IsMiddleMouseDown) {
-                    OnMouseUp?.Invoke(this);
                     IsMiddleMouseDown = false;
                 }
                 if (IsRightMouseDown) {
-                    OnMouseUp?.Invoke(this);
                     IsRightMouseDown = false;
                 }
             }

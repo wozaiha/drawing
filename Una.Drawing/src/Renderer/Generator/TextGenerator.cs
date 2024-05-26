@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System;
+using System.Text.RegularExpressions;
 using SkiaSharp;
 using Una.Drawing.Font;
 

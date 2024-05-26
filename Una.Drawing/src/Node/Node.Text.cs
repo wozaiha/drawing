@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System;
+using System.Text.RegularExpressions;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Una.Drawing.Font;
@@ -131,4 +132,12 @@ public partial class Node
                 || !_textCachedPadding.Equals(ComputedStyle.Padding)
             );
     }
+
+    private static string GetNormalizedString(string input)
+    {
+        return GameGlyphRegex().Replace(input, string.Empty);
+    }
+
+    [GeneratedRegex(@"[\uE020-\uE0DB]")]
+    private static partial Regex GameGlyphRegex();
 }

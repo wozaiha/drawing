@@ -73,6 +73,10 @@ public partial class Node : IDisposable
             _texture             = null;
             _seStringPayload     = seStringPayload;
 
+            if (_nodeValue is string str) {
+                _nodeValue = GetNormalizedString(str);
+            }
+
             OnPropertyChanged?.Invoke("NodeValue", _nodeValue);
             SignalReflow();
         }

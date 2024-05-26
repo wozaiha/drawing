@@ -189,6 +189,19 @@ public sealed class ComputedStyle
     /// <inheritdoc cref="Style.ScrollbarThumbActiveColor"/>
     public Color ScrollbarThumbActiveColor { get; private set; } = new(0xFFFFFFFF);
 
+    internal bool HasDrawables()
+    {
+        return BackgroundColor is not null
+            || BorderColor is not null
+            || StrokeColor is not null
+            || BackgroundGradient is not null
+            || OutlineColor is not null
+            || TextShadowColor is not null
+            || IconId is not null
+            || ImageBytes is not null
+            || Glyph is not null;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     internal void Apply(Style style)
     {

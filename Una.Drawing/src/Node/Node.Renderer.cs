@@ -142,11 +142,12 @@ public partial class Node
 
         if (_isVisibleSince == 0) _isVisibleSince = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
-        UpdateTexture();
         PushDrawList(drawList);
         BeginOverflowContainer();
         SetupInteractive(drawList);
-        RenderShadow(drawList);
+
+        if (UpdateTexture())
+            RenderShadow(drawList);
 
         if (null != _texture) {
             drawList.AddImage(
@@ -177,14 +178,18 @@ public partial class Node
         PopDrawList();
     }
 
-    private void UpdateTexture()
+    private bool UpdateTexture()
     {
+        if (NodeValue is null && !ComputedStyle.HasDrawables()) return false;
+
         NodeSnapshot snapshot = CreateSnapshot();
 
         if (_texture is null || NodeSnapshot.AreEqual(ref snapshot, ref _snapshot) is false) {
             _texture  = Renderer.CreateTexture(this);
             _snapshot = snapshot;
         }
+
+        return true;
     }
 
     /// <summary>
