@@ -39,10 +39,10 @@ internal class BorderGenerator : IGenerator
         float leftCornerRadius   = Math.Max(0, (style.BorderRadius) - (style.BorderInset.Left));
 
         var rect = new SKRect(
-            inset.Left + ((float)leftWidth / 2),
-            inset.Top + ((float)topWidth / 2),
-            size.Width - 1 - inset.Right - ((float)rightWidth / 2),
-            size.Height - 1 - inset.Bottom - ((float)bottomWidth / 2)
+            inset.Left,
+            inset.Top,
+            size.Width - 1 - inset.Right,
+            size.Height - 1 - inset.Bottom
         );
 
         Color? topColor    = style.BorderColor.Value.Top;
