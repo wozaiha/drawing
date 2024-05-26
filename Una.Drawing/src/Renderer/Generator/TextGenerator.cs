@@ -25,20 +25,21 @@ internal class TextGenerator : IGenerator
         MeasuredText? measurement = node.NodeValueMeasurement;
         if (null == measurement || measurement.Value.LineCount == 0) return;
 
-        Size  size       = node.NodeValueMeasurement!.Value.Size;
-        IFont font       = FontRegistry.Fonts[node.ComputedStyle.Font];
-        int   fontSize   = node.ComputedStyle.FontSize;
-        var   lineHeight = (int)Math.Ceiling(font.GetLineHeight(fontSize));
-        var   metrics    = font.GetMetrics(node.ComputedStyle.FontSize);
+        Size  size        = node.NodeValueMeasurement!.Value.Size;
+        IFont font        = FontRegistry.Fonts[node.ComputedStyle.Font];
+        var   outlineSize = (int)node.ComputedStyle.OutlineSize;
+        int   fontSize    = node.ComputedStyle.FontSize;
+        var   lineHeight  = (int)Math.Ceiling(font.GetLineHeight(fontSize));
+        var   metrics     = font.GetMetrics(node.ComputedStyle.FontSize);
 
         var y = (int)(metrics.CapHeight + (int)node.ComputedStyle.TextOffset.Y + 1);
         var x = (int)node.ComputedStyle.TextOffset.X;
 
-        if (node.ComputedStyle.TextAlign.IsTop) y    += node.ComputedStyle.Padding.Top;
-        if (node.ComputedStyle.TextAlign.IsLeft) x   += node.ComputedStyle.Padding.Left;
-        if (node.ComputedStyle.TextAlign.IsRight) x  += -node.ComputedStyle.Padding.Right;
-        if (node.ComputedStyle.TextAlign.IsMiddle) y += (node.Height - size.Height) / 2 + 1;
-        if (node.ComputedStyle.TextAlign.IsBottom) y =  node.Height - size.Height;
+        if (node.ComputedStyle.TextAlign.IsTop) y    += node.ComputedStyle.Padding.Top + outlineSize;
+        if (node.ComputedStyle.TextAlign.IsLeft) x   += node.ComputedStyle.Padding.Left + outlineSize;
+        if (node.ComputedStyle.TextAlign.IsRight) x  += -(node.ComputedStyle.Padding.Right + outlineSize);
+        if (node.ComputedStyle.TextAlign.IsMiddle) y += (node.Height - size.Height) / 2 + outlineSize;
+        if (node.ComputedStyle.TextAlign.IsBottom) y =  node.Height - size.Height - outlineSize;
 
         foreach (string line in node.NodeValueMeasurement!.Value.Lines) {
             PrintLine(canvas, font, node, line, x, y, size);

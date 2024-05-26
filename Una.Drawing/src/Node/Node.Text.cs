@@ -72,7 +72,7 @@ public partial class Node
             ComputedStyle.LineHeight
         );
 
-        return NodeValueMeasurement.Value.Size;
+        return NodeValueMeasurement.Value.Size + new Size((int)(ComputedStyle.OutlineSize * 2f));
     }
 
     private Size ComputeContentSizeFromSeString()
