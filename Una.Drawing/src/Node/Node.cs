@@ -59,23 +59,24 @@ public partial class Node : IDisposable
     public object? NodeValue {
         get => _nodeValue;
         set {
-            byte[] seStringPayload = _seStringPayload;
+            if (_nodeValue is null && value is null) return;
 
-            if (_nodeValue is SeString prev && value is SeString next) {
-                if (ReferenceEquals(prev, next)) return;
+            if (_nodeValue is string oldStr && value is string newStr) {
+                newStr = GetNormalizedString(newStr);
+                if (oldStr.Equals(newStr)) return;
+            }
 
-                seStringPayload = next.Encode();
-                if (_seStringPayload.SequenceEqual(seStringPayload)) return;
-            } else if ((_nodeValue is null && value is null) || (_nodeValue?.Equals(value) ?? false)) return;
+            if (value is SeString seStr) {
+                if (ReferenceEquals(value, _nodeValue)) return;
+
+                byte[] payload = seStr.Encode();
+                if (_seStringPayload.SequenceEqual(payload)) return;
+                _seStringPayload = payload;
+            }
 
             _nodeValue           = value;
             _textCachedNodeValue = null;
             _texture             = null;
-            _seStringPayload     = seStringPayload;
-
-            if (_nodeValue is string str) {
-                _nodeValue = GetNormalizedString(str);
-            }
 
             OnPropertyChanged?.Invoke("NodeValue", _nodeValue);
             SignalReflow();
@@ -393,6 +394,8 @@ public partial class Node : IDisposable
     {
         if (!_childNodes.Contains(oldChild)) return;
 
+        ClearQuerySelectorCache();
+
         // Remove the new node from its parent if it has one.
         newChild.ParentNode?.RemoveChild(newChild);
 
@@ -412,6 +415,8 @@ public partial class Node : IDisposable
     /// <param name="node">The added node.</param>
     private void OnChildAddedToList(Node node)
     {
+        ClearQuerySelectorCache();
+
         node.ParentNode?.RemoveChild(node);
         node.ParentNode = this;
 
@@ -435,6 +440,8 @@ public partial class Node : IDisposable
     /// <param name="node">The removed node.</param>
     private void OnChildRemovedFromList(Node node)
     {
+        ClearQuerySelectorCache();
+
         node.ParentNode         =  null;
         node.OnSortIndexChanged -= SortChildren;
 

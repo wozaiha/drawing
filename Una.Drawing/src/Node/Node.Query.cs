@@ -13,6 +13,10 @@ namespace Una.Drawing;
 
 public partial class Node
 {
+    private readonly Dictionary<string, Node?>      _selectorCache      = [];
+    private readonly Dictionary<string, List<Node>> _multiSelectorCache = [];
+    private readonly Dictionary<string, Node?>      _findByIdCache      = [];
+
     /// <summary>
     /// Returns the first node that matches the given query selector, or NULL
     /// if no matching node was found.
@@ -22,17 +26,42 @@ public partial class Node
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public Node? QuerySelector(string querySelectorString)
     {
+        if (_selectorCache.TryGetValue(querySelectorString, out Node? cachedNode)) {
+            return cachedNode;
+        }
+
         var querySelectors = QuerySelectorParser.Parse(querySelectorString);
 
         foreach (var querySelector in querySelectors) {
             Node? node = FindChildrenMatching(this, querySelector, true).FirstOrDefault();
 
             if (node != null) {
+                _selectorCache[querySelectorString] = node;
                 return node;
             }
         }
 
-        return null;
+        return _selectorCache[querySelectorString] = null;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public Node? FindById(string nodeId)
+    {
+        if (Id == nodeId) return this;
+
+        if (_findByIdCache.TryGetValue(nodeId, out Node? cachedNode)) {
+            return cachedNode;
+        }
+
+        foreach (var child in _childNodes) {
+            var node = child.FindById(nodeId);
+
+            if (node != null) {
+                return _findByIdCache[nodeId] = node;
+            }
+        }
+
+        return _findByIdCache[nodeId] = null;
     }
 
     /// <summary>
@@ -55,12 +84,18 @@ public partial class Node
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public IEnumerable<Node> QuerySelectorAll(string querySelectorString)
     {
+        if (_multiSelectorCache.TryGetValue(querySelectorString, out List<Node>? cachedNodeList)) {
+            return cachedNodeList;
+        }
+
         List<QuerySelector> querySelectors = QuerySelectorParser.Parse(querySelectorString);
         List<Node>          nodeListResult = [];
 
         foreach (var querySelector in querySelectors) {
             nodeListResult.AddRange(FindChildrenMatching(this, querySelector, true));
         }
+
+        _multiSelectorCache[querySelectorString] = nodeListResult;
 
         return nodeListResult;
     }
@@ -75,6 +110,22 @@ public partial class Node
     public IEnumerable<T> QuerySelectorAll<T>(string querySelectorString) where T : Node
     {
         return QuerySelectorAll(querySelectorString).Cast<T>().ToList();
+    }
+
+    /// <summary>
+    /// Clears out the selector query cache. This should always be done when
+    /// the list of child nodes has changed.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private void ClearQuerySelectorCache()
+    {
+        _findByIdCache.Clear();
+        _selectorCache.Clear();
+        _multiSelectorCache.Clear();
+
+        // Clear cache for parent nodes as well, since querying for nodes is
+        // always a recursive operation.
+        ParentNode?.ClearQuerySelectorCache();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]

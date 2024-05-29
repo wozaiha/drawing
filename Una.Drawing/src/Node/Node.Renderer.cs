@@ -12,6 +12,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Internal;
 using ImGuiNET;
 using Una.Drawing.Texture;
@@ -180,17 +181,30 @@ public partial class Node
 
     private bool UpdateTexture()
     {
-        if (NodeValue is null && !ComputedStyle.HasDrawables()) return false;
+        if (NodeValue is null && !ComputedStyle.HasDrawables()) {
+            _consecutiveRedraws = 0;
+            return false;
+        }
 
         NodeSnapshot snapshot = CreateSnapshot();
 
         if (_texture is null || NodeSnapshot.AreEqual(ref snapshot, ref _snapshot) is false) {
-            _texture  = Renderer.CreateTexture(this);
-            _snapshot = snapshot;
+            _texture            = Renderer.CreateTexture(this);
+            _snapshot           = snapshot;
+            _consecutiveRedraws++;
+        } else {
+            _consecutiveRedraws = 0;
+        }
+
+        if (_consecutiveRedraws > 30) {
+            DebugLogger.Log($"WARNING: Node {this} is redrawing on every frame. Please check for unnecessary state changes.");
+            _consecutiveRedraws = 0;
         }
 
         return true;
     }
+
+    private int _consecutiveRedraws = 0;
 
     /// <summary>
     /// Allows the node to draw custom content on the node's draw list.
