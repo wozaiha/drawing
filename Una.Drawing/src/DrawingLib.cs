@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System.IO;
+using System.Threading.Tasks;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.IoC;
@@ -24,14 +25,17 @@ public class DrawingLib
     /// Set up the drawing library. Make sure to call this method in your
     /// plugin before using any of the drawing library's features.
     /// </summary>
-    public static void Setup(DalamudPluginInterface pluginInterface)
+    public static async void Setup(DalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<DalamudServices>();
-        DalamudServices.UiBuilder = pluginInterface.UiBuilder;
+        DalamudServices.PluginInterface = pluginInterface;
+        DalamudServices.UiBuilder       = pluginInterface.UiBuilder;
 
-        #if DEBUG
+        await GameGlyphProvider.DownloadGameGlyphs();
+
+#if DEBUG
         DebugLogger.Writer = DalamudServices.PluginLog;
-        #endif
+#endif
 
         // Use the Noto Sans font that comes with Dalamud as the default font,
         // as it supports a wide range of characters, including Japanese.
@@ -55,7 +59,8 @@ public class DrawingLib
                     "UIRes",
                     "Inconsolata-Regular.ttf"
                 )
-            ), 0
+            ),
+            0
         );
 
         FontRegistry.SetNativeFontFamily(
@@ -71,6 +76,10 @@ public class DrawingLib
         );
 
         FontRegistry.SetNativeFontFamily(3, "Arial", SKFontStyleWeight.ExtraBold);
+
+        if (GameGlyphProvider.GlyphsFile.Exists) {
+            FontRegistry.SetNativeFontFamily(4, GameGlyphProvider.GlyphsFile);
+        }
 
         GameGlyphRegistry.Setup();
         GfdIconRepository.Setup();
@@ -97,5 +106,6 @@ internal class DalamudServices
     [PluginService] public static ITextureSubstitutionProvider TextureSubstitutionProvider { get; set; } = null!;
     [PluginService] public static IPluginLog                   PluginLog                   { get; set; } = null!;
 
-    public static UiBuilder UiBuilder { get; set; } = null!;
+    public static DalamudPluginInterface PluginInterface { get; set; } = null!;
+    public static UiBuilder              UiBuilder       { get; set; } = null!;
 }

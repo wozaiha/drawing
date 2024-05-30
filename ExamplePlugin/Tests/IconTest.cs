@@ -1,4 +1,6 @@
-﻿using ImGuiNET;
+﻿using Dalamud.Game.Text;
+using Dalamud.Game.Text.SeStringHandling;
+using ImGuiNET;
 using Una.Drawing;
 
 namespace ExamplePlugin.Tests;
@@ -16,6 +18,16 @@ public class ImageTest : ITest
             Gap  = 4,
         },
         ChildNodes = [
+            new() {
+                NodeValue = SeIconChar.EorzeaTimeEn.ToIconString(),
+                Style = new() {
+                    Font         = 4,
+                    FontSize     = 24,
+                    Color        = new(0xFF00FFFF),
+                    OutlineColor = new(0xFF0000FF),
+                    OutlineSize  = 1,
+                }
+            },
             CreateBlock(62101),
             CreateBlock(62102),
             CreateBlock(62103),
@@ -77,7 +89,7 @@ public class ImageTest : ITest
 
     public void Render()
     {
-        _node.Render(ImGui.GetBackgroundDrawList(), new(200, 100));
+        _node.Render(ImGui.GetBackgroundDrawList(), new(200, 200));
     }
 
     private static Node CreateBlock(uint iconId)
