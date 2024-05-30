@@ -24,26 +24,6 @@ public partial class Style
     public byte[]? ImageBytes { get; set; }
 
     /// <summary>
-    /// Draws the given game glyph in the node.
-    /// </summary>
-    public SeIconChar? Glyph { get; set; }
-
-    /// <summary>
-    /// A translation offset for the glyph.
-    /// </summary>
-    public Vector2? GlyphOffset { get; set; }
-
-    /// <summary>
-    /// Defines the inset spacing of the glyph.
-    /// </summary>
-    public EdgeSize? GlyphInset { get; set; }
-
-    /// <summary>
-    /// Defines the color of the glyph. Defaults to white.
-    /// </summary>
-    public Color? GlyphColor { get; set; }
-
-    /// <summary>
     /// Defines the space between the icon and the border edges of the node.
     /// </summary>
     public EdgeSize? ImageInset { get; set; }

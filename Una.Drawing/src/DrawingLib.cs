@@ -6,8 +6,6 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System.IO;
-using System.Threading.Tasks;
-using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.IoC;
 using Dalamud.Plugin;
@@ -15,7 +13,6 @@ using Dalamud.Plugin.Services;
 using SkiaSharp;
 using Una.Drawing.Font;
 using Una.Drawing.Texture;
-using Una.Drawing.Texture.GameGlyph;
 
 namespace Una.Drawing;
 
@@ -81,7 +78,6 @@ public class DrawingLib
             FontRegistry.SetNativeFontFamily(4, GameGlyphProvider.GlyphsFile);
         }
 
-        GameGlyphRegistry.Setup();
         GfdIconRepository.Setup();
         Renderer.Setup();
     }
@@ -95,7 +91,6 @@ public class DrawingLib
         Renderer.Dispose();
         FontRegistry.Dispose();
         GfdIconRepository.Dispose();
-        GameGlyphRegistry.Dispose();
     }
 }
 

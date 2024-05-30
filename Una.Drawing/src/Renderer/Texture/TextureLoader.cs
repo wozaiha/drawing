@@ -101,7 +101,7 @@ internal static class TextureLoader
     /// <summary>
     /// Returns a <see cref="TexFile"/> for the given icon ID.
     /// </summary>
-    private static TexFile? GetIconFile(uint iconId)
+    private static TexFile GetIconFile(uint iconId)
     {
         if (IconToTexFileCache.TryGetValue(iconId, out var cachedIconFile)) return cachedIconFile;
 

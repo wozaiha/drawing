@@ -133,9 +133,9 @@ public partial class Node
             );
     }
 
-    private static string GetNormalizedString(string input)
+    private string GetNormalizedString(string input)
     {
-        return GameGlyphRegex().Replace(input, string.Empty);
+        return ComputedStyle.Font == 4 ? input : GameGlyphRegex().Replace(input, string.Empty);
     }
 
     [GeneratedRegex(@"[\uE020-\uE0DB]")]
