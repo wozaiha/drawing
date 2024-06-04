@@ -30,7 +30,7 @@
     <ItemGroup>
         <EmbeddedResource Include="assets\shadow.png" LogicalName="Shadow.png"/>
     </ItemGroup>
-    
+
     <ItemGroup>
         <Reference Include="Dalamud">
             <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
@@ -52,6 +52,5 @@
 
     <ItemGroup>
       <PackageReference Include="SkiaSharp" Version="3.0.0-preview.3.1" />
-      <PackageReference Include="System.Drawing.Common" Version="8.0.5" />
     </ItemGroup>
 </Project>

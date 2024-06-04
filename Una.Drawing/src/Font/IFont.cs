@@ -9,12 +9,13 @@ public interface IFont
     /// </summary>
     /// <param name="text">The text to measure.</param>
     /// <param name="fontSize">The size of the text in pixels.</param>
+    /// <param name="outlineSize">The outline size of the text in pixels.</param>
     /// <param name="maxLineWidth">Maximum line width before text starts wrapping or showing an ellipsis.</param>
     /// <param name="wordWrap">Whether to wrap text to the next line if it exceeds the max line width.</param>
     /// <param name="textOverflow">Wether to allow text to be cut off without word-breaks or ellipsis.</param>
     /// <param name="lineHeight">A scale factor that determines the height of lines.</param>
     /// <returns>A <see cref="MeasuredText"/> object containing wrapped text.</returns>
-    public MeasuredText MeasureText(string text, int fontSize = 14, float? maxLineWidth = null, bool wordWrap = false, bool textOverflow = true, float lineHeight = 1.2f);
+    public MeasuredText MeasureText(string text, int fontSize = 14, float outlineSize = 0, float? maxLineWidth = null, bool wordWrap = false, bool textOverflow = true, float lineHeight = 1.2f);
 
     /// <summary>
     /// Draws the given text on the canvas using this font.

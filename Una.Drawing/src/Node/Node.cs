@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Dalamud.Game.Text.SeStringHandling;
 
 namespace Una.Drawing;
@@ -59,11 +60,14 @@ public partial class Node : IDisposable
     public object? NodeValue {
         get => _nodeValue;
         set {
-            if (_nodeValue is null && value is null) return;
-
-            if (_nodeValue is string oldStr && value is string newStr) {
-                newStr = GetNormalizedString(newStr);
-                if (oldStr.Equals(newStr)) return;
+            switch (_nodeValue) {
+                case null when value is null:
+                    return;
+                case string oldStr when value is string newStr: {
+                    newStr = GetNormalizedString(newStr);
+                    if (oldStr.Equals(newStr)) return;
+                    break;
+                }
             }
 
             if (value is SeString seStr) {
@@ -259,10 +263,15 @@ public partial class Node : IDisposable
 
     private void OnFontConfigurationChanged()
     {
-        _texture            = null;
-        _textCachedFontId   = null;
-        _textCachedFontSize = null;
-        _mustReflow         = true;
+        _texture             = null;
+        _textCachedFontId    = null;
+        _textCachedFontSize  = null;
+        _textCachedNodeSize  = null;
+        _textCachedWordWrap  = null;
+        _textCachedNodeValue = null;
+        _mustReflow          = true;
+        _snapshot            = new();
+
     }
 
     private void HandleChildListChanged(object? _, NotifyCollectionChangedEventArgs e)

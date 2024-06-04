@@ -26,7 +26,7 @@ public class SeStringGenerator : IGenerator
         Size  size       = node.NodeValueMeasurement!.Value.Size;
         IFont font       = FontRegistry.Fonts[node.ComputedStyle.Font];
         var   metrics    = font.GetMetrics(node.ComputedStyle.FontSize);
-        int   spaceWidth = font.MeasureText(" ", node.ComputedStyle.FontSize).Size.Width;
+        int   spaceWidth = font.MeasureText(" ", node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize).Size.Width;
 
         var y = (int)(metrics.CapHeight + node.ComputedStyle.TextOffset.Y);
         var x = (int)node.ComputedStyle.TextOffset.X;
@@ -89,7 +89,7 @@ public class SeStringGenerator : IGenerator
 
         IFont font = FontRegistry.Fonts[node.ComputedStyle.Font];
 
-        MeasuredText measurements = font.MeasureText(text, node.ComputedStyle.FontSize);
+        MeasuredText measurements = font.MeasureText(text, node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize);
 
         if (measurements.Size.Width == 0) return 0;
 

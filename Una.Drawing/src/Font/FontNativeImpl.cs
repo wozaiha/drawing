@@ -31,19 +31,20 @@ internal sealed class FontNativeImpl : IFont
     public MeasuredText MeasureText(
         string text,
         int    fontSize         = 14,
+        float  outlineSize      = 0,
         float? maxLineWidth     = null,
         bool   wordWrap         = false,
         bool   textOverflow     = true,
-        float  lineHeightFactor = 1.2f
+        float  lineHeightFactor = 1.5f
     )
     {
         var maxWidth   = 0;
         var maxHeight  = 0;
         var font       = GetFont(fontSize);
-        var lineHeight = (int)Math.Ceiling(GetLineHeight(fontSize));
+        int lineHeight = (int)Math.Ceiling(GetLineHeight(fontSize) + (outlineSize * 2.0f)) + 1;
 
         if (textOverflow || maxLineWidth is null or 0) {
-            maxWidth = (int)Math.Ceiling(font.MeasureText(text));
+            maxWidth = (int)Math.Ceiling(font.MeasureText(text) + (outlineSize * 2.0f));
 
             return new() {
                 Size      = new(maxWidth, lineHeight),
@@ -60,7 +61,7 @@ internal sealed class FontNativeImpl : IFont
             }
 
             return new() {
-                Size      = new((int)maxLineWidth.Value, lineHeight),
+                Size      = new((int)(maxLineWidth.Value + (outlineSize * 2.0f)), lineHeight),
                 Lines     = [text],
                 LineCount = 1,
             };
@@ -105,7 +106,7 @@ internal sealed class FontNativeImpl : IFont
         }
 
         return new() {
-            Size      = new(maxWidth, maxHeight),
+            Size      = new(maxWidth + (int)(outlineSize * 2.0f), (int)(maxHeight + ((outlineSize * 2.0f) * lines.Count))),
             Lines     = lines.ToArray(),
             LineCount = (uint)lines.Count,
         };

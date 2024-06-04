@@ -290,7 +290,8 @@ public sealed class ComputedStyle
         LineHeight                = 1.2f;
         WordWrap                  = false;
         TextAlign                 = Anchor.TopLeft;
-        OutlineSize               = 0;
+        OutlineColor              = new(0x00000000);
+        OutlineSize               = 1;
         TextOffset                = Vector2.Zero;
         TextOverflow              = true;
         BackgroundColor           = null;

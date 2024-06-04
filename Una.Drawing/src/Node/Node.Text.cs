@@ -66,13 +66,14 @@ public partial class Node
         NodeValueMeasurement = font.MeasureText(
             str,
             ComputedStyle.FontSize,
+            ComputedStyle.OutlineSize,
             ComputedStyle.Size.Width,
             ComputedStyle.WordWrap,
             ComputedStyle.TextOverflow,
             ComputedStyle.LineHeight
         );
 
-        return NodeValueMeasurement.Value.Size + new Size((int)(ComputedStyle.OutlineSize * 2f));
+        return NodeValueMeasurement.Value.Size;
     }
 
     private Size ComputeContentSizeFromSeString()
@@ -84,7 +85,7 @@ public partial class Node
         IFont font       = FontRegistry.Fonts[ComputedStyle.Font];
         var   maxWidth   = 0;
         var   maxHeight  = 0;
-        Size  charSize   = font.MeasureText(" ", ComputedStyle.FontSize).Size;
+        Size  charSize   = font.MeasureText(" ", ComputedStyle.FontSize, ComputedStyle.OutlineSize).Size;
         int   spaceWidth = charSize.Width;
 
         foreach (var payload in str.Payloads) {
@@ -92,7 +93,7 @@ public partial class Node
                 case TextPayload text:
                     if (string.IsNullOrEmpty(text.Text)) continue;
 
-                    MeasuredText measurement = font.MeasureText(text.Text, ComputedStyle.FontSize);
+                    MeasuredText measurement = font.MeasureText(text.Text, ComputedStyle.FontSize, ComputedStyle.OutlineSize);
                     maxWidth  += measurement.Size.Width;
                     maxHeight =  Math.Max(maxHeight, measurement.Size.Height);
                     continue;

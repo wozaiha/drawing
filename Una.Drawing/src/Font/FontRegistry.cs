@@ -22,16 +22,9 @@ public static class FontRegistry
 
     internal static readonly Dictionary<uint, IFont> Fonts = [];
 
-    public static List<string> GetFontFamilies()
+    public static IEnumerable<string> GetFontFamilies()
     {
-        List<string> result = [];
-
-        InstalledFontCollection installedFontCollection = new();
-        FontFamily[]            fontFamilies            = installedFontCollection.Families;
-
-        result.AddRange(fontFamilies.Select(fontFamily => fontFamily.Name));
-
-        return result;
+        return SKFontManager.Default.FontFamilies;
     }
 
     /// <summary>

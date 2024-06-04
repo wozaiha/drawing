@@ -197,7 +197,7 @@ public partial class Node
         }
 
         if (_consecutiveRedraws > 30) {
-            DebugLogger.Log($"WARNING: Node {this} is redrawing on every frame. Please check for unnecessary state changes.");
+            DebugLogger.Log($"WARNING: Node {this} is redrawing on every frame (value={_nodeValue}). Please check for unnecessary state changes.");
             _consecutiveRedraws = 0;
         }
 

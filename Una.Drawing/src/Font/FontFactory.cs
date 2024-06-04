@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System.IO;
+using System.Linq;
 using SkiaSharp;
 
 namespace Una.Drawing.Font;
@@ -16,7 +17,10 @@ internal class FontFactory
         string fontFamily, SKFontStyleWeight weight = SKFontStyleWeight.Normal, float sizeOffset = 0
     )
     {
-        SKFontStyle fontStyle   = new(weight, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
+        SKFontStyleSet styles    = SKFontManager.Default.GetFontStyles(fontFamily);
+        SKFontStyle    fontStyle = styles.FirstOrDefault(style => style.Weight >= 400 && style.Slant == SKFontStyleSlant.Upright)
+            ?? (styles.FirstOrDefault() ?? new());
+
         SKTypeface  srcTypeface = SKTypeface.FromFamilyName(fontFamily, fontStyle);
 
         return new FontNativeImpl(srcTypeface, sizeOffset);
