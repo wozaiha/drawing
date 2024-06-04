@@ -23,20 +23,20 @@ public class SeStringGenerator : IGenerator
     {
         if (node.NodeValue is not SeString seString || seString.Payloads.Count == 0) return;
 
-        Size  size       = node.NodeValueMeasurement!.Value.Size;
-        IFont font       = FontRegistry.Fonts[node.ComputedStyle.Font];
-        var   metrics    = font.GetMetrics(node.ComputedStyle.FontSize);
-        int   spaceWidth = font.MeasureText(" ", node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize).Size.Width;
+        Size  size        = node.NodeValueMeasurement!.Value.Size;
+        IFont font        = FontRegistry.Fonts[node.ComputedStyle.Font];
+        var   outlineSize = (int)node.ComputedStyle.OutlineSize;
+        var   metrics     = font.GetMetrics(node.ComputedStyle.FontSize);
+        int   spaceWidth  = font.MeasureText(" ", node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize).Size.Width;
 
-        var y = (int)(metrics.CapHeight + node.ComputedStyle.TextOffset.Y);
-        var x = (int)node.ComputedStyle.TextOffset.X;
+        var y = (int)(metrics.CapHeight + (int)node.ComputedStyle.TextOffset.Y) + outlineSize;
+        var x = (int)node.ComputedStyle.TextOffset.X + 1;
 
-        if (node.ComputedStyle.TextAlign.IsTop) y    += node.ComputedStyle.Padding.Top;
-        if (node.ComputedStyle.TextAlign.IsLeft) x   += node.ComputedStyle.Padding.Left;
-        if (node.ComputedStyle.TextAlign.IsRight) x  += -node.ComputedStyle.Padding.Right;
-        if (node.ComputedStyle.TextAlign.IsMiddle) y += (node.Height - size.Height) / 2;
-        if (node.ComputedStyle.TextAlign.IsBottom) y =  node.Height - size.Height;
-        if (node.ComputedStyle.TextAlign.IsCenter) x += (node.Width - size.Width) / 2;
+        if (node.ComputedStyle.TextAlign.IsTop) y    += node.ComputedStyle.Padding.Top + outlineSize;
+        if (node.ComputedStyle.TextAlign.IsLeft) x   += node.ComputedStyle.Padding.Left + outlineSize;
+        if (node.ComputedStyle.TextAlign.IsRight) x  += -(node.ComputedStyle.Padding.Right + outlineSize);
+        if (node.ComputedStyle.TextAlign.IsMiddle) y += (node.Height - size.Height) / 2 + outlineSize;
+        if (node.ComputedStyle.TextAlign.IsBottom) y =  node.Height - size.Height - outlineSize;
 
         SKColor prevColor = Color.ToSkColor(node.ComputedStyle.Color);
         SKColor color     = prevColor;
