@@ -70,12 +70,18 @@ public partial class Node : IDisposable
                 }
             }
 
-            if (value is SeString seStr) {
-                if (ReferenceEquals(value, _nodeValue)) return;
-
-                byte[] payload = seStr.Encode();
-                if (_seStringPayload.SequenceEqual(payload)) return;
-                _seStringPayload = payload;
+            switch (value) {
+                case string str:
+                    value = GetNormalizedString(str);
+                    break;
+                case SeString when ReferenceEquals(value, _nodeValue):
+                    return;
+                case SeString seStr: {
+                    byte[] payload = seStr.Encode();
+                    if (_seStringPayload.SequenceEqual(payload)) return;
+                    _seStringPayload = payload;
+                    break;
+                }
             }
 
             _nodeValue           = value;
