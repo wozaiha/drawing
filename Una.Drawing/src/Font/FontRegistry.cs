@@ -7,8 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using SkiaSharp;
@@ -20,11 +18,16 @@ public static class FontRegistry
 {
     internal static event Action? FontChanged;
 
-    internal static readonly Dictionary<uint, IFont> Fonts = [];
+    internal static Dictionary<uint, IFont> Fonts  { get; }      = [];
+    internal static SKTypeface              Glyphs { get; set; } = SKTypeface.Default;
 
     public static IEnumerable<string> GetFontFamilies()
     {
-        return SKFontManager.Default.FontFamilies;
+        // Remove duplicates and sort alphabetically.
+        List<string> families = SKFontManager.Default.FontFamilies.Distinct().ToList();
+        families.Sort();
+
+        return families;
     }
 
     /// <summary>
@@ -40,15 +43,15 @@ public static class FontRegistry
     /// <param name="weight"></param>
     /// <param name="sizeOffset"></param>
     public static void SetNativeFontFamily(
-        uint id,
-        string fontFamily,
-        SKFontStyleWeight weight = SKFontStyleWeight.Normal,
-        float sizeOffset = 0
+        uint              id,
+        string            fontFamily,
+        SKFontStyleWeight weight     = SKFontStyleWeight.Normal, // TODO: Remove me.
+        float             sizeOffset = 0
     )
     {
         if (Fonts.TryGetValue(id, out IFont? existingFont)) existingFont.Dispose();
 
-        Fonts[id] = FontFactory.CreateFromFontFamily(fontFamily, weight, sizeOffset);
+        Fonts[id] = FontFactory.CreateFromFontFamily(fontFamily, sizeOffset);
         FontChanged?.Invoke();
     }
 
@@ -72,6 +75,11 @@ public static class FontRegistry
 
         Fonts[id] = FontFactory.CreateFromFontFile(fontFile, sizeOffset);
         FontChanged?.Invoke();
+    }
+
+    internal static void SetupGlyphFont()
+    {
+        Glyphs = SKTypeface.FromFile(GameGlyphProvider.GlyphsFile.FullName);
     }
 
     internal static void Dispose()

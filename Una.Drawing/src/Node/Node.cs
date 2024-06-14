@@ -11,7 +11,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Dalamud.Game.Text.SeStringHandling;
 
 namespace Una.Drawing;
@@ -64,16 +63,12 @@ public partial class Node : IDisposable
                 case null when value is null:
                     return;
                 case string oldStr when value is string newStr: {
-                    newStr = GetNormalizedString(newStr);
                     if (oldStr.Equals(newStr)) return;
                     break;
                 }
             }
 
             switch (value) {
-                case string str:
-                    value = GetNormalizedString(str);
-                    break;
                 case SeString when ReferenceEquals(value, _nodeValue):
                     return;
                 case SeString seStr: {

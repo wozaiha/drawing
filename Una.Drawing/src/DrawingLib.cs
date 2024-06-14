@@ -29,6 +29,7 @@ public class DrawingLib
         DalamudServices.UiBuilder       = pluginInterface.UiBuilder;
 
         await GameGlyphProvider.DownloadGameGlyphs();
+        FontRegistry.SetupGlyphFont();
 
 #if DEBUG
         DebugLogger.Writer = DalamudServices.PluginLog;

@@ -29,7 +29,7 @@ public class SeStringGenerator : IGenerator
         var   metrics     = font.GetMetrics(node.ComputedStyle.FontSize);
         int   spaceWidth  = font.MeasureText(" ", node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize).Size.Width;
 
-        var y = (int)(metrics.CapHeight + (int)node.ComputedStyle.TextOffset.Y) + outlineSize;
+        var y = (int)(metrics.CapHeight) + outlineSize;
         var x = (int)node.ComputedStyle.TextOffset.X + 1;
 
         if (node.ComputedStyle.TextAlign.IsTop) y    += node.ComputedStyle.Padding.Top + outlineSize;
