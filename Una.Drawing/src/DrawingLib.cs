@@ -42,7 +42,7 @@ public class DrawingLib
         // as it supports a wide range of characters, including Japanese.
         FontRegistry.SetNativeFontFamily(
             0,
-            new(
+            new FileInfo(
                 Path.Combine(
                     pluginInterface.DalamudAssetDirectory.FullName,
                     "UIRes",
@@ -54,7 +54,7 @@ public class DrawingLib
 
         FontRegistry.SetNativeFontFamily(
             1,
-            new(
+            new FileInfo(
                 Path.Combine(
                     pluginInterface.DalamudAssetDirectory.FullName,
                     "UIRes",
@@ -66,7 +66,7 @@ public class DrawingLib
 
         FontRegistry.SetNativeFontFamily(
             2,
-            new(
+            new FileInfo(
                 Path.Combine(
                     pluginInterface.DalamudAssetDirectory.FullName,
                     "UIRes",
