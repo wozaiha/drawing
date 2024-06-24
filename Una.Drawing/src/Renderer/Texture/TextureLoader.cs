@@ -13,7 +13,6 @@ internal static class TextureLoader
 {
     private static readonly Dictionary<uint, TexFile>               IconToTexFileCache   = [];
     private static readonly Dictionary<uint, SKImage>               IconToImageCache     = [];
-    private static readonly Dictionary<string, IDalamudTextureWrap> EmbeddedTextureCache = [];
 
     /// <summary>
     /// Loads an embedded texture from one of the plugin assemblies.
@@ -23,18 +22,7 @@ internal static class TextureLoader
     /// <exception cref="InvalidOperationException"></exception>
     public static IDalamudTextureWrap GetEmbeddedTexture(string name)
     {
-        if (EmbeddedTextureCache.TryGetValue(name, out var cachedTexture)) return cachedTexture;
-
-        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name);
-        if (stream == null) throw new InvalidOperationException($"Failed to load embedded texture \"{name}\".");
-
-        var imageData = new byte[stream.Length];
-        int _         = stream.Read(imageData, 0, imageData.Length);
-
-        IDalamudTextureWrap texture = DalamudServices.UiBuilder.LoadImage(imageData);
-        EmbeddedTextureCache[name] = texture;
-
-        return texture;
+        return DalamudServices.TextureProvider.GetFromManifestResource(Assembly.GetExecutingAssembly(), name).GetWrapOrEmpty();
     }
 
     internal static SKImage? LoadFromBytes(byte[] bytes)
@@ -58,8 +46,7 @@ internal static class TextureLoader
     {
         if (IconToImageCache.TryGetValue(iconId, out SKImage? cachedImage)) return cachedImage;
 
-        TexFile? iconFile = GetIconFile(iconId);
-        if (null == iconFile) return null;
+        TexFile iconFile = GetIconFile(iconId);
 
         SKImageInfo info = new(iconFile.Header.Width, iconFile.Header.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
 

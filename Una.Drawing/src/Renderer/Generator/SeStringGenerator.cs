@@ -44,7 +44,7 @@ public class SeStringGenerator : IGenerator
         foreach (var payload in seString.Payloads) {
             switch (payload) {
                 case UIForegroundPayload fg:
-                    uint rgb = fg.RGB;
+                    uint rgb = fg.RGBA;
 
                     if (rgb == 0) {
                         color = prevColor;

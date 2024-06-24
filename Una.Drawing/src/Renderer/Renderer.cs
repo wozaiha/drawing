@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures;
+using Lumina.Data.Files;
 using SkiaSharp;
 using Una.Drawing.Generator;
 
@@ -86,7 +88,12 @@ internal static class Renderer
             );
         }
 
-        IDalamudTextureWrap texture = DalamudServices.UiBuilder.LoadImageRaw(targetData, node.Width, node.Height, 4);
+        IDalamudTextureWrap texture = DalamudServices.TextureProvider.CreateFromRaw(
+            RawImageSpecification.Rgba32(node.Width, node.Height),
+            targetData
+        );
+
+        // IDalamudTextureWrap texture = DalamudServices.UiBuilder.LoadImageRaw(targetData, node.Width, node.Height, 4);
 
         ArrayPool<byte>.Shared.Return(targetData);
 
