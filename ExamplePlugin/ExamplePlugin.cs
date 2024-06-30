@@ -17,7 +17,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
 {
     [PluginService] private IChatGui _chatGui { get; set; } = null!;
 
-    private readonly DalamudPluginInterface    _plugin;
+    private readonly IDalamudPluginInterface   _plugin;
     private readonly Dictionary<string, ITest> _tests = [];
 
     private string _activeTest = "Stretch";
@@ -59,7 +59,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
         ]
     );
 
-    public ExamplePlugin(IPluginLog logger, DalamudPluginInterface plugin)
+    public ExamplePlugin(IPluginLog logger, IDalamudPluginInterface plugin)
     {
         DrawingLib.Setup(plugin);
 
