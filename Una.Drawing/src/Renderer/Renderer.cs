@@ -10,9 +10,8 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Dalamud.Interface.Internal;
 using Dalamud.Interface.Textures;
-using Lumina.Data.Files;
+using Dalamud.Interface.Textures.TextureWraps;
 using SkiaSharp;
 using Una.Drawing.Generator;
 

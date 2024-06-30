@@ -22,7 +22,7 @@ public class DrawingLib
     /// Set up the drawing library. Make sure to call this method in your
     /// plugin before using any of the drawing library's features.
     /// </summary>
-    public static async void Setup(DalamudPluginInterface pluginInterface, bool downloadGameGlyphs = true)
+    public static async void Setup(IDalamudPluginInterface pluginInterface, bool downloadGameGlyphs = true)
     {
         pluginInterface.Create<DalamudServices>();
         DalamudServices.PluginInterface = pluginInterface;
@@ -105,6 +105,6 @@ internal class DalamudServices
     [PluginService] public static ITextureSubstitutionProvider TextureSubstitutionProvider { get; set; } = null!;
     [PluginService] public static IPluginLog                   PluginLog                   { get; set; } = null!;
 
-    public static DalamudPluginInterface PluginInterface { get; set; } = null!;
-    public static UiBuilder              UiBuilder       { get; set; } = null!;
+    public static IDalamudPluginInterface PluginInterface { get; set; } = null!;
+    public static IUiBuilder              UiBuilder       { get; set; } = null!;
 }

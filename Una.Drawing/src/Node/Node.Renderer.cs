@@ -11,9 +11,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures.TextureWraps;
 using ImGuiNET;
 using Una.Drawing.Texture;
 
@@ -204,7 +202,7 @@ public partial class Node
         return true;
     }
 
-    private int _consecutiveRedraws = 0;
+    private int _consecutiveRedraws;
 
     /// <summary>
     /// Allows the node to draw custom content on the node's draw list.
