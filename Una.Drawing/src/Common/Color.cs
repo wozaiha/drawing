@@ -123,7 +123,7 @@ public class Color(byte r, byte g, byte b, float a = 1.0f)
         return (uint)((byte)(A * 255) << 24 | R << 16 | G << 8 | B);
     }
 
-    public Color(byte r, byte g, byte b, byte a) : this(r, g, b, a * 255) { }
+    public Color(byte b, byte g, byte r, byte a) : this(b, g, r, a * 255) { }
 
     public Color(uint color) : this(
         (byte)((color >> 16) & 0xFF),

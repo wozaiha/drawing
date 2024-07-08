@@ -346,7 +346,7 @@ public sealed class ComputedStyle
         BackgroundImageInset      = new(0, 0);
         BackgroundImageScale      = new(1, 1);
         BackgroundImageColor      = new(0xFFFFFFFF);
-        BackgroundImageBlendMode  = BlendMode.SrcIn;
+        BackgroundImageBlendMode  = BlendMode.Modulate;
         OutlineColor              = null;
         TextShadowSize            = 0;
         TextShadowColor           = null;
@@ -360,7 +360,7 @@ public sealed class ComputedStyle
         ImageContrast             = 0;
         ImageRotation             = 0;
         ImageColor                = new(0xFFFFFFFF);
-        ImageBlendMode            = BlendMode.SrcIn;
+        ImageBlendMode            = BlendMode.Modulate;
         Opacity                   = 1;
         ShadowSize                = new();
         ShadowInset               = 0;

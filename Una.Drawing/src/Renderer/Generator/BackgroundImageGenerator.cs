@@ -36,16 +36,12 @@ public class BackgroundImageGenerator : IGenerator
 
         paint.Shader = shader;
 
-        var rect = new SKRectI(
+        canvas.DrawRegion(new (new SKRectI(
             inset.Left,
             inset.Top,
             size.Width - inset.Right,
             size.Height - inset.Bottom
-        );
-
-        canvas.DrawRegion(new (rect), paint);
-
-        DebugLogger.Log($"Background image rendered! {image.Width}");
+        )), paint);
     }
 
     private static SKImage? LoadImage(object? image)
