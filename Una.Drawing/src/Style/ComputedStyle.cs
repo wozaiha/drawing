@@ -9,7 +9,6 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Dalamud.Game.Text;
 
 namespace Una.Drawing;
 
@@ -117,6 +116,24 @@ public sealed class ComputedStyle
     /// <inheritdoc cref="Style.BackgroundGradientInset"/>
     public EdgeSize BackgroundGradientInset { get; private set; } = new();
 
+    /// <inheritdoc cref="Style.BackgroundImage"/>
+    public object? BackgroundImage { get; set; }
+
+    /// <inheritdoc cref="Style.BackgroundImageInset"/>
+    public EdgeSize BackgroundImageInset { get; set; } = new(0, 0);
+
+    /// <inheritdoc cref="Style.BackgroundImageScale"/>
+    public Vector2 BackgroundImageScale { get; set; } = new(1, 1);
+
+    /// <inheritdoc cref="Style.BackgroundImageColor"/>
+    public Color BackgroundImageColor { get; set; } = new(0xFFFFFFFF);
+
+    /// <inheritdoc cref="Style.BackgroundImageRotation"/>
+    public short BackgroundImageRotation { get; set; }
+
+    /// <inheritdoc cref="Style.BackgroundImageBlendMode"/>
+    public BlendMode BackgroundImageBlendMode { get; set; }
+
     /// <inheritdoc cref="Style.OutlineColor"/>
     public Color? OutlineColor { get; private set; }
 
@@ -149,6 +166,15 @@ public sealed class ComputedStyle
 
     /// <inheritdoc cref="Style.ImageContrast"/>
     public float ImageContrast { get; private set; }
+
+    /// <inheritdoc cref="Style.ImageRotation"/>
+    public short ImageRotation { get; private set; }
+
+    /// <inheritdoc cref="Style.ImageColor"/>
+    public Color ImageColor { get; private set; } = new(0xFFFFFFFF);
+
+    /// <inheritdoc cref="Style.ImageBlendMode"/>
+    public BlendMode ImageBlendMode { get; private set; }
 
     /// <inheritdoc cref="Style.Opacity"/>
     public float Opacity { get; private set; }
@@ -183,6 +209,7 @@ public sealed class ComputedStyle
             || BorderColor is not null
             || StrokeColor is not null
             || BackgroundGradient is not null
+            || BackgroundImage is not null
             || OutlineColor is not null
             || TextShadowColor is not null
             || IconId is not null
@@ -221,6 +248,12 @@ public sealed class ComputedStyle
         RoundedCorners            = style.RoundedCorners ?? RoundedCorners;
         BackgroundGradient        = style.BackgroundGradient ?? BackgroundGradient;
         BackgroundGradientInset   = style.BackgroundGradientInset ?? BackgroundGradientInset;
+        BackgroundImage           = style.BackgroundImage ?? BackgroundImage;
+        BackgroundImageInset      = style.BackgroundImageInset ?? BackgroundImageInset;
+        BackgroundImageScale      = style.BackgroundImageScale ?? BackgroundImageScale;
+        BackgroundImageColor      = style.BackgroundImageColor ?? BackgroundImageColor;
+        BackgroundImageRotation   = style.BackgroundImageRotation ?? BackgroundImageRotation;
+        BackgroundImageBlendMode  = style.BackgroundImageBlendMode ?? BackgroundImageBlendMode;
         OutlineColor              = style.OutlineColor ?? OutlineColor;
         TextShadowSize            = style.TextShadowSize ?? TextShadowSize;
         TextShadowColor           = style.TextShadowColor ?? TextShadowColor;
@@ -232,6 +265,9 @@ public sealed class ComputedStyle
         ImageRoundedCorners       = style.ImageRoundedCorners ?? ImageRoundedCorners;
         ImageGrayscale            = style.ImageGrayscale ?? ImageGrayscale;
         ImageContrast             = style.ImageContrast ?? ImageContrast;
+        ImageRotation             = style.ImageRotation ?? ImageRotation;
+        ImageColor                = style.ImageColor ?? ImageColor;
+        ImageBlendMode            = style.ImageBlendMode ?? ImageBlendMode;
         Opacity                   = style.Opacity ?? Opacity;
         ShadowSize                = style.ShadowSize ?? ShadowSize;
         ShadowInset               = style.ShadowInset ?? ShadowInset;
@@ -306,6 +342,11 @@ public sealed class ComputedStyle
         RoundedCorners            = RoundedCorners.All;
         BackgroundGradient        = null;
         BackgroundGradientInset   = new();
+        BackgroundImage           = null;
+        BackgroundImageInset      = new(0, 0);
+        BackgroundImageScale      = new(1, 1);
+        BackgroundImageColor      = new(0xFFFFFFFF);
+        BackgroundImageBlendMode  = BlendMode.SrcIn;
         OutlineColor              = null;
         TextShadowSize            = 0;
         TextShadowColor           = null;
@@ -317,6 +358,9 @@ public sealed class ComputedStyle
         ImageRoundedCorners       = RoundedCorners.All;
         ImageGrayscale            = false;
         ImageContrast             = 0;
+        ImageRotation             = 0;
+        ImageColor                = new(0xFFFFFFFF);
+        ImageBlendMode            = BlendMode.SrcIn;
         Opacity                   = 1;
         ShadowSize                = new();
         ShadowInset               = 0;
@@ -386,6 +430,17 @@ public sealed class ComputedStyle
             BackgroundGradientInsetRight  = BackgroundGradientInset.Right,
             BackgroundGradientInsetBottom = BackgroundGradientInset.Bottom,
             BackgroundGradientInsetLeft   = BackgroundGradientInset.Left,
+            BackgroundImageIconId         = BackgroundImage is uint image ? image : null,
+            BackgroundImageByteSize       = BackgroundImage is byte[] bytes ? (uint)bytes.Length : null,
+            BackgroundImageInsetBottom    = BackgroundImageInset.Bottom,
+            BackgroundImageInsetLeft      = BackgroundImageInset.Left,
+            BackgroundImageInsetRight     = BackgroundImageInset.Right,
+            BackgroundImageInsetTop       = BackgroundImageInset.Top,
+            BackgroundImageRepeatX        = BackgroundImageScale.X,
+            BackgroundImageRepeatY        = BackgroundImageScale.Y,
+            BackgroundImageColor          = BackgroundImageColor.ToUInt(),
+            BackgroundImageRotation       = BackgroundImageRotation,
+            BackgroundImageBlendMode      = (byte)BackgroundImageBlendMode,
             OutlineColor                  = OutlineColor?.ToUInt(),
             TextShadowSize                = TextShadowSize,
             TextShadowColor               = TextShadowColor?.ToUInt(),
@@ -400,6 +455,9 @@ public sealed class ComputedStyle
             ImageRoundedCorners           = ImageRoundedCorners,
             ImageGrayscale                = ImageGrayscale,
             ImageContrast                 = ImageContrast,
+            ImageRotation                 = ImageRotation,
+            ImageColor                    = ImageColor.ToUInt(),
+            ImageBlendMode                = (byte)ImageBlendMode,
             IsAntialiased                 = IsAntialiased
         };
 
@@ -486,6 +544,17 @@ internal struct PaintStyle
     internal float?             BackgroundGradientInsetRight;
     internal float?             BackgroundGradientInsetBottom;
     internal float?             BackgroundGradientInsetLeft;
+    internal uint?              BackgroundImageIconId;
+    internal uint?              BackgroundImageByteSize;
+    internal float?             BackgroundImageInsetTop;
+    internal float?             BackgroundImageInsetRight;
+    internal float?             BackgroundImageInsetBottom;
+    internal float?             BackgroundImageInsetLeft;
+    internal float?             BackgroundImageRepeatX;
+    internal float?             BackgroundImageRepeatY;
+    internal uint?              BackgroundImageColor;
+    internal short?             BackgroundImageRotation;
+    internal byte?              BackgroundImageBlendMode;
     internal uint?              OutlineColor;
     internal float              TextShadowSize;
     internal uint?              TextShadowColor;
@@ -500,5 +569,8 @@ internal struct PaintStyle
     internal RoundedCorners?    ImageRoundedCorners;
     internal bool?              ImageGrayscale;
     internal float?             ImageContrast;
+    internal short?             ImageRotation;
+    internal uint?              ImageColor;
+    internal byte?              ImageBlendMode;
     internal bool               IsAntialiased;
 }

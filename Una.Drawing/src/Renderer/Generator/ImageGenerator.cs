@@ -39,13 +39,15 @@ internal class ImageGenerator : IGenerator
 
         if (rect.IsEmpty) return;
 
-        SKMatrix matrix = SKMatrix.CreateScale(
-            rect.Width / image.Width,
-            rect.Height / image.Height
+        SKMatrix scaleMatrix    = SKMatrix.CreateScale(rect.Width / image.Width, rect.Height / image.Height);
+        SKMatrix rotationMatrix = SKMatrix.CreateRotationDegrees(node.ComputedStyle.ImageRotation);
+
+        SKMatrix transformMatrix = SKMatrix.CreateTranslation(
+            (node.ComputedStyle.ImageOffset?.X ?? 0) + (node.ComputedStyle.ImageInset?.Left ?? 0),
+            (node.ComputedStyle.ImageOffset?.Y ?? 0) + (node.ComputedStyle.ImageInset?.Top ?? 0)
         );
 
-        matrix.TransX = (node.ComputedStyle.ImageOffset?.X ?? 0) + (node.ComputedStyle.ImageInset?.Left ?? 0);
-        matrix.TransY = (node.ComputedStyle.ImageOffset?.Y ?? 0) + (node.ComputedStyle.ImageInset?.Top ?? 0);
+        SKMatrix matrix = rotationMatrix.PreConcat(scaleMatrix.PreConcat(transformMatrix));
 
         using SKPaint  paint  = new();
         using SKShader shader = SKShader.CreateImage(image, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, matrix);
@@ -54,15 +56,22 @@ internal class ImageGenerator : IGenerator
         paint.IsAntialias = node.ComputedStyle.IsAntialiased;
         paint.Style       = SKPaintStyle.Fill;
 
-        paint.Shader = SKShader.CreateColorFilter(
-            SKShader.CreateImage(image, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, matrix),
-            SKColorFilter.CreateHighContrast(
-                new() {
-                    Grayscale = node.ComputedStyle.ImageGrayscale,
-                    Contrast  = node.ComputedStyle.ImageContrast
-                }
+        paint.Shader = SKShader
+            .CreateColorFilter(
+                SKShader.CreateImage(image, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, matrix),
+                SKColorFilter.CreateHighContrast(
+                    new() {
+                        Grayscale = node.ComputedStyle.ImageGrayscale,
+                        Contrast  = node.ComputedStyle.ImageContrast
+                    }
+                )
             )
-        );
+            .WithColorFilter(
+                SKColorFilter.CreateBlendMode(
+                    Color.ToSkColor(node.ComputedStyle.ImageColor),
+                    (SKBlendMode)node.ComputedStyle.ImageBlendMode
+                )
+            );
 
         float radius = node.ComputedStyle.ImageRounding;
 

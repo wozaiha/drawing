@@ -52,4 +52,20 @@ public partial class Style
     /// A contrast value for the icon. Must range between 0 and 1.
     /// </summary>
     public float? ImageContrast { get; set; }
+
+    /// <summary>
+    /// Defines the rotation of the image in degrees.
+    /// </summary>
+    public short? ImageRotation { get; set; }
+
+    /// <summary>
+    /// Defines the color to apply to the image.
+    /// </summary>
+    public Color? ImageColor { get; set; }
+
+    /// <summary>
+    /// Defines the blend mode to apply to the image. Use this in conjunction
+    /// with <see cref="ImageColor"/>.
+    /// </summary>
+    public BlendMode? ImageBlendMode { get; set; }
 }
