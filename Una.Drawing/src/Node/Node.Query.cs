@@ -129,11 +129,15 @@ public partial class Node
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static List<Node> FindChildrenMatching(Node node, QuerySelector querySelector, bool recursive)
+    private static List<Node> FindChildrenMatching(in Node node, in QuerySelector querySelector, bool recursive)
     {
-        List<Node> nodeListResult = [];
+        List<Node> nodeListResult = new List<Node>();
+        var        childNodes     = node._childNodes;
+        int        childCount     = childNodes.Count;
 
-        foreach (var child in node._childNodes) {
+        for (int i = 0; i < childCount; i++) {
+            var child = childNodes[i];
+
             if (!MatchesQuerySelector(child, querySelector)) {
                 continue;
             }
@@ -153,9 +157,9 @@ public partial class Node
             nodeListResult.Add(child);
         }
 
-        if (recursive && (querySelector.IsFirstSelector || nodeListResult.Count == 0) && node._childNodes.Count > 0) {
-            foreach (var child in node._childNodes) {
-                nodeListResult.AddRange(FindChildrenMatching(child, querySelector, true));
+        if (recursive && (querySelector.IsFirstSelector || nodeListResult.Count == 0)) {
+            for (int i = 0; i < childCount; i++) {
+                nodeListResult.AddRange(FindChildrenMatching(childNodes[i], querySelector, true));
             }
         }
 
@@ -163,27 +167,32 @@ public partial class Node
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static bool MatchesQuerySelector(Node node, QuerySelector querySelector)
+    private static bool MatchesQuerySelector(in Node node, in QuerySelector querySelector)
     {
         if (querySelector.Identifier != null && node.Id != querySelector.Identifier) {
             return false;
         }
 
-        if (querySelector.ClassList.Count > 0) {
-            if (node.ClassList.Count == 0) return false;
+        var queryClassList = querySelector.ClassList;
+        var queryTagList   = querySelector.TagList;
+        var nodeClassList  = node.ClassList;
+        var nodeTagList    = node.TagsList;
 
-            foreach (string className in querySelector.ClassList) {
-                if (!node.ClassList.Contains(className)) {
+        if (queryClassList.Count > 0) {
+            if (nodeClassList.Count == 0) return false;
+
+            foreach (string className in queryClassList) {
+                if (!nodeClassList.Contains(className)) {
                     return false;
                 }
             }
         }
 
-        if (querySelector.TagList.Count > 0) {
-            if (node.TagsList.Count == 0) return false;
+        if (queryTagList.Count > 0) {
+            if (nodeTagList.Count == 0) return false;
 
-            foreach (string tag in querySelector.TagList) {
-                if (!node.TagsList.Contains(tag)) {
+            foreach (string tag in queryTagList) {
+                if (!nodeTagList.Contains(tag)) {
                     return false;
                 }
             }

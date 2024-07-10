@@ -11,6 +11,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Dalamud.Interface.Textures.TextureWraps;
 using ImGuiNET;
 using Una.Drawing.Texture;
@@ -111,10 +112,21 @@ public partial class Node
         if (ParentNode is not null)
             throw new InvalidOperationException("Cannot render a node that has a parent or is not a root node.");
 
-        // TODO: Try to move some stuff to another thread...
-        ComputeStyle();
+        if (UseThreadedStyleComputation) {
+            Task.Run(ComputeStyle);
+        } else {
+            ComputeStyle();
+        }
+
+        if (!_isUpdatingStyle) {
+            ComputedStyle = _intermediateStyle;
+        }
+
         Reflow(position);
-        Draw(drawList);
+
+        lock (_lockObject) {
+            Draw(drawList);
+        }
     }
 
     /// <summary>
@@ -145,8 +157,7 @@ public partial class Node
         BeginOverflowContainer();
         SetupInteractive(drawList);
 
-        if (UpdateTexture())
-            RenderShadow(drawList);
+        if (UpdateTexture()) RenderShadow(drawList);
 
         if (null != _texture) {
             drawList.AddImage(
@@ -186,16 +197,19 @@ public partial class Node
 
         NodeSnapshot snapshot = CreateSnapshot();
 
-        if (_texture is null || NodeSnapshot.AreEqual(ref snapshot, ref _snapshot) is false) {
-            _texture            = Renderer.CreateTexture(this);
-            _snapshot           = snapshot;
+        if ((_texture is null || !snapshot.Equals(ref _snapshot)) && Width > 0 && Height > 0) {
+            _texture  = Renderer.CreateTexture(this);
+            _snapshot = snapshot;
             _consecutiveRedraws++;
         } else {
             _consecutiveRedraws = 0;
         }
 
         if (_consecutiveRedraws > 30) {
-            DebugLogger.Log($"WARNING: Node {this} is redrawing on every frame (value={_nodeValue}). Please check for unnecessary state changes.");
+            DebugLogger.Log(
+                $"WARNING: Node {this} is redrawing on every frame (value={_nodeValue}). Please check for unnecessary state changes."
+            );
+
             _consecutiveRedraws = 0;
         }
 
@@ -286,8 +300,8 @@ public partial class Node
             Height      = OuterHeight,
             ValueWidth  = NodeValueMeasurement?.Size.Width ?? 0,
             ValueHeight = NodeValueMeasurement?.Size.Height ?? 0,
-            LayoutStyle = ComputedStyle.CommittedLayoutStyle,
-            PaintStyle  = ComputedStyle.CommittedPaintStyle,
+            Layout      = ComputedStyle.LayoutStyleSnapshot,
+            Paint       = ComputedStyle.PaintStyleSnapshot
         };
     }
 
@@ -402,17 +416,17 @@ public partial class Node
 [StructLayout(LayoutKind.Sequential)]
 internal struct NodeSnapshot
 {
-    internal int         Width;
-    internal int         Height;
-    internal int         ValueWidth;
-    internal int         ValueHeight;
-    internal LayoutStyle LayoutStyle;
-    internal PaintStyle  PaintStyle;
+    internal int                 Width;
+    internal int                 Height;
+    internal int                 ValueWidth;
+    internal int                 ValueHeight;
+    internal LayoutStyleSnapshot Layout;
+    internal PaintStyleSnapshot  Paint;
 
-    internal static bool AreEqual<T>(ref readonly T a, ref readonly T b) where T : unmanaged
+    internal bool Equals(ref readonly NodeSnapshot other)
     {
         return MemoryMarshal
-            .AsBytes(new ReadOnlySpan<T>(in a))
-            .SequenceEqual(MemoryMarshal.AsBytes(new ReadOnlySpan<T>(in b)));
+            .AsBytes(new ReadOnlySpan<NodeSnapshot>(in this))
+            .SequenceEqual(MemoryMarshal.AsBytes(new ReadOnlySpan<NodeSnapshot>(in other)));
     }
 }

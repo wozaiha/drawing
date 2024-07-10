@@ -5,22 +5,27 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System;
+using System.Collections.Generic;
+
 namespace Una.Drawing;
 
-/// <summary>
-/// Defines the properties that specify the presentation of an element.
-/// </summary>
-public sealed partial class Style
+public class ObservableHashSet<T> : HashSet<T>
 {
-    /// <summary>
-    /// Specifies the opacity of the node. Must be a value between 0 and 1.
-    /// </summary>
-    public float? Opacity { get; set; }
+    public event Action<T>? ItemAdded;
+    public event Action<T>? ItemRemoved;
 
-    /// <summary>
-    /// Whether the node's texture should be antialiased. This applies to
-    /// background images, icons, and borders. Text is always antialiased,
-    /// regardless of this setting.
-    /// </summary>
-    public bool? IsAntialiased { get; set; }
+    public new void Add(T item)
+    {
+        base.Add(item);
+        ItemAdded?.Invoke(item);
+    }
+
+    public new void Remove(T item)
+    {
+        if (!Contains(item)) return;
+
+        base.Remove(item);
+        ItemRemoved?.Invoke(item);
+    }
 }

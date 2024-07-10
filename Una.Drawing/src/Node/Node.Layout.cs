@@ -80,9 +80,11 @@ public partial class Node
             _mustReflow          = true;
         }
 
-        InheritTagsFromParent();
-
         if (_mustReflow) {
+            if (!UseThreadedStyleComputation) {
+                InheritTagsFromParent();
+            }
+
             ComputeBoundingBox();
             ComputeStretchedNodeSizes();
             InvokeReflowHook();
@@ -206,38 +208,40 @@ public partial class Node
     {
         Size result = new();
 
-        foreach (List<Node> childNodes in _anchorToChildNodes.Values) {
-            var width  = 0;
-            var height = 0;
+        lock (_anchorToChildNodes) {
+            foreach (List<Node> childNodes in _anchorToChildNodes.Values) {
+                var width  = 0;
+                var height = 0;
 
-            foreach (Node childNode in childNodes) {
-                if (!childNode.ComputedStyle.IsVisible) continue;
+                foreach (Node childNode in childNodes) {
+                    if (!childNode.ComputedStyle.IsVisible) continue;
+
+                    switch (ComputedStyle.Flow) {
+                        case Flow.Horizontal:
+                            width  += childNode.OuterWidth + ComputedStyle.Gap;
+                            height =  Math.Max(height, childNode.OuterHeight);
+                            break;
+                        case Flow.Vertical:
+                            width  =  Math.Max(width, childNode.OuterWidth);
+                            height += childNode.OuterHeight + ComputedStyle.Gap;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
 
                 switch (ComputedStyle.Flow) {
-                    case Flow.Horizontal:
-                        width  += childNode.OuterWidth + ComputedStyle.Gap;
-                        height =  Math.Max(height, childNode.OuterHeight);
+                    case Flow.Horizontal when width > 0:
+                        width -= ComputedStyle.Gap;
                         break;
-                    case Flow.Vertical:
-                        width  =  Math.Max(width, childNode.OuterWidth);
-                        height += childNode.OuterHeight + ComputedStyle.Gap;
+                    case Flow.Vertical when height > 0:
+                        height -= ComputedStyle.Gap;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
-            }
 
-            switch (ComputedStyle.Flow) {
-                case Flow.Horizontal when width > 0:
-                    width -= ComputedStyle.Gap;
-                    break;
-                case Flow.Vertical when height > 0:
-                    height -= ComputedStyle.Gap;
-                    break;
+                result.Width  = Math.Max(result.Width,  width);
+                result.Height = Math.Max(result.Height, height);
             }
-
-            result.Width  = Math.Max(result.Width,  width);
-            result.Height = Math.Max(result.Height, height);
         }
 
         return result;
@@ -310,76 +314,78 @@ public partial class Node
         int originX = Bounds.ContentRect.X1;
         int originY = Bounds.ContentRect.Y1;
 
-        foreach (Anchor.AnchorPoint anchorPoint in _anchorToChildNodes.Keys) {
-            List<Node> childNodes     = _anchorToChildNodes[anchorPoint];
-            Size       maxChildSize   = GetMaxSizeOfChildren(childNodes);
-            Size       totalChildSize = GetTotalSizeOfChildren(childNodes);
-            Anchor     anchor         = new(anchorPoint);
+        lock (_anchorToChildNodes) {
+            foreach (Anchor.AnchorPoint anchorPoint in _anchorToChildNodes.Keys) {
+                List<Node> childNodes     = _anchorToChildNodes[anchorPoint];
+                Size       maxChildSize   = GetMaxSizeOfChildren(childNodes);
+                Size       totalChildSize = GetTotalSizeOfChildren(childNodes);
+                Anchor     anchor         = new(anchorPoint);
 
-            int x = originX;
-            int y = originY;
-
-            if (anchor.IsCenter) {
-                x += InnerWidth / 2
-                    - (ComputedStyle.Flow == Flow.Horizontal ? totalChildSize.Width : maxChildSize.Width) / 2;
-            }
-
-            if (anchor.IsRight) x += InnerWidth;
-
-            if (anchor.IsMiddle) {
-                y += (InnerHeight / 2)
-                    - (ComputedStyle.Flow == Flow.Horizontal ? maxChildSize.Height : totalChildSize.Height) / 2;
-            }
-
-            if (anchor.IsBottom) y += Height;
-
-            Node lastNode = childNodes[^1];
-
-            foreach (Node childNode in childNodes) {
-                if (!childNode.IsVisible) continue;
-
-                var xOffset = 0;
-                var yOffset = 0;
-
-                if (anchor.IsMiddle) {
-                    yOffset = ((maxChildSize.Height - childNode.OuterHeight) / 2) - ComputedStyle.Padding.Top;
-                } else if (anchor.IsBottom) {
-                    yOffset -= (childNode.OuterHeight) + ComputedStyle.Padding.VerticalSize;
-                }
+                int x = originX;
+                int y = originY;
 
                 if (anchor.IsCenter) {
-                    xOffset = -ComputedStyle.Padding.Left;
-                } else if (anchor.IsRight) {
-                    xOffset -= (childNode.OuterWidth) + ComputedStyle.Padding.HorizontalSize;
+                    x += InnerWidth / 2
+                        - (ComputedStyle.Flow == Flow.Horizontal ? totalChildSize.Width : maxChildSize.Width) / 2;
                 }
 
-                childNode.ComputeBoundingRects(new(x + xOffset, y + yOffset));
+                if (anchor.IsRight) x += InnerWidth;
 
-                if (childNode == lastNode) break;
+                if (anchor.IsMiddle) {
+                    y += (InnerHeight / 2)
+                        - (ComputedStyle.Flow == Flow.Horizontal ? maxChildSize.Height : totalChildSize.Height) / 2;
+                }
 
-                switch (ComputedStyle.Flow) {
-                    case Flow.Horizontal:
-                        x = anchor.IsRight
-                            ? x - childNode.OuterWidth
-                            : x + childNode.OuterWidth;
+                if (anchor.IsBottom) y += Height;
 
-                        if (lastNode != childNode) {
-                            x += anchor.IsRight ? -ComputedStyle.Gap : ComputedStyle.Gap;
-                        }
+                Node lastNode = childNodes[^1];
 
-                        break;
-                    case Flow.Vertical:
-                        y = anchor.IsBottom
-                            ? y - childNode.OuterHeight
-                            : y + childNode.OuterHeight;
+                foreach (Node childNode in childNodes) {
+                    if (!childNode.IsVisible) continue;
 
-                        if (lastNode != childNode) {
-                            y += anchor.IsTop ? ComputedStyle.Gap : -ComputedStyle.Gap;
-                        }
+                    var xOffset = 0;
+                    var yOffset = 0;
 
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException($"Unknown flow direction '{ComputedStyle.Flow}'.");
+                    if (anchor.IsMiddle) {
+                        yOffset = ((maxChildSize.Height - childNode.OuterHeight) / 2) - ComputedStyle.Padding.Top;
+                    } else if (anchor.IsBottom) {
+                        yOffset -= (childNode.OuterHeight) + ComputedStyle.Padding.VerticalSize;
+                    }
+
+                    if (anchor.IsCenter) {
+                        xOffset = -ComputedStyle.Padding.Left;
+                    } else if (anchor.IsRight) {
+                        xOffset -= (childNode.OuterWidth) + ComputedStyle.Padding.HorizontalSize;
+                    }
+
+                    childNode.ComputeBoundingRects(new(x + xOffset, y + yOffset));
+
+                    if (childNode == lastNode) break;
+
+                    switch (ComputedStyle.Flow) {
+                        case Flow.Horizontal:
+                            x = anchor.IsRight
+                                ? x - childNode.OuterWidth
+                                : x + childNode.OuterWidth;
+
+                            if (lastNode != childNode) {
+                                x += anchor.IsRight ? -ComputedStyle.Gap : ComputedStyle.Gap;
+                            }
+
+                            break;
+                        case Flow.Vertical:
+                            y = anchor.IsBottom
+                                ? y - childNode.OuterHeight
+                                : y + childNode.OuterHeight;
+
+                            if (lastNode != childNode) {
+                                y += anchor.IsTop ? ComputedStyle.Gap : -ComputedStyle.Gap;
+                            }
+
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException($"Unknown flow direction '{ComputedStyle.Flow}'.");
+                    }
                 }
             }
         }
@@ -438,18 +444,24 @@ public partial class Node
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void ReassignAnchorNodes()
     {
-        _childNodeToAnchor.Clear();
-        _anchorToChildNodes.Clear();
+        lock (_childNodeToAnchor) {
+            lock (_anchorToChildNodes) {
+                lock (_childNodes) {
+                    _childNodeToAnchor.Clear();
+                    _anchorToChildNodes.Clear();
 
-        foreach (Node child in _childNodes) {
-            if (child.ComputedStyle.Anchor == Anchor.AnchorPoint.None) continue;
+                    foreach (Node child in _childNodes) {
+                        if (child.ComputedStyle.Anchor == Anchor.AnchorPoint.None) continue;
 
-            if (!_anchorToChildNodes.ContainsKey(child.ComputedStyle.Anchor.Point)) {
-                _anchorToChildNodes[child.ComputedStyle.Anchor.Point] = new();
+                        if (!_anchorToChildNodes.ContainsKey(child.ComputedStyle.Anchor.Point)) {
+                            _anchorToChildNodes[child.ComputedStyle.Anchor.Point] = new();
+                        }
+
+                        _anchorToChildNodes[child.ComputedStyle.Anchor.Point].Add(child);
+                        _childNodeToAnchor[child] = child.ComputedStyle.Anchor.Point;
+                    }
+                }
             }
-
-            _anchorToChildNodes[child.ComputedStyle.Anchor.Point].Add(child);
-            _childNodeToAnchor[child] = child.ComputedStyle.Anchor.Point;
         }
     }
 

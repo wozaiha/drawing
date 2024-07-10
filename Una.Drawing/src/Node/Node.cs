@@ -100,7 +100,7 @@ public partial class Node : IDisposable
     /// <summary>
     /// Returns a list of class names applied to this node.
     /// </summary>
-    public ObservableCollection<string> ClassList {
+    public ObservableHashSet<string> ClassList {
         get => _classList;
         set {
             if (_classList.SequenceEqual(value)) return;
@@ -121,7 +121,7 @@ public partial class Node : IDisposable
     /// A node with ID "example" and tags "active" and "hovered" can be queried
     /// using the following query: `example:active:hovered`.
     /// </example>
-    public ObservableCollection<string> TagsList {
+    public ObservableHashSet<string> TagsList {
         get => _tagsList;
         set {
             if (_tagsList.SequenceEqual(value)) return;
@@ -234,18 +234,37 @@ public partial class Node : IDisposable
     private object? _nodeValue;
     private int     _sortIndex;
 
-    private readonly ObservableCollection<string> _classList  = [];
-    private readonly ObservableCollection<string> _tagsList   = [];
-    private          ObservableCollection<Node>   _childNodes = [];
+    private readonly ObservableHashSet<string>  _classList  = [];
+    private readonly ObservableHashSet<string>  _tagsList   = [];
+    private          ObservableCollection<Node> _childNodes = [];
 
     public Node()
     {
-        _childNodes.CollectionChanged += HandleChildListChanged;
-        _classList.CollectionChanged  += HandleClassListChanged;
-        _tagsList.CollectionChanged   += HandleTagsListChanged;
+        ComputedStyle = ComputedStyleFactory.CreateDefault();
+        ComputedStyle.LayoutStyleSnapshot = new();
+        ComputedStyle.PaintStyleSnapshot  = new();
 
-        ComputedStyle.OnLayoutPropertyChanged += SignalReflowRecursive;
-        ComputedStyle.OnPaintPropertyChanged  += SignalRepaint;
+        _childNodes.CollectionChanged += HandleChildListChanged;
+
+        _classList.ItemAdded += c => {
+            OnClassAdded?.Invoke(c);
+            SignalReflow();
+        };
+
+        _classList.ItemRemoved += c => {
+            OnClassRemoved?.Invoke(c);
+            SignalReflow();
+        };
+
+        _tagsList.ItemAdded += t => {
+            OnTagAdded?.Invoke(t);
+            SignalReflow();
+        };
+
+        _tagsList.ItemRemoved += t => {
+            OnTagRemoved?.Invoke(t);
+            SignalReflow();
+        };
 
         OnChildAdded   += child => child.OnReflow += SignalReflow;
         OnChildRemoved += child => child.OnReflow -= SignalReflow;
@@ -256,6 +275,8 @@ public partial class Node : IDisposable
     public void Dispose()
     {
         foreach (var child in _childNodes) child.Dispose();
+
+        // TODO: Cancel compute style token.
 
         FontRegistry.FontChanged -= OnFontConfigurationChanged;
 
@@ -272,7 +293,6 @@ public partial class Node : IDisposable
         _textCachedNodeValue = null;
         _mustReflow          = true;
         _snapshot            = new();
-
     }
 
     private void HandleChildListChanged(object? _, NotifyCollectionChangedEventArgs e)

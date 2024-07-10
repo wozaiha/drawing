@@ -49,41 +49,58 @@ public partial class Node
     /// <summary>
     /// Defines the final computed style of this node.
     /// </summary>
-    public ComputedStyle ComputedStyle { get; private set; } = new();
+    public ComputedStyle ComputedStyle;
 
-    private Style       _style = new();
-    private Stylesheet? _stylesheet;
+    private ComputedStyle _intermediateStyle;
+    private Style         _style = new();
+    private Stylesheet?   _stylesheet;
+    private bool          _isUpdatingStyle;
+
+    private readonly object _lockObject = new();
+
+    public static bool UseThreadedStyleComputation { get; set; } = false;
 
     /// <summary>
     /// Generates the computed style of this node and its descendants.
     /// </summary>
     private bool ComputeStyle()
     {
-        ComputedStyle.Reset();
+        if (_isUpdatingStyle) return false;
 
-        if (Stylesheet is not null) {
-            foreach ((Stylesheet.Rule rule, Style style) in Stylesheet.Rules) {
-                if (rule.Matches(this)) ComputedStyle.Apply(style);
+        _isUpdatingStyle = true;
+
+        if (UseThreadedStyleComputation) {
+            lock (TagsList) {
+                InheritTagsFromParent();
             }
         }
 
-        ComputedStyle.Apply(Style);
-        ComputedStyle.ApplyScaleFactor();
+        var  style     = ComputedStyleFactory.Create(this);
+        int  result    = style.Commit(ref _intermediateStyle);
+        bool isUpdated = result > 0;
 
-        int res     = ComputedStyle.Commit();
-        var updated = false;
+        _intermediateStyle = style;
 
         foreach (Node child in _childNodes) {
             if (child.ComputeStyle()) {
-                updated = true;
+                isUpdated = true;
             }
         }
 
-        if (updated) {
-            ReassignAnchorNodes();
+        lock (_lockObject) {
+            if (isUpdated) {
+                ReassignAnchorNodes();
+            }
+
+            if (result is 1 or 3) SignalReflowRecursive();
+            if (result is 2 or 3) SignalRepaint();
+
+            _isUpdatingStyle = false;
+
+            ComputedStyle = _intermediateStyle;
         }
 
-        return updated || res is 1 or 3;
+        return isUpdated;
     }
 
     /// <summary>
@@ -99,10 +116,17 @@ public partial class Node
     /// <summary>
     /// Performs a recursive reflow to all ancestor nodes.
     /// </summary>
-    private void SignalReflowRecursive()
+    private void SignalReflowRecursive(bool signalParent = true)
     {
         _mustReflow = true;
-        ParentNode?.SignalReflowRecursive();
+
+        if (signalParent) ParentNode?.SignalReflowRecursive();
+
+        if (_childNodes.Count > 0) {
+            foreach (Node child in _childNodes) {
+                child.SignalReflowRecursive(false);
+            }
+        }
     }
 
     /// <summary>
