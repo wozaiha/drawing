@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Una.Drawing;
 
@@ -62,7 +61,6 @@ public partial class Node
     private readonly Dictionary<Node, Anchor.AnchorPoint>       _childNodeToAnchor  = [];
 
     private bool  _inheritTags;
-    private bool  _isInReflow;
     private bool  _mustReflow = true;
     private Point _position   = new(0, 0);
 

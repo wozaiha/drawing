@@ -92,27 +92,17 @@ public partial class Node
     /// </summary>
     private void SignalReflow()
     {
-        if (_isInReflow) return;
-
         OnReflow?.Invoke();
         _mustReflow = true;
     }
 
     /// <summary>
-    /// Performs a recursive reflow to all children and parent nodes.
+    /// Performs a recursive reflow to all ancestor nodes.
     /// </summary>
     private void SignalReflowRecursive()
     {
-        if (_isInReflow) return;
-
-        _isInReflow = true;
         _mustReflow = true;
-
-        foreach (Node child in _childNodes) child.SignalReflowRecursive();
-
         ParentNode?.SignalReflowRecursive();
-
-        _isInReflow = false;
     }
 
     /// <summary>
