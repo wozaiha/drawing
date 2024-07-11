@@ -82,9 +82,11 @@ public partial class Node
 
         _intermediateStyle = style;
 
-        foreach (Node child in _childNodes) {
-            if (child.ComputeStyle()) {
-                isUpdated = true;
+        lock (_childNodes) {
+            foreach (Node child in _childNodes) {
+                if (child.ComputeStyle()) {
+                    isUpdated = true;
+                }
             }
         }
 
