@@ -107,12 +107,12 @@ public partial class Node
     private          NodeSnapshot         _snapshot;
     private readonly List<ImDrawListPtr>  _drawLists = [];
 
-    public void Render(ImDrawListPtr drawList, Point position)
+    public void Render(ImDrawListPtr drawList, Point position, bool forceSynchronousStyleComputation = false)
     {
         if (ParentNode is not null)
             throw new InvalidOperationException("Cannot render a node that has a parent or is not a root node.");
 
-        if (UseThreadedStyleComputation) {
+        if (!_mustReflow && _hasComputedStyle && !forceSynchronousStyleComputation && UseThreadedStyleComputation) {
             Task.Run(ComputeStyle);
         } else {
             ComputeStyle();
@@ -122,9 +122,8 @@ public partial class Node
             ComputedStyle = _intermediateStyle;
         }
 
-        Reflow(position);
-
         lock (_lockObject) {
+            Reflow(position);
             Draw(drawList);
         }
     }

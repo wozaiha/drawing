@@ -55,6 +55,7 @@ public partial class Node
     private Style         _style = new();
     private Stylesheet?   _stylesheet;
     private bool          _isUpdatingStyle;
+    private bool          _hasComputedStyle;
 
     private readonly object _lockObject = new();
 
@@ -95,9 +96,9 @@ public partial class Node
             if (result is 1 or 3) SignalReflowRecursive();
             if (result is 2 or 3) SignalRepaint();
 
-            _isUpdatingStyle = false;
-
-            ComputedStyle = _intermediateStyle;
+            ComputedStyle     = _intermediateStyle;
+            _isUpdatingStyle  = false;
+            _hasComputedStyle = true;
         }
 
         return isUpdated;

@@ -70,32 +70,34 @@ public partial class Node
         if (!ComputedStyle.IsVisible) return;
         if (Style.IsVisible is false) return;
 
-        if (_scaleFactor != ScaleFactor) {
-            _scaleFactor = ScaleFactor;
-            _mustReflow  = true;
-        }
-
-        if (_scaleAffectsBorders != ScaleAffectsBorders) {
-            _scaleAffectsBorders = ScaleAffectsBorders;
-            _mustReflow          = true;
-        }
-
-        if (_mustReflow) {
-            if (!UseThreadedStyleComputation) {
-                InheritTagsFromParent();
+        lock (Bounds) {
+            if (_scaleFactor != ScaleFactor) {
+                _scaleFactor = ScaleFactor;
+                _mustReflow  = true;
             }
 
-            ComputeBoundingBox();
-            ComputeStretchedNodeSizes();
-            InvokeReflowHook();
-        }
+            if (_scaleAffectsBorders != ScaleAffectsBorders) {
+                _scaleAffectsBorders = ScaleAffectsBorders;
+                _mustReflow          = true;
+            }
 
-        if (_mustReflow || _position != position) {
-            _position = position ?? new(0, 0);
-            ComputeBoundingRects(_position);
-        }
+            if (_mustReflow) {
+                if (!UseThreadedStyleComputation) {
+                    InheritTagsFromParent();
+                }
 
-        _mustReflow = false;
+                ComputeBoundingBox();
+                ComputeStretchedNodeSizes();
+                InvokeReflowHook();
+            }
+
+            if (_mustReflow || _position != position) {
+                _position = position ?? new(0, 0);
+                ComputeBoundingRects(_position);
+            }
+
+            _mustReflow = false;
+        }
     }
 
     /// <summary>
