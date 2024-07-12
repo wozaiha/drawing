@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System;
+using System.Threading;
 
 namespace Una.Drawing;
 
@@ -56,6 +57,7 @@ public partial class Node
     private Stylesheet?   _stylesheet;
     private bool          _isUpdatingStyle;
     private bool          _hasComputedStyle;
+    private int           _computeStyleLock = 0;
 
     private readonly object _lockObject = new();
 
@@ -70,40 +72,48 @@ public partial class Node
 
         _isUpdatingStyle = true;
 
-        if (UseThreadedStyleComputation) {
-            lock (TagsList) {
-                InheritTagsFromParent();
-            }
-        }
-
-        var  style     = ComputedStyleFactory.Create(this);
-        int  result    = style.Commit(ref _intermediateStyle);
-        bool isUpdated = result > 0;
-
-        _intermediateStyle = style;
-
-        lock (_childNodes) {
-            foreach (Node child in _childNodes) {
-                if (child.ComputeStyle()) {
-                    isUpdated = true;
+        if (0 == Interlocked.Exchange(ref _computeStyleLock, 1)) {
+            lock (_lockObject) {
+                if (UseThreadedStyleComputation) {
+                    lock (TagsList) {
+                        InheritTagsFromParent();
+                    }
                 }
+
+                var  style     = ComputedStyleFactory.Create(this);
+                int  result    = style.Commit(ref _intermediateStyle);
+                bool isUpdated = result > 0;
+
+                _intermediateStyle = style;
+
+                lock (_childNodes) {
+                    foreach (Node child in _childNodes) {
+                        if (child.ComputeStyle()) {
+                            isUpdated = true;
+                        }
+                    }
+                }
+
+                if (isUpdated) {
+                    ReassignAnchorNodes();
+                }
+
+                if (result is 1 or 3) SignalReflowRecursive();
+                if (result is 2 or 3) SignalRepaint();
+
+                ComputedStyle     = _intermediateStyle;
+                _isUpdatingStyle  = false;
+                _hasComputedStyle = true;
+
+
+                // Release lock.
+                Interlocked.Exchange(ref _computeStyleLock, 0);
+
+                return isUpdated;
             }
         }
 
-        lock (_lockObject) {
-            if (isUpdated) {
-                ReassignAnchorNodes();
-            }
-
-            if (result is 1 or 3) SignalReflowRecursive();
-            if (result is 2 or 3) SignalRepaint();
-
-            ComputedStyle     = _intermediateStyle;
-            _isUpdatingStyle  = false;
-            _hasComputedStyle = true;
-        }
-
-        return isUpdated;
+        return false;
     }
 
     /// <summary>

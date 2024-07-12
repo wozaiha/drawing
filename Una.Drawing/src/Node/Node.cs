@@ -381,12 +381,14 @@ public partial class Node : IDisposable
     /// <param name="node">The node to append.</param>
     public void AppendChild(Node node)
     {
-        if (_childNodes.Contains(node)) return;
+        lock (_childNodes) {
+            if (_childNodes.Contains(node)) return;
 
-        node.ParentNode?.RemoveChild(this);
+            node.ParentNode?.RemoveChild(this);
 
-        _childNodes.Add(node);
-        node.ParentNode = this;
+            _childNodes.Add(node);
+            node.ParentNode = this;
+        }
     }
 
     /// <summary>
@@ -405,9 +407,11 @@ public partial class Node : IDisposable
     /// <param name="node">The node to remove.</param>
     public void RemoveChild(Node node)
     {
-        if (!_childNodes.Contains(node)) return;
+        lock (_childNodes) {
+            if (!_childNodes.Contains(node)) return;
 
-        _childNodes.Remove(node);
+            _childNodes.Remove(node);
+        }
     }
 
     /// <summary>

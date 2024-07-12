@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
+using ImGuiNET;
 using SkiaSharp;
 using Una.Drawing.Generator;
 
@@ -38,9 +39,16 @@ internal static class Renderer
             .OrderBy(g => g.RenderOrder)
             .ToList();
 
+        // Determine maximum texture size.
+        int maxDisplaySize = Math.Max((int)ImGui.GetIO().DisplaySize.X, (int)ImGui.GetIO().DisplaySize.Y);
+
+        // Adhere to a minimum of 4k texture to accommodate overflowing container background textures.
+        // This only increases in case of 4K displays that have a horizontal resolution of 5120 pixels.
+        int maxTextureSize = Math.Max(maxDisplaySize, 4096);
+
         // Create the SKSurface and SKCanvas.
-        SKImageInfo         info  = new(4096, 4096);
-        SKSurfaceProperties props = new(SKSurfacePropsFlags.UseDeviceIndependentFonts, SKPixelGeometry.Unknown);
+        SKImageInfo         info  = new(maxTextureSize, maxTextureSize);
+        SKSurfaceProperties props = new(SKSurfacePropsFlags.None, SKPixelGeometry.Unknown);
 
         _skSurface  = SKSurface.Create(info, props);
         _skCanvas   = _skSurface.Canvas;
