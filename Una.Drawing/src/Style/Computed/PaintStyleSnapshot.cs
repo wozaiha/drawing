@@ -5,8 +5,7 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
-using System.Numerics;
-using System.Runtime.InteropServices;
+using Lumina.Misc;
 
 namespace Una.Drawing;
 
@@ -70,10 +69,14 @@ internal struct PaintStyleSnapshot
     internal short?             ImageRotation;
     internal uint?              ImageColor;
     internal byte?              ImageBlendMode;
+    internal uint               UldResourceCrc;
+    internal int?               UldPartsId;
+    internal int?               UldPartId;
     internal bool               IsAntialiased;
 
     internal static PaintStyleSnapshot Create(ref ComputedStyle style)
     {
+
         return new() {
             Color                         = style.Color.ToUInt(),
             TextAlign                     = style.TextAlign.Point,
@@ -131,7 +134,10 @@ internal struct PaintStyleSnapshot
             ImageRotation                 = style.ImageRotation,
             ImageColor                    = style.ImageColor.ToUInt(),
             ImageBlendMode                = (byte)style.ImageBlendMode,
-            IsAntialiased                 = style.IsAntialiased
+            IsAntialiased                 = style.IsAntialiased,
+            UldResourceCrc                = Crc32.Get(style.UldResource ?? ""),
+            UldPartsId                    = style.UldPartsId,
+            UldPartId                     = style.UldPartId
         };
     }
 }
