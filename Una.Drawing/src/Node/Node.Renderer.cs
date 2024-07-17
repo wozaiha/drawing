@@ -102,11 +102,6 @@ public partial class Node
     private          NodeSnapshot         _snapshot;
     private readonly List<ImDrawListPtr>  _drawLists = [];
 
-    ~Node()
-    {
-        Dispose();
-    }
-
     public void Render(ImDrawListPtr drawList, Point position, bool forceSynchronousStyleComputation = false)
     {
         if (ParentNode is not null)

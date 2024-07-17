@@ -272,17 +272,18 @@ public partial class Node : IDisposable
         FontRegistry.FontChanged += OnFontConfigurationChanged;
     }
 
+    ~Node()
+    {
+        Dispose();
+    }
+
     public void Dispose()
     {
         foreach (var child in _childNodes) child.Dispose();
 
-        // TODO: Cancel compute style token.
-
         _texture?.Dispose();
 
         FontRegistry.FontChanged -= OnFontConfigurationChanged;
-
-        GC.SuppressFinalize(this);
     }
 
     private void OnFontConfigurationChanged()
