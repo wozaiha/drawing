@@ -42,7 +42,9 @@ public partial class Node : IDisposable
                     $"The given ID \"{value}\" is invalid. Node IDs must match the regex \"{IdentifierNamingRule()}\"."
                 );
             } else {
-                _id = value;
+                _id              = value;
+                _internalId      = null;
+                _internalIdCrc32 = null;
             }
 
             OnPropertyChanged?.Invoke("Id", _id);

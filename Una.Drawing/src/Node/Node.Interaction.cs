@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using ImGuiNET;
+using Lumina.Misc;
 
 namespace Una.Drawing;
 
@@ -89,7 +90,7 @@ public partial class Node
         ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0);
         ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize,  0);
 
-        string  uuid              = GetInteractiveId();
+        string  imGuiId           = InternalId;
         Vector2 boundingBoxSize   = Bounds.PaddingSize.ToVector2();
         Node?   interactiveParent = GetInteractiveParent();
         _isInWindowOrInteractiveParent = IsInWindowDrawList(drawList) || interactiveParent != null;
@@ -98,18 +99,18 @@ public partial class Node
 
         if (_isInWindowOrInteractiveParent) {
             ImGui.SetCursorScreenPos(Bounds.PaddingRect.TopLeft);
-            ImGui.BeginChild(uuid, boundingBoxSize, false, InteractiveWindowFlags);
+            ImGui.BeginChild(imGuiId, boundingBoxSize, false, InteractiveWindowFlags);
             ImGui.SetCursorScreenPos(Bounds.PaddingRect.TopLeft);
         } else {
             ImGui.SetNextWindowPos(Bounds.PaddingRect.TopLeft, ImGuiCond.Always);
             ImGui.SetNextWindowSize(boundingBoxSize, ImGuiCond.Always);
-            ImGui.Begin(uuid, InteractiveWindowFlags);
+            ImGui.Begin(imGuiId, InteractiveWindowFlags);
         }
 
         bool wasHovered = IsMouseOver;
 
         ImGui.SetCursorScreenPos(Bounds.PaddingRect.TopLeft);
-        ImGui.InvisibleButton($"{uuid}##Button", Bounds.PaddingSize.ToVector2());
+        ImGui.InvisibleButton($"{imGuiId}##Button", Bounds.PaddingSize.ToVector2());
         IsMouseOver = ImGui.IsItemHovered();
         IsFocused   = ImGui.IsItemFocused();
 
@@ -263,16 +264,4 @@ public partial class Node
         | ImGuiWindowFlags.NoNavFocus
         | ImGuiWindowFlags.NoNavInputs
         | ImGuiWindowFlags.NoFocusOnAppearing;
-
-    private string? _interactiveId;
-
-    private string GetInteractiveId()
-    {
-        if (null != _interactiveId) return _interactiveId;
-
-        Guid guid = Guid.NewGuid();
-        _interactiveId = guid.ToString();
-
-        return _interactiveId;
-    }
 }

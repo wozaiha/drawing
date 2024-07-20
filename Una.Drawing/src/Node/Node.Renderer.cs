@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dalamud.Interface.Textures.TextureWraps;
 using ImGuiNET;
+using Lumina.Misc;
 using Una.Drawing.Texture;
 
 namespace Una.Drawing;
@@ -94,9 +95,7 @@ public partial class Node
     /// </remarks>
     public uint ScrollHeight { get; private set; }
 
-    private static uint _globalInstanceId;
-    private        uint InstanceId { get; } = _globalInstanceId++;
-    private        uint _colorThemeVersion;
+    private uint _colorThemeVersion;
 
     private          IDalamudTextureWrap? _texture;
     private          NodeSnapshot         _snapshot;
@@ -242,7 +241,7 @@ public partial class Node
         ImGui.SetCursorScreenPos(Bounds.PaddingRect.TopLeft);
 
         ImGui.BeginChildFrame(
-            InstanceId,
+            InternalIdCrc32,
             Bounds.PaddingSize.ToVector2() + new Vector2(1, 0),
             (HorizontalScrollbar ? ImGuiWindowFlags.HorizontalScrollbar : ImGuiWindowFlags.None)
         );
