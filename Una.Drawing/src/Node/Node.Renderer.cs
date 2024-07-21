@@ -189,9 +189,10 @@ public partial class Node
             return false;
         }
 
-        NodeSnapshot snapshot = CreateSnapshot();
+        NodeSnapshot snapshot     = CreateSnapshot();
+        bool         hasDrawables = ComputedStyle.HasDrawables() || NodeValue != null;
 
-        if ((_texture is null || !snapshot.Equals(ref _snapshot)) && Width > 0 && Height > 0) {
+        if (hasDrawables && ((_texture is null || !snapshot.Equals(ref _snapshot)) && Width > 0 && Height > 0)) {
             _texture?.Dispose();
             _texture  = Renderer.CreateTexture(this);
             _snapshot = snapshot;

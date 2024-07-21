@@ -20,9 +20,11 @@ internal static class ComputedStyleFactory
     {
         var computedStyle = CreateDefault();
 
-        if (node.Stylesheet is not null) {
-            foreach ((Stylesheet.Rule rule, Style style) in node.Stylesheet.Rules) {
-                if (rule.Matches(node)) {Apply(ref computedStyle, style);}
+        if (node.Stylesheet is not null)
+        {
+            foreach ((Stylesheet.Rule rule, Style style) in node.Stylesheet.Rules)
+            {
+                if (rule.Matches(node)) { Apply(ref computedStyle, style); }
             }
         }
 
@@ -117,7 +119,8 @@ internal static class ComputedStyleFactory
 
         computedStyle.BackgroundGradientInset *= Node.ScaleFactor;
 
-        if (Node.ScaleAffectsBorders) {
+        if (Node.ScaleAffectsBorders)
+        {
             computedStyle.BorderWidth *= Node.ScaleFactor;
             computedStyle.StrokeWidth =  (int)MathF.Ceiling(computedStyle.StrokeWidth * Node.ScaleFactor);
         }
@@ -138,7 +141,8 @@ internal static class ComputedStyleFactory
     /// </summary>
     internal static ComputedStyle CreateDefault()
     {
-        return new ComputedStyle {
+        return new ComputedStyle
+        {
             IsVisible                 = true,
             Anchor                    = Anchor.TopLeft,
             Size                      = new(),
@@ -153,7 +157,7 @@ internal static class ComputedStyleFactory
             LineHeight                = 1.2f,
             WordWrap                  = false,
             TextAlign                 = Anchor.TopLeft,
-            OutlineColor              = new(0x00000000),
+            OutlineColor              = null,
             OutlineSize               = 1,
             TextOffset                = Vector2.Zero,
             TextOverflow              = true,
@@ -187,6 +191,9 @@ internal static class ComputedStyleFactory
             ImageRotation             = 0,
             ImageColor                = new(0xFFFFFFFF),
             ImageBlendMode            = BlendMode.Modulate,
+            UldResource               = null,
+            UldPartId                 = null,
+            UldPartsId                = null,
             Opacity                   = 1,
             ShadowSize                = new(),
             ShadowInset               = 0,
