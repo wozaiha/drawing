@@ -6,7 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using ImGuiNET;
-using Lumina.Misc;
+using System.Linq;
 
 namespace Una.Drawing;
 
@@ -32,6 +32,11 @@ public partial class Node
         || null != OnMouseEnter
         || null != OnMouseLeave
         || null != OnMouseUp;
+
+    /// <summary>
+    /// Set to true from an event listener to stop remaining event listeners from being called.
+    /// </summary>
+    public bool CancelEvent { get; set; }
 
     /// <summary>
     /// True if the mouse cursor is currently inside the bounding box of the element.
@@ -157,11 +162,11 @@ public partial class Node
 
         switch (wasHovered) {
             case false when IsMouseOver:
-                OnMouseEnter?.Invoke(this);
+                RaiseEvent(OnMouseEnter);
                 _mouseOverStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                 break;
             case true when !IsMouseOver:
-                OnMouseLeave?.Invoke(this);
+                RaiseEvent(OnMouseLeave);
                 _didStartDelayedMouseEnter = false;
                 IsMouseDown                = false;
                 IsMiddleMouseDown          = false;
@@ -172,32 +177,32 @@ public partial class Node
         if (IsMouseOver) {
             if (_mouseOverStartTime < DateTimeOffset.Now.ToUnixTimeMilliseconds() - 50) {
                 if (!_didStartDelayedMouseEnter) {
-                    OnDelayedMouseEnter?.Invoke(this);
+                    RaiseEvent(OnDelayedMouseEnter);
                     _didStartDelayedMouseEnter = true;
                 }
             }
 
             if (ImGui.IsMouseDown(ImGuiMouseButton.Left)) {
                 if (!IsMouseDown) {
-                    OnMouseDown?.Invoke(this);
-                    OnClick?.Invoke(this);
+                    RaiseEvent(OnMouseDown);
+                    RaiseEvent(OnClick);
                     IsMouseDown = true;
                 }
             } else if (ImGui.IsMouseDown(ImGuiMouseButton.Middle)) {
                 if (!IsMiddleMouseDown) {
-                    OnMouseDown?.Invoke(this);
-                    OnMiddleClick?.Invoke(this);
+                    RaiseEvent(OnMouseDown);
+                    RaiseEvent(OnMiddleClick);
                     IsMiddleMouseDown = true;
                 }
             } else if (ImGui.IsMouseDown(ImGuiMouseButton.Right)) {
                 if (!IsRightMouseDown) {
-                    OnMouseDown?.Invoke(this);
-                    OnRightClick?.Invoke(this);
+                    RaiseEvent(OnRightClick);
+                    RaiseEvent(OnMouseDown);
                     IsRightMouseDown = true;
                 }
             } else {
                 if (IsMouseDown) {
-                    OnMouseUp?.Invoke(this);
+                    RaiseEvent(OnMouseUp);
                     IsMouseDown = false;
                 }
                 if (IsMiddleMouseDown) {
@@ -248,6 +253,18 @@ public partial class Node
         return
             drawList.NativePtr != ImGui.GetForegroundDrawList().NativePtr
             && drawList.NativePtr != ImGui.GetBackgroundDrawList().NativePtr;
+    }
+
+    private void RaiseEvent(Action<Node>? action)
+    {
+        if (action == null) return;
+
+        CancelEvent = false;
+        foreach (var handler in action.GetInvocationList().Reverse()) {
+            if (!CancelEvent) handler.DynamicInvoke(this);
+            if (CancelEvent) break;
+        }
+        CancelEvent = false;
     }
 
     private static ImGuiWindowFlags InteractiveWindowFlags =>
