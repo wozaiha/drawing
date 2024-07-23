@@ -15,12 +15,12 @@ internal class TextGenerator : IGenerator
     public int RenderOrder => 999;
 
     /// <inheritdoc/>
-    public void Generate(SKCanvas canvas, Node node)
+    public bool Generate(SKCanvas canvas, Node node)
     {
-        if (node.NodeValue is not string str || string.IsNullOrWhiteSpace(str)) return;
+        if (node.NodeValue is not string str || string.IsNullOrWhiteSpace(str)) return false;
 
         MeasuredText? measurement = node.NodeValueMeasurement;
-        if (null == measurement || measurement.Value.LineCount == 0) return;
+        if (null == measurement || measurement.Value.LineCount == 0) return false;
 
         Size  size        = node.NodeValueMeasurement!.Value.Size;
         IFont font        = FontRegistry.Fonts[node.ComputedStyle.Font];
@@ -42,6 +42,8 @@ internal class TextGenerator : IGenerator
             PrintLine(canvas, font, node, line, x, y);
             y += (int)(lineHeight * node.ComputedStyle.LineHeight);
         }
+
+        return true;
     }
 
     private static void PrintLine(SKCanvas canvas, IFont font, Node node, string line, float x, float y)

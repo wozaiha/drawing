@@ -36,15 +36,8 @@ internal static class Renderer
             .OrderBy(g => g.RenderOrder)
             .ToList();
 
-        // Determine maximum texture size.
-        int maxDisplaySize = Math.Max((int)ImGui.GetIO().DisplaySize.X, (int)ImGui.GetIO().DisplaySize.Y);
-
-        // Adhere to a minimum of 4k texture to accommodate overflowing container background textures.
-        // This only increases in case of 4K displays that have a horizontal resolution of 5120 pixels.
-        int maxTextureSize = Math.Max(8192, 8192);
-
         // Create the SKSurface and SKCanvas.
-        SKImageInfo         info  = new(maxTextureSize, maxTextureSize);
+        SKImageInfo         info  = new(8192, 8192);
         SKSurfaceProperties props = new(SKSurfacePropsFlags.None, SKPixelGeometry.Unknown);
 
         _skSurface  = SKSurface.Create(info, props);
@@ -68,11 +61,17 @@ internal static class Renderer
         paint.Color     = SKColor.Empty;
         paint.Style     = SKPaintStyle.Fill;
         paint.BlendMode = SKBlendMode.Clear;
+
         _skCanvas.DrawRect(0, 0, node.Width, node.Height, paint);
 
+        bool hasDrawn = false;
         foreach (IGenerator generator in _generators) {
-            generator.Generate(_skCanvas, node);
+            if (generator.Generate(_skCanvas, node)) {
+                hasDrawn = true;
+            }
         }
+
+        if (!hasDrawn) return null;
 
         byte[] targetData = ArrayPool<byte>.Shared.Rent(node.Width * node.Height * 4);
 

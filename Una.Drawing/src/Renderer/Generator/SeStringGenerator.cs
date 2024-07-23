@@ -18,9 +18,9 @@ public class SeStringGenerator : IGenerator
     public int RenderOrder => 999;
 
     /// <inheritdoc/>
-    public void Generate(SKCanvas canvas, Node node)
+    public bool Generate(SKCanvas canvas, Node node)
     {
-        if (node.NodeValue is not SeString seString || seString.Payloads.Count == 0) return;
+        if (node.NodeValue is not SeString seString || seString.Payloads.Count == 0) return false;
 
         Size  size        = node.NodeValueMeasurement!.Value.Size;
         IFont font        = FontRegistry.Fonts[node.ComputedStyle.Font];
@@ -80,6 +80,8 @@ public class SeStringGenerator : IGenerator
                 }
             }
         }
+
+        return true;
     }
 
     private static int DrawText(SKCanvas canvas, SKPoint point, SKColor color, Node node, string text)

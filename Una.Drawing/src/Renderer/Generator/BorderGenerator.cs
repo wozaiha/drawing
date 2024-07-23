@@ -13,15 +13,15 @@ internal class BorderGenerator : IGenerator
     public int RenderOrder => 10;
 
     /// <inheritdoc/>
-    public void Generate(SKCanvas canvas, Node node)
+    public bool Generate(SKCanvas canvas, Node node)
     {
         Size          size  = node.Bounds.PaddingSize;
         ComputedStyle style = node.ComputedStyle;
 
         DrawStroke(canvas, size, style);
 
-        if (null == style.BorderColor) return;
-        if (style.BorderWidth is { HorizontalSize: 0, VerticalSize: 0 }) return;
+        if (null == style.BorderColor) return false;
+        if (style.BorderWidth is { HorizontalSize: 0, VerticalSize: 0 }) return false;
 
         EdgeSize inset       = style.BorderInset;
         int      topWidth    = style.BorderWidth.Top;
@@ -193,11 +193,13 @@ internal class BorderGenerator : IGenerator
                 );
             }
         }
+
+        return true;
     }
 
-    private static void DrawStroke(SKCanvas canvas, Size size, ComputedStyle style)
+    private static bool DrawStroke(SKCanvas canvas, Size size, ComputedStyle style)
     {
-        if (!(style.StrokeColor?.IsVisible ?? false) || style.StrokeWidth == 0) return;
+        if (!(style.StrokeColor?.IsVisible ?? false) || style.StrokeWidth == 0) return false;
 
         using var paint = new SKPaint();
 
@@ -211,7 +213,7 @@ internal class BorderGenerator : IGenerator
 
         if (style.BorderRadius == 0) {
             canvas.DrawRect(rect, paint);
-            return;
+            return true;
         }
 
         float   radius   = style.StrokeRadius ?? style.BorderRadius;
@@ -227,5 +229,7 @@ internal class BorderGenerator : IGenerator
         roundRect.SetRectRadii(rect, [topLeft, topRight, bottomRight, bottomLeft]);
 
         canvas.DrawRoundRect(roundRect, paint);
+
+        return true;
     }
 }

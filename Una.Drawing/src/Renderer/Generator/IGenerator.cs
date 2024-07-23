@@ -19,5 +19,5 @@ internal interface IGenerator
     /// </summary>
     /// <param name="canvas">The drawing canvas.</param>
     /// <param name="node">The source node.</param>
-    public void Generate(SKCanvas canvas, Node node);
+    public bool Generate(SKCanvas canvas, Node node);
 }

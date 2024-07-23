@@ -168,7 +168,7 @@ internal static class TextureLoader
         if (DalamudServices.DataManager == null || DalamudServices.TextureProvider == null)
             throw new InvalidOperationException("Una.Drawing.DrawingLib has not been set-up.");
 
-        string originalIconPath = DalamudServices.TextureProvider.GetIconPath(iconId)
+        string originalIconPath = DalamudServices.TextureProvider.GetIconPath(new() { IconId = iconId, HiRes = true })
             ?? throw new InvalidOperationException($"Failed to get icon path for #{iconId}.");
 
         string iconPath = DalamudServices.TextureSubstitutionProvider.GetSubstitutedPath(originalIconPath);

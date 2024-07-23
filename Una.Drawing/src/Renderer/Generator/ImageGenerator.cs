@@ -15,9 +15,9 @@ internal class ImageGenerator : IGenerator
     public int RenderOrder => 3;
 
     /// <inheritdoc/>
-    public void Generate(SKCanvas canvas, Node node)
+    public bool Generate(SKCanvas canvas, Node node)
     {
-        SKImage? image;
+        SKImage? image = null;
 
         if (node.ComputedStyle.ImageBytes is not null) {
             image = TextureLoader.LoadFromBytes(node.ComputedStyle.ImageBytes);
@@ -26,16 +26,14 @@ internal class ImageGenerator : IGenerator
         } else if (!string.IsNullOrWhiteSpace(node.ComputedStyle.UldResource) && node.ComputedStyle is { UldPartsId: not null, UldPartId: not null }) {
             var uld = TextureLoader.LoadUld(node.ComputedStyle.UldResource, node.ComputedStyle.UldPartsId.Value, node.ComputedStyle.UldPartId.Value);
 
-            if (!uld.HasValue) return;
+            if (!uld.HasValue) return false;
 
             var uldVal = uld.Value;
 
             image = uldVal.Texture.Subset(uldVal.Rect);
-        } else {
-            return;
         }
 
-        if (image == null) return;
+        if (image == null) return false;
 
         SKRect rect = new(
             node.ComputedStyle.ImageInset?.Left ?? 0,
@@ -44,7 +42,7 @@ internal class ImageGenerator : IGenerator
             node.Bounds.PaddingSize.Height - (node.ComputedStyle.ImageInset?.Bottom ?? 0)
         );
 
-        if (rect.IsEmpty) return;
+        if (rect.IsEmpty) return false;
 
         SKMatrix scaleMatrix    = SKMatrix.CreateScale(rect.Width / image.Width, rect.Height / image.Height);
         SKMatrix rotationMatrix = SKMatrix.CreateRotationDegrees(node.ComputedStyle.ImageRotation);
@@ -57,11 +55,9 @@ internal class ImageGenerator : IGenerator
         SKMatrix matrix = rotationMatrix.PreConcat(scaleMatrix.PreConcat(transformMatrix));
 
         using SKPaint  paint  = new();
-        using SKShader shader = SKShader.CreateImage(image, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp, matrix);
 
-        paint.Shader      = shader;
         paint.IsAntialias = node.ComputedStyle.IsAntialiased;
-        paint.Style       = SKPaintStyle.Fill;
+        paint.IsDither    = true;
 
         paint.Shader = SKShader
             .CreateColorFilter(
@@ -91,7 +87,7 @@ internal class ImageGenerator : IGenerator
 
         if (radius < 0.01f) {
             canvas.DrawRect(rect, paint);
-            return;
+            return true;
         }
 
         var style = node.ComputedStyle;
@@ -106,5 +102,7 @@ internal class ImageGenerator : IGenerator
 
         roundRect.SetRectRadii(rect, [topLeft, topRight, bottomRight, bottomLeft]);
         canvas.DrawRoundRect(roundRect, paint);
+
+        return true;
     }
 }

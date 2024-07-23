@@ -7,9 +7,9 @@ public class BackgroundImageGenerator : IGenerator
     public int RenderOrder => 1000;
 
     /// <inheritdoc/>
-    public void Generate(SKCanvas canvas, Node node)
+    public bool Generate(SKCanvas canvas, Node node)
     {
-        if (null == node.ComputedStyle.BackgroundImage) return;
+        if (null == node.ComputedStyle.BackgroundImage) return false;
 
         using var paint = new SKPaint();
 
@@ -19,7 +19,7 @@ public class BackgroundImageGenerator : IGenerator
         Color    color  = node.ComputedStyle.BackgroundImageColor;
         SKImage? image  = LoadImage(node.ComputedStyle.BackgroundImage);
 
-        if (null == image) return;
+        if (null == image) return false;
 
         paint.Color = Color.ToSkColor(node.ComputedStyle.BackgroundImageColor);
         paint.Style = SKPaintStyle.Fill;
@@ -40,6 +40,8 @@ public class BackgroundImageGenerator : IGenerator
             size.Width - inset.Right,
             size.Height - inset.Bottom
         )), paint);
+
+        return true;
     }
 
     private static SKImage? LoadImage(object? image)

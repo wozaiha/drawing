@@ -13,9 +13,9 @@ internal class BackgroundGenerator : IGenerator
     public int RenderOrder => 0;
 
     /// <inheritdoc/>
-    public void Generate(SKCanvas canvas, Node node)
+    public bool Generate(SKCanvas canvas, Node node)
     {
-        if (null == node.ComputedStyle.BackgroundColor) return;
+        if (null == node.ComputedStyle.BackgroundColor) return false;
 
         using var paint = new SKPaint();
 
@@ -26,7 +26,7 @@ internal class BackgroundGenerator : IGenerator
 
         if (node.ComputedStyle.BorderRadius == 0) {
             canvas.DrawRect(0, 0, size.Width, size.Height, paint);
-            return;
+            return true;
         }
 
         paint.IsAntialias = node.ComputedStyle.IsAntialiased;
@@ -45,5 +45,7 @@ internal class BackgroundGenerator : IGenerator
 
         roundRect.SetRectRadii(rect, [topLeft, topRight, bottomRight, bottomLeft]);
         canvas.DrawRoundRect(roundRect, paint);
+
+        return true;
     }
 }
