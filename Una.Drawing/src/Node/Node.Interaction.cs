@@ -197,12 +197,10 @@ public partial class Node
                 }
             } else if (ImGui.IsMouseDown(ImGuiMouseButton.Middle)) {
                 if (!IsMiddleMouseDown) {
-                    RaiseEvent(OnMouseDown);
                     IsMiddleMouseDown = true;
                 }
             } else if (ImGui.IsMouseDown(ImGuiMouseButton.Right)) {
                 if (!IsRightMouseDown) {
-                    RaiseEvent(OnMouseDown);
                     IsRightMouseDown = true;
                 }
             } else {
