@@ -173,9 +173,16 @@ internal static class TextureLoader
 
         string iconPath = DalamudServices.TextureSubstitutionProvider.GetSubstitutedPath(originalIconPath);
 
-        TexFile? iconFile = Path.IsPathRooted(iconPath)
-            ? DalamudServices.DataManager.GameData.GetFileFromDisk<TexFile>(iconPath)
-            : DalamudServices.DataManager.GetFile<TexFile>(iconPath);
+        TexFile? iconFile;
+
+        try {
+            iconFile = Path.IsPathRooted(iconPath)
+                ? DalamudServices.DataManager.GameData.GetFileFromDisk<TexFile>(iconPath)
+                : DalamudServices.DataManager.GetFile<TexFile>(iconPath);
+        } catch (Exception) {
+            // Fall-back to the default icon in case a custom one failed to load.
+            iconFile = DalamudServices.DataManager.GetFile<TexFile>(iconPath);
+        }
 
         IconToTexFileCache[iconId] = iconFile
             ?? throw new InvalidOperationException($"Failed to load icon file for #{iconId}.");
