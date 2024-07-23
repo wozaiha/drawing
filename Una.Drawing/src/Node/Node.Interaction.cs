@@ -30,7 +30,9 @@ public partial class Node
         || null != OnMiddleClick
         || null != OnRightClick
         || null != OnMouseEnter
+        || null != OnDelayedMouseEnter
         || null != OnMouseLeave
+        || null != OnMouseDown
         || null != OnMouseUp;
 
     /// <summary>
@@ -47,12 +49,12 @@ public partial class Node
     /// True if one of the mouse buttons in held down while the cursor is over the element.
     /// </summary>
     public bool IsMouseDown { get; private set; }
-    
+
     /// <summary>
     /// True if one of the mouse buttons in held down while the cursor is over a different element.
     /// </summary>
     public bool IsMouseDownOverOtherNode { get; private set; }
-        
+
     public bool IsMiddleMouseDown { get; private set; }
     public bool IsRightMouseDown { get; private set; }
 
@@ -211,21 +213,18 @@ public partial class Node
                 }
                 if (IsMiddleMouseDown) {
                     RaiseEvent(OnMiddleClick);
-                    IsMiddleMouseDown = false;                                                                                            
+                    IsMiddleMouseDown = false;
                 }
                 if (IsRightMouseDown) {
                     RaiseEvent(OnRightClick);
                     IsRightMouseDown = false;
                 }
-
-                if (IsMouseDownOverOtherNode)
-                {
+                if (IsMouseDownOverOtherNode) {
                     RaiseEvent(OnMouseUp);
                 }
             }
         } else {
-            if (ImGui.IsMouseDown(ImGuiMouseButton.Left))
-            {
+            if (ImGui.IsMouseDown(ImGuiMouseButton.Left)) {
                 IsMouseDownOverOtherNode = true;
             }
         }
