@@ -25,15 +25,17 @@ public partial class Node
     /// True if the element has any interactive event listeners attached to it.
     /// </summary>
     public bool IsInteractive =>
-        null != Tooltip
-        || null != OnClick
-        || null != OnMiddleClick
-        || null != OnRightClick
-        || null != OnMouseEnter
-        || null != OnDelayedMouseEnter
-        || null != OnMouseLeave
-        || null != OnMouseDown
-        || null != OnMouseUp;
+        !IsDisabled && (
+            null != Tooltip
+            || null != OnClick
+            || null != OnMiddleClick
+            || null != OnRightClick
+            || null != OnMouseEnter
+            || null != OnDelayedMouseEnter
+            || null != OnMouseLeave
+            || null != OnMouseDown
+            || null != OnMouseUp
+        );
 
     /// <summary>
     /// Set to true from an event listener to stop remaining event listeners from being called.
