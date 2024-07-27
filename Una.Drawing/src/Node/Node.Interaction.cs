@@ -100,6 +100,7 @@ public partial class Node
 
         _didStartInteractive = true;
 
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowMinSize,    Vector2.Zero);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding,    Vector2.Zero);
         ImGui.PushStyleVar(ImGuiStyleVar.FramePadding,     Vector2.Zero);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0);
@@ -244,7 +245,7 @@ public partial class Node
             ImGui.End();
         }
 
-        ImGui.PopStyleVar(4);
+        ImGui.PopStyleVar(5);
     }
 
     /// <summary>
