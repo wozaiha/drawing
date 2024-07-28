@@ -287,6 +287,15 @@ public partial class Node
         CancelEvent = false;
     }
 
+    private void DisposeEventHandlersOf(Action<Node>? action)
+    {
+        if (action == null) return;
+
+        foreach (Delegate handler in action.GetInvocationList()) {
+            if (handler is Action<Node> del) action -= del;
+        }
+    }
+
     private static ImGuiWindowFlags InteractiveWindowFlags =>
         ImGuiWindowFlags.NoTitleBar
         | ImGuiWindowFlags.NoBackground

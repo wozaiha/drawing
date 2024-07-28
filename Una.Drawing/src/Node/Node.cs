@@ -281,6 +281,15 @@ public partial class Node : IDisposable
 
     public void Dispose()
     {
+        DisposeEventHandlersOf(OnClick);
+        DisposeEventHandlersOf(OnMouseDown);
+        DisposeEventHandlersOf(OnMouseUp);
+        DisposeEventHandlersOf(OnMouseEnter);
+        DisposeEventHandlersOf(OnMouseLeave);
+        DisposeEventHandlersOf(OnRightClick);
+        DisposeEventHandlersOf(OnMiddleClick);
+        DisposeEventHandlersOf(OnDelayedMouseEnter);
+
         foreach (var child in _childNodes) child.Dispose();
 
         _texture?.Dispose();
