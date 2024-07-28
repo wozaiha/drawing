@@ -281,6 +281,8 @@ public partial class Node : IDisposable
 
     public void Dispose()
     {
+        OnDisposed();
+
         DisposeEventHandlersOf(OnClick);
         DisposeEventHandlersOf(OnMouseDown);
         DisposeEventHandlersOf(OnMouseUp);
@@ -296,6 +298,8 @@ public partial class Node : IDisposable
 
         FontRegistry.FontChanged -= OnFontConfigurationChanged;
     }
+
+    protected virtual void OnDisposed() { }
 
     private void OnFontConfigurationChanged()
     {
