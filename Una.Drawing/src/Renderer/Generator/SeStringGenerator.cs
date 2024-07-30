@@ -37,8 +37,10 @@ public class SeStringGenerator : IGenerator
         if (node.ComputedStyle.TextAlign.IsMiddle) y += (node.Height - size.Height) / 2 + outlineSize;
         if (node.ComputedStyle.TextAlign.IsBottom) y =  node.Height - size.Height - outlineSize;
 
-        SKColor prevColor = Color.ToSkColor(node.ComputedStyle.Color);
-        SKColor color     = prevColor;
+        SKColor  prevColor     = Color.ToSkColor(node.ComputedStyle.Color);
+        SKColor  color         = prevColor;
+        SKColor? edgeColor     = null;
+        SKColor? prevEdgeColor = null;
 
         foreach (var payload in seString.Payloads) {
             switch (payload) {
@@ -51,10 +53,19 @@ public class SeStringGenerator : IGenerator
                         prevColor = color;
                         color     = Color.ToSkColor(new(RgbaToAbgr(fg.UIColor.UIForeground)));
                     }
+                    continue;
+                case UIGlowPayload glow:
+                    uint rgba = glow.RGBA;
 
+                    if (rgba == 0) {
+                        edgeColor = prevEdgeColor;
+                    } else {
+                        prevEdgeColor = edgeColor;
+                        edgeColor     = Color.ToSkColor(new(RgbaToAbgr(glow.UIColor.UIForeground)));
+                    }
                     continue;
                 case TextPayload text:
-                    x += DrawText(canvas, new(x, y + node.ComputedStyle.TextOffset.Y), color, node, text.Text ?? "");
+                    x += DrawText(canvas, new(x, y + node.ComputedStyle.TextOffset.Y), color, edgeColor, node, text.Text ?? "");
                     continue;
                 case IconPayload icon: {
                     x += spaceWidth;
@@ -84,7 +95,7 @@ public class SeStringGenerator : IGenerator
         return true;
     }
 
-    private static int DrawText(SKCanvas canvas, SKPoint point, SKColor color, Node node, string text)
+    private static int DrawText(SKCanvas canvas, SKPoint point, SKColor color, SKColor? edgeColor, Node node, string text)
     {
         if (string.IsNullOrEmpty(text)) return 0;
 
@@ -97,7 +108,7 @@ public class SeStringGenerator : IGenerator
         using SKPaint paint = new();
 
         if (node.ComputedStyle.OutlineSize > 0) {
-            paint.Color       = Color.ToSkColor(node.ComputedStyle.OutlineColor ?? new(0xFF000000));
+            paint.Color       = edgeColor ?? Color.ToSkColor(node.ComputedStyle.OutlineColor ?? new(0xFF000000));
             paint.Style       = SKPaintStyle.Stroke;
             paint.StrokeWidth = node.ComputedStyle.OutlineSize * 2;
             paint.MaskFilter  = SKMaskFilter.CreateBlur(SKBlurStyle.Solid, node.ComputedStyle.OutlineSize);
