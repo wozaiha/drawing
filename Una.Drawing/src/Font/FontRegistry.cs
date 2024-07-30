@@ -103,6 +103,7 @@ public static class FontRegistry
     internal static void Dispose()
     {
         foreach (var font in Fonts.Values) font.Dispose();
+        Glyphs.Dispose();
         Fonts.Clear();
     }
 }
