@@ -188,12 +188,6 @@ public partial class Node
 
         if (IsMouseOver) {
             ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
-
-            unsafe
-            {
-                AtkStage.Instance()->AtkCursor.SetCursorType(AtkCursor.CursorType.Clickable);
-            }
-
             if (_mouseOverStartTime < DateTimeOffset.Now.ToUnixTimeMilliseconds() - 50) {
                 if (!_didStartDelayedMouseEnter) {
                     RaiseEvent(OnDelayedMouseEnter);
