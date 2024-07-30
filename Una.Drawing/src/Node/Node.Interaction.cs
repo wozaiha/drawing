@@ -5,6 +5,7 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using ImGuiNET;
 using System.Linq;
 
@@ -186,6 +187,13 @@ public partial class Node
         }
 
         if (IsMouseOver) {
+            ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+
+            unsafe
+            {
+                AtkStage.Instance()->AtkCursor.SetCursorType(AtkCursor.CursorType.Clickable);
+            }
+
             if (_mouseOverStartTime < DateTimeOffset.Now.ToUnixTimeMilliseconds() - 50) {
                 if (!_didStartDelayedMouseEnter) {
                     RaiseEvent(OnDelayedMouseEnter);
