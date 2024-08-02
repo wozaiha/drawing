@@ -114,7 +114,13 @@ internal static class TextureLoader
     {
         if (IconToImageCache.TryGetValue(iconId, out SKImage? cachedImage)) return cachedImage;
 
-        TexFile iconFile = GetIconFile(iconId);
+        TexFile iconFile;
+
+        try {
+            iconFile = GetIconFile(iconId);
+        } catch (FileNotFoundException) {
+            return null;
+        }
 
         SKImageInfo info = new(iconFile.Header.Width, iconFile.Header.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
 
