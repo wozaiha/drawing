@@ -23,7 +23,7 @@ internal class TextGenerator : IGenerator
         if (null == measurement || measurement.Value.LineCount == 0) return false;
 
         Size  size        = node.NodeValueMeasurement!.Value.Size;
-        IFont font        = FontRegistry.Fonts[node.ComputedStyle.Font];
+        IFont font        = FontRegistry.Instance.Fonts[node.ComputedStyle.Font];
         var   outlineSize = (int)node.ComputedStyle.OutlineSize;
         int   fontSize    = node.ComputedStyle.FontSize;
         var   lineHeight  = (int)Math.Ceiling(font.GetLineHeight(fontSize));

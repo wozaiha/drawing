@@ -72,7 +72,7 @@ public sealed class ExamplePlugin : IDalamudPlugin
             Path.Combine(_plugin.DalamudAssetDirectory.FullName, "UIRes", "NotoSansKR-Regular.otf")
         );
 
-        FontRegistry.SetNativeFontFamily(1, file);
+        FontRegistry.Instance.SetNativeFontFamily(1, file);
 
         var tests = Assembly
             .GetExecutingAssembly()

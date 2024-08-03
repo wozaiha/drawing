@@ -9,6 +9,7 @@ using Dalamud.Interface;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using System.Reflection;
 using Una.Drawing.Font;
 using Una.Drawing.Texture;
 
@@ -16,6 +17,9 @@ namespace Una.Drawing;
 
 public class DrawingLib
 {
+    private static Renderer?     _renderer;
+    private static FontRegistry? _fontRegistry;
+
     /// <summary>
     /// Set up the drawing library. Make sure to call this method in your
     /// plugin before using any of the drawing library's features.
@@ -26,10 +30,12 @@ public class DrawingLib
         DalamudServices.PluginInterface = pluginInterface;
         DalamudServices.UiBuilder       = pluginInterface.UiBuilder;
 
+        _fontRegistry = FontRegistry.Instance;
+
         if (downloadGameGlyphs)
         {
             await GameGlyphProvider.DownloadGameGlyphs();
-            FontRegistry.SetupGlyphFont();
+            _fontRegistry.SetupGlyphFont();
         }
 
 #if DEBUG
@@ -38,7 +44,7 @@ public class DrawingLib
 
         // Use the Noto Sans font that comes with Dalamud as the default font,
         // as it supports a wide range of characters, including Japanese.
-        FontRegistry.SetNativeFontFamily(
+        _fontRegistry.SetNativeFontFamily(
             0,
             new FileInfo(
                 Path.Combine(
@@ -46,11 +52,10 @@ public class DrawingLib
                     "UIRes",
                     "NotoSansKR-Regular.otf"
                 )
-            ),
-            0
+            )
         );
 
-        FontRegistry.SetNativeFontFamily(
+        _fontRegistry.SetNativeFontFamily(
             1,
             new FileInfo(
                 Path.Combine(
@@ -58,11 +63,10 @@ public class DrawingLib
                     "UIRes",
                     "Inconsolata-Regular.ttf"
                 )
-            ),
-            0
+            )
         );
 
-        FontRegistry.SetNativeFontFamily(
+        _fontRegistry.SetNativeFontFamily(
             2,
             new FileInfo(
                 Path.Combine(
@@ -70,18 +74,17 @@ public class DrawingLib
                     "UIRes",
                     "FontAwesomeFreeSolid.otf"
                 )
-            ),
-            0
+            )
         );
 
-        FontRegistry.SetNativeFontFamily(3, "Arial", SKFontStyleWeight.ExtraBold);
+        _fontRegistry.SetNativeFontFamily(3, "Arial", SKFontStyleWeight.ExtraBold);
 
         if (GameGlyphProvider.GlyphsFile.Exists) {
-            FontRegistry.SetNativeFontFamily(4, GameGlyphProvider.GlyphsFile);
+            _fontRegistry.SetNativeFontFamily(4, GameGlyphProvider.GlyphsFile);
         }
 
         GfdIconRepository.Setup();
-        Renderer.Setup();
+        _renderer = Renderer.Instance;
     }
 
     /// <summary>
@@ -90,10 +93,13 @@ public class DrawingLib
     /// </summary>
     public static void Dispose()
     {
-        Renderer.Dispose();
-        FontRegistry.Dispose();
+        _renderer?.RelinquishDataShare();
+        _fontRegistry?.RelinquishDataShare();
+
         GfdIconRepository.Dispose();
     }
+
+    internal static string Version => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
 }
 
 internal class DalamudServices

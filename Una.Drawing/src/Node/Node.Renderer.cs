@@ -194,7 +194,7 @@ public partial class Node
 
         if (hasDrawables && ((_texture is null || !snapshot.Equals(ref _snapshot)) && Width > 0 && Height > 0)) {
             _texture?.Dispose();
-            _texture  = Renderer.CreateTexture(this);
+            _texture  = Renderer.Instance.CreateTexture(this);
             _snapshot = snapshot;
             _consecutiveRedraws++;
         } else {
