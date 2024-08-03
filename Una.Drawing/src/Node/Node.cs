@@ -271,7 +271,7 @@ public partial class Node : IDisposable
         OnChildAdded   += child => child.OnReflow += SignalReflow;
         OnChildRemoved += child => child.OnReflow -= SignalReflow;
 
-        FontRegistry.Instance.FontChanged += OnFontConfigurationChanged;
+        FontRegistry.FontChanged += OnFontConfigurationChanged;
     }
 
     ~Node()
@@ -296,7 +296,7 @@ public partial class Node : IDisposable
 
         _texture?.Dispose();
 
-        FontRegistry.Instance.FontChanged -= OnFontConfigurationChanged;
+        FontRegistry.FontChanged -= OnFontConfigurationChanged;
     }
 
     protected virtual void OnDisposed() { }

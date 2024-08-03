@@ -15,17 +15,14 @@ using Una.Drawing.Generator;
 
 namespace Una.Drawing;
 
-internal class Renderer : IDisposable
+internal static class Renderer
 {
-    private readonly List<IGenerator> _generators;
-    private readonly SKSurface        _skSurface;
-    private readonly SKCanvas         _skCanvas;
+    private static List<IGenerator> _generators = [];
 
-    private static Renderer? _instance;
-    internal static Renderer Instance => _instance ??=
-        DalamudServices.PluginInterface.GetOrCreateData($"Una.Drawing.Renderer:{DrawingLib.Version}", () => new Renderer());
+    private static SKSurface _skSurface = null!;
+    private static SKCanvas  _skCanvas  = null!;
 
-    internal Renderer()
+    internal static void Setup()
     {
         // Collect generators.
         List<Type> generatorTypes = Assembly
@@ -43,22 +40,11 @@ internal class Renderer : IDisposable
         SKImageInfo         info  = new(8192, 8192);
         SKSurfaceProperties props = new(SKSurfacePropsFlags.None, SKPixelGeometry.Unknown);
 
-        _skSurface = SKSurface.Create(info, props);
-        _skCanvas  = _skSurface.Canvas;
+        _skSurface  = SKSurface.Create(info, props);
+        _skCanvas   = _skSurface.Canvas;
     }
 
-    /// <summary>
-    /// Relinquish the shared instance.
-    /// <para>
-    /// Once all plugins have relinquished the shared instance, the instance Dispose method will be called by Dalamud.
-    /// </para>
-    /// </summary>
-    internal void RelinquishDataShare()
-    {
-        DalamudServices.PluginInterface.RelinquishData("Una.Drawing.Renderer");
-    }
-
-    public void Dispose()
+    internal static void Dispose()
     {
         _skCanvas.Dispose();
         _skSurface.Dispose();
@@ -67,7 +53,7 @@ internal class Renderer : IDisposable
     /// <summary>
     /// Creates a texture for the given node.
     /// </summary>
-    internal unsafe IDalamudTextureWrap? CreateTexture(Node node)
+    internal static unsafe IDalamudTextureWrap? CreateTexture(Node node)
     {
         if (node.Width == 0 || node.Height == 0) return null;
 
@@ -79,11 +65,8 @@ internal class Renderer : IDisposable
         _skCanvas.DrawRect(0, 0, node.Width, node.Height, paint);
 
         bool hasDrawn = false;
-
-        foreach (IGenerator generator in _generators)
-        {
-            if (generator.Generate(_skCanvas, node))
-            {
+        foreach (IGenerator generator in _generators) {
+            if (generator.Generate(_skCanvas, node)) {
                 hasDrawn = true;
             }
         }
@@ -92,11 +75,9 @@ internal class Renderer : IDisposable
 
         byte[] targetData = ArrayPool<byte>.Shared.Rent(node.Width * node.Height * 4);
 
-        fixed (void* ptr = targetData)
-        {
+        fixed (void* ptr = targetData) {
             _skSurface.ReadPixels(
-                new()
-                {
+                new() {
                     Width      = node.Width,
                     Height     = node.Height,
                     AlphaType  = SKAlphaType.Premul,

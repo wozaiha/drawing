@@ -61,7 +61,7 @@ public partial class Node
         _textCachedFontSize  = ComputedStyle.FontSize;
         _textCachedNodeSize  = ComputedStyle.Size.Copy();
 
-        var font = FontRegistry.Instance.Fonts[ComputedStyle.Font];
+        var font = FontRegistry.Fonts[ComputedStyle.Font];
 
         NodeValueMeasurement = font.MeasureText(
             str,
@@ -82,7 +82,7 @@ public partial class Node
             return new(0, 0);
         }
 
-        IFont font       = FontRegistry.Instance.Fonts[ComputedStyle.Font];
+        IFont font       = FontRegistry.Fonts[ComputedStyle.Font];
         var   maxWidth   = 0;
         var   maxHeight  = 0;
         Size  charSize   = font.MeasureText(" ", ComputedStyle.FontSize, ComputedStyle.OutlineSize).Size;

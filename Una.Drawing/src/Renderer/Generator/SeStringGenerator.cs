@@ -23,7 +23,7 @@ public class SeStringGenerator : IGenerator
         if (node.NodeValue is not SeString seString || seString.Payloads.Count == 0) return false;
 
         Size  size        = node.NodeValueMeasurement!.Value.Size;
-        IFont font        = FontRegistry.Instance.Fonts[node.ComputedStyle.Font];
+        IFont font        = FontRegistry.Fonts[node.ComputedStyle.Font];
         var   outlineSize = (int)node.ComputedStyle.OutlineSize;
         var   metrics     = font.GetMetrics(node.ComputedStyle.FontSize);
         int   spaceWidth  = font.MeasureText(" ", node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize).Size.Width;
@@ -99,7 +99,7 @@ public class SeStringGenerator : IGenerator
     {
         if (string.IsNullOrEmpty(text)) return 0;
 
-        IFont font = FontRegistry.Instance.Fonts[node.ComputedStyle.Font];
+        IFont font = FontRegistry.Fonts[node.ComputedStyle.Font];
 
         MeasuredText measurements = font.MeasureText(text, node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize);
 

@@ -25,16 +25,16 @@ internal class FontFactory
 
         SKTypeface  srcTypeface = SKTypeface.FromFamilyName(fontFamily, fontStyle);
 
-        return new DynamicFont(srcTypeface, FontRegistry.Instance.Glyphs, sizeOffset);
+        return new DynamicFont(srcTypeface, FontRegistry.Glyphs, sizeOffset);
     }
 
     internal static IFont CreateFromFontFile(FileInfo file, float sizeOffset)
     {
-        return new DynamicFont(SKTypeface.FromFile(file.FullName), FontRegistry.Instance.Glyphs, sizeOffset);
+        return new DynamicFont(SKTypeface.FromFile(file.FullName), FontRegistry.Glyphs, sizeOffset);
     }
 
     internal static IFont CreateFromFontStream(Stream stream, float sizeOffset)
     {
-        return new DynamicFont(SKTypeface.FromStream(stream), FontRegistry.Instance.Glyphs, sizeOffset);
+        return new DynamicFont(SKTypeface.FromStream(stream), FontRegistry.Glyphs, sizeOffset);
     }
 }
