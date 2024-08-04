@@ -5,12 +5,10 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
-using System.Buffers;
-using System.Linq;
-using System.Reflection;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
-using ImGuiNET;
+using System.Linq;
+using System.Reflection;
 using Una.Drawing.Generator;
 
 namespace Una.Drawing;
@@ -19,10 +17,11 @@ internal static class Renderer
 {
     private static List<IGenerator> _generators = [];
 
-    private static SKSurface _skSurface = null!;
-    private static SKCanvas  _skCanvas  = null!;
+    private static nint _pixelDataPtr;
 
-    internal static void Setup()
+    private static readonly SKColorSpace SkColorSpace = SKColorSpace.CreateSrgb();
+
+    internal static unsafe void Setup()
     {
         // Collect generators.
         List<Type> generatorTypes = Assembly
@@ -36,18 +35,23 @@ internal static class Renderer
             .OrderBy(g => g.RenderOrder)
             .ToList();
 
-        // Create the SKSurface and SKCanvas.
-        SKImageInfo         info  = new(8192, 8192);
-        SKSurfaceProperties props = new(SKSurfacePropsFlags.None, SKPixelGeometry.Unknown);
+        Tuple<nint> handle = DalamudServices.PluginInterface.GetOrCreateData(
+            "Una.Drawing.Framebuffer",
+            () =>
+            {
+                var data   = new byte[8192 * 8192 * 4];
+                var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 
-        _skSurface  = SKSurface.Create(info, props);
-        _skCanvas   = _skSurface.Canvas;
+                return Tuple.Create(handle.AddrOfPinnedObject());
+            }
+        );
+
+        _pixelDataPtr = handle.Item1;
     }
 
     internal static void Dispose()
     {
-        _skCanvas.Dispose();
-        _skSurface.Dispose();
+        SkColorSpace.Dispose();
     }
 
     /// <summary>
@@ -56,50 +60,29 @@ internal static class Renderer
     internal static unsafe IDalamudTextureWrap? CreateTexture(Node node)
     {
         if (node.Width == 0 || node.Height == 0) return null;
+        if (node.Width > 8192 || node.Height > 8192) return null;
 
-        using SKPaint paint = new();
-        paint.Color     = SKColor.Empty;
-        paint.Style     = SKPaintStyle.Fill;
-        paint.BlendMode = SKBlendMode.Clear;
+        SKImageInfo info    = new(node.Width, node.Height, SKColorType.Bgra8888, SKAlphaType.Premul, SkColorSpace);
+        using var   pixmap  = new SKPixmap(info, _pixelDataPtr);
+        using var   surface = SKSurface.Create(pixmap);
 
-        _skCanvas.DrawRect(0, 0, node.Width, node.Height, paint);
+        surface.Canvas.Clear();
 
         bool hasDrawn = false;
-        foreach (IGenerator generator in _generators) {
-            if (generator.Generate(_skCanvas, node)) {
+
+        foreach (IGenerator generator in _generators)
+        {
+            if (generator.Generate(surface.Canvas, node))
+            {
                 hasDrawn = true;
             }
         }
 
         if (!hasDrawn) return null;
 
-        byte[] targetData = ArrayPool<byte>.Shared.Rent(node.Width * node.Height * 4);
-
-        fixed (void* ptr = targetData) {
-            _skSurface.ReadPixels(
-                new() {
-                    Width      = node.Width,
-                    Height     = node.Height,
-                    AlphaType  = SKAlphaType.Premul,
-                    ColorType  = SKColorType.Bgra8888,
-                    ColorSpace = SKColorSpace.CreateSrgb()
-                },
-                (nint)ptr,
-                node.Width * 4,
-                0,
-                0
-            );
-        }
-
-        IDalamudTextureWrap texture = DalamudServices.TextureProvider.CreateFromRaw(
+        return DalamudServices.TextureProvider.CreateFromRaw(
             RawImageSpecification.Rgba32(node.Width, node.Height),
-            targetData
+            pixmap.GetPixelSpan()
         );
-
-        // IDalamudTextureWrap texture = DalamudServices.UiBuilder.LoadImageRaw(targetData, node.Width, node.Height, 4);
-
-        ArrayPool<byte>.Shared.Return(targetData);
-
-        return texture;
     }
 }
