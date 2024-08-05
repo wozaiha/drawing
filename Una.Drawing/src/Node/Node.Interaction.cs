@@ -112,7 +112,8 @@ public partial class Node
         Node?   interactiveParent = GetInteractiveParent();
         _isInWindowOrInteractiveParent = IsInWindowDrawList(drawList) || interactiveParent != null;
 
-        ImGui.SetNextWindowViewport(ImGui.GetMainViewport().ID);
+        // Disabled to allow for multi-monitor support. Leaving this here in case something breaks.
+        // ImGui.SetNextWindowViewport(ImGui.GetMainViewport().ID);
 
         if (_isInWindowOrInteractiveParent) {
             ImGui.SetCursorScreenPos(Bounds.PaddingRect.TopLeft);
