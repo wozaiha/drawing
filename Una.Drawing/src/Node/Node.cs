@@ -86,7 +86,7 @@ public partial class Node : IDisposable
             _texture             = null;
 
             OnPropertyChanged?.Invoke("NodeValue", _nodeValue);
-            SignalReflow();
+            SignalReflowRecursive();
         }
     }
 
