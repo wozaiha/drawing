@@ -111,6 +111,7 @@ internal static class ComputedStyleFactory
         computedStyle.Size         *= Node.ScaleFactor;
         computedStyle.Padding      *= Node.ScaleFactor;
         computedStyle.Margin       *= Node.ScaleFactor;
+        computedStyle.Gap          =  (int)(computedStyle.Gap * Node.ScaleFactor);
         computedStyle.FontSize     =  (int)(computedStyle.FontSize * Node.ScaleFactor);
         computedStyle.TextOffset   *= Node.ScaleFactor;
         computedStyle.BorderInset  *= Node.ScaleFactor;
