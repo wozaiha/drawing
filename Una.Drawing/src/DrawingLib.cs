@@ -93,6 +93,7 @@ public class DrawingLib
         Renderer.Dispose();
         FontRegistry.Dispose();
         GfdIconRepository.Dispose();
+        TextureLoader.Dispose();
     }
 }
 

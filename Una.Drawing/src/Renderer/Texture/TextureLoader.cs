@@ -19,6 +19,16 @@ internal static class TextureLoader
     private static readonly Dictionary<string, TexFile>             PathToTexFileCache   = [];
     private static readonly Dictionary<string, UldFile>             PathToUldFileCache   = [];
 
+    internal static void Dispose()
+    {
+        foreach (var (_, image) in IconToImageCache) image.Dispose();
+
+        IconToImageCache.Clear();
+        IconToTexFileCache.Clear();
+        PathToTexFileCache.Clear();
+        PathToUldFileCache.Clear();
+    }
+
     /// <summary>
     /// Loads an embedded texture from one of the plugin assemblies.
     /// </summary>
@@ -153,9 +163,20 @@ internal static class TextureLoader
         {
             path = DalamudServices.TextureSubstitutionProvider.GetSubstitutedPath(path);
 
-            texFile = Path.IsPathRooted(path)
-                ? DalamudServices.DataManager.GameData.GetFileFromDisk<TexFile>(path)
-                : DalamudServices.DataManager.GetFile<TexFile>(path);
+            try {
+                texFile = Path.IsPathRooted(path)
+                    ? DalamudServices.DataManager.GameData.GetFileFromDisk<TexFile>(path)
+                    : DalamudServices.DataManager.GetFile<TexFile>(path);
+            } catch (Exception e) {
+                DebugLogger.Log($"Failed to load texture {path}. Falling back to default. Error: {e.Message}");
+
+                try {
+                    texFile = DalamudServices.DataManager.GetFile<TexFile>(path);
+                } catch {
+                    // this should never happen.
+                    return null;
+                }
+            }
 
             if (null == texFile) return null;
 
