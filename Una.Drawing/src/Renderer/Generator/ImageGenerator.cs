@@ -24,7 +24,12 @@ internal class ImageGenerator : IGenerator
         } else if (node.ComputedStyle.IconId is not null) {
             image = TextureLoader.LoadIcon(node.ComputedStyle.IconId.Value);
         } else if (!string.IsNullOrWhiteSpace(node.ComputedStyle.UldResource) && node.ComputedStyle is { UldPartsId: not null, UldPartId: not null }) {
-            var uld = TextureLoader.LoadUld(node.ComputedStyle.UldResource, node.ComputedStyle.UldPartsId.Value, node.ComputedStyle.UldPartId.Value);
+            var uld = TextureLoader.LoadUld(
+                node.ComputedStyle.UldResource,
+                node.ComputedStyle.UldPartsId.Value,
+                node.ComputedStyle.UldPartId.Value,
+                node.ComputedStyle.UldStyle ?? UldStyle.Default
+            );
 
             if (!uld.HasValue) return false;
 
