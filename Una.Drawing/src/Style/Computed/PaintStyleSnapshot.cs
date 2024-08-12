@@ -118,6 +118,7 @@ internal struct PaintStyleSnapshot
             BackgroundImageColor          = style.BackgroundImageColor.ToUInt(),
             BackgroundImageRotation       = style.BackgroundImageRotation,
             BackgroundImageBlendMode      = (byte)style.BackgroundImageBlendMode,
+            RoundedCorners                = style.RoundedCorners,
             OutlineColor                  = style.OutlineColor?.ToUInt(),
             TextShadowSize                = style.TextShadowSize,
             TextShadowColor               = style.TextShadowColor?.ToUInt(),
