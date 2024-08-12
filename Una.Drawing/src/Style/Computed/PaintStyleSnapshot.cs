@@ -72,12 +72,13 @@ internal struct PaintStyleSnapshot
     internal uint               UldResourceCrc;
     internal int?               UldPartsId;
     internal int?               UldPartId;
+    internal UldStyle?          UldStyle;
     internal bool               IsAntialiased;
 
     internal static PaintStyleSnapshot Create(ref ComputedStyle style)
     {
-
-        return new() {
+        return new()
+        {
             Color                         = style.Color.ToUInt(),
             TextAlign                     = style.TextAlign.Point,
             OutlineSize                   = style.OutlineSize,
@@ -137,7 +138,8 @@ internal struct PaintStyleSnapshot
             IsAntialiased                 = style.IsAntialiased,
             UldResourceCrc                = Crc32.Get(style.UldResource ?? ""),
             UldPartsId                    = style.UldPartsId,
-            UldPartId                     = style.UldPartId
+            UldPartId                     = style.UldPartId,
+            UldStyle                      = style.UldStyle,
         };
     }
 }

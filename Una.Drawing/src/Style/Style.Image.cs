@@ -72,6 +72,11 @@ public partial class Style
     public string? UldResource { get; set; }
 
     /// <summary>
+    /// The ULD style to be displayed in the node.
+    /// </summary>
+    public UldStyle? UldStyle { get; set; }
+
+    /// <summary>
     /// Defines the ULD parts id to be displayed in the node.
     /// </summary>
     public int? UldPartsId { get; set; }

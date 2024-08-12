@@ -226,11 +226,3 @@ internal static class TextureLoader
         return iconFile;
     }
 }
-
-public enum UldStyle
-{
-    Default,
-    Light,
-    Classic,
-    TransparentBlue
-}

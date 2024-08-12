@@ -5,17 +5,10 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
-using System.Threading.Tasks;
-
 namespace Una.Drawing;
 
 internal static class ComputedStyleFactory
 {
-    internal static Task<ComputedStyle> CreateAsync(Node node)
-    {
-        return Task.Run(() => Create(node));
-    }
-
     internal static ComputedStyle Create(Node node)
     {
         var computedStyle = CreateDefault();
@@ -101,6 +94,7 @@ internal static class ComputedStyleFactory
         cs.UldResource               = style.UldResource ?? cs.UldResource;
         cs.UldPartsId                = style.UldPartsId ?? cs.UldPartsId;
         cs.UldPartId                 = style.UldPartId ?? cs.UldPartId;
+        cs.UldStyle                  = style.UldStyle ?? cs.UldStyle;
     }
 
     /// <summary>
@@ -195,6 +189,7 @@ internal static class ComputedStyleFactory
             UldResource               = null,
             UldPartId                 = null,
             UldPartsId                = null,
+            UldStyle                  = UldStyle.Default,
             Opacity                   = 1,
             ShadowSize                = new(),
             ShadowInset               = 0,

@@ -192,6 +192,9 @@ public partial struct ComputedStyle
     /// <inheritdoc cref="Style.UldPartId"/>
     public int? UldPartId { get; set; }
 
+    /// <inheritdoc cref="Style.UldStyle"/>
+    public UldStyle? UldStyle { get; set; }
+
     internal PaintStyleSnapshot  PaintStyleSnapshot;
     internal LayoutStyleSnapshot LayoutStyleSnapshot;
 }
