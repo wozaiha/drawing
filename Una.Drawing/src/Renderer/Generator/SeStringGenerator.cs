@@ -26,7 +26,7 @@ public class SeStringGenerator : IGenerator
         IFont font        = FontRegistry.Fonts[node.ComputedStyle.Font];
         var   outlineSize = (int)node.ComputedStyle.OutlineSize;
         var   metrics     = font.GetMetrics(node.ComputedStyle.FontSize);
-        int   spaceWidth  = font.MeasureText(" ", node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize).Size.Width;
+        int   spaceWidth  = font.MeasureText("X", node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize).Size.Width;
 
         var y = (int)(metrics.CapHeight) + outlineSize;
         var x = (int)node.ComputedStyle.TextOffset.X + 1;
@@ -65,7 +65,7 @@ public class SeStringGenerator : IGenerator
                     }
                     continue;
                 case TextPayload text:
-                    x += DrawText(canvas, new(x, y + node.ComputedStyle.TextOffset.Y), color, edgeColor, node, text.Text ?? "");
+                    x += DrawText(canvas, new(x, y + node.ComputedStyle.TextOffset.Y), color, edgeColor, node, text.Text ?? "", x, node.ComputedStyle.MaxWidth);
                     continue;
                 case IconPayload icon: {
                     x += spaceWidth;
@@ -95,15 +95,16 @@ public class SeStringGenerator : IGenerator
         return true;
     }
 
-    private static int DrawText(SKCanvas canvas, SKPoint point, SKColor color, SKColor? edgeColor, Node node, string text)
+    private static int DrawText(SKCanvas canvas, SKPoint point, SKColor color, SKColor? edgeColor, Node node, string text, int currentWidth, int? maxWidth)
     {
         if (string.IsNullOrEmpty(text)) return 0;
 
         IFont font = FontRegistry.Fonts[node.ComputedStyle.Font];
 
-        MeasuredText measurements = font.MeasureText(text, node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize);
+        MeasuredText measurements = font.MeasureText(text, node.ComputedStyle.FontSize, node.ComputedStyle.OutlineSize, maxWidth: maxWidth - currentWidth);
 
         if (measurements.Size.Width == 0) return 0;
+        text = measurements.Lines[0];
 
         using SKPaint paint = new();
 

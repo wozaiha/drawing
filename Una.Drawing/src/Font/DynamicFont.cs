@@ -18,7 +18,7 @@ internal partial class DynamicFont(SKTypeface textTypeface, SKTypeface glyphType
         int?   maxWidth     = null
     )
     {
-        if (maxWidth >= 0) {
+        if (maxWidth > 0) {
             maxLineWidth = maxWidth;
             wordWrap     = false;
             textOverflow = false;

@@ -35,9 +35,11 @@ internal partial class DynamicFont
             }
         }
 
+        if (maxWidth == 0) maxWidth = float.MaxValue;
+
         return new() {
             Lines     = [buffer],
-            Size      = new((int)Math.Max(maxWidth, Math.Ceiling(width + (outlineSize * 2.0f))), (int)height),
+            Size      = new((int)Math.Min(maxWidth, Math.Ceiling(width + (outlineSize * 2.0f))), (int)height),
             LineCount = 1,
         };
     }

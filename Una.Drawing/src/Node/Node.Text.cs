@@ -89,10 +89,15 @@ public partial class Node
             return new(0, 0);
         }
 
+        if (false == MustRecomputeNodeValue())
+        {
+            return NodeValueMeasurement?.Size ?? new();
+        }
+
         IFont font       = FontRegistry.Fonts[ComputedStyle.Font];
         var   maxWidth   = 0;
         var   maxHeight  = 0;
-        Size  charSize   = font.MeasureText(" ", ComputedStyle.FontSize, ComputedStyle.OutlineSize).Size;
+        Size  charSize   = font.MeasureText("X", ComputedStyle.FontSize, ComputedStyle.OutlineSize).Size;
         int   spaceWidth = charSize.Width;
 
         foreach (var payload in str.Payloads)
@@ -108,6 +113,19 @@ public partial class Node
                         ComputedStyle.OutlineSize
                     );
 
+                    if (ComputedStyle.MaxWidth > 0 && maxWidth + measurement.Size.Width > ComputedStyle.MaxWidth)
+                    {
+                        measurement = font.MeasureText(
+                            text.Text,
+                            ComputedStyle.FontSize,
+                            ComputedStyle.OutlineSize,
+                            null,
+                            false,
+                            false,
+                            maxWidth: ComputedStyle.MaxWidth - maxWidth
+                        );
+                    }
+
                     maxWidth  += measurement.Size.Width;
                     maxHeight =  Math.Max(maxHeight, measurement.Size.Height);
                     continue;
@@ -116,6 +134,14 @@ public partial class Node
                     continue;
             }
         }
+
+        _textCachedNodeValue = _nodeValue;
+        _textCachedWordWrap  = ComputedStyle.WordWrap;
+        _textCachedPadding   = ComputedStyle.Padding.Copy();
+        _textCachedFontId    = ComputedStyle.Font;
+        _textCachedFontSize  = ComputedStyle.FontSize;
+        _textCachedNodeSize  = ComputedStyle.Size.Copy();
+        _textCachedMaxWidth  = ComputedStyle.MaxWidth;
 
         NodeValueMeasurement = new() { Lines = [], LineCount = 1, Size = new(maxWidth, maxHeight) };
 
