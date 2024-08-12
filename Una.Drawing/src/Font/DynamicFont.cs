@@ -14,9 +14,16 @@ internal partial class DynamicFont(SKTypeface textTypeface, SKTypeface glyphType
         float? maxLineWidth = null,
         bool   wordWrap     = false,
         bool   textOverflow = true,
-        float  lineHeight   = 1.2f
+        float  lineHeight   = 1.2f,
+        int?   maxWidth     = null
     )
     {
+        if (maxWidth >= 0) {
+            maxLineWidth = maxWidth;
+            wordWrap     = false;
+            textOverflow = false;
+        }
+
         if (wordWrap == false || maxLineWidth is null or 0) {
             return MeasureSingleLine(text, fontSize, outlineSize, maxLineWidth ?? 0, textOverflow);
         }

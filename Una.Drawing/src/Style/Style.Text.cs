@@ -90,6 +90,15 @@ public partial class Style
     public bool? TextOverflow { get; set; }
 
     /// <summary>
+    /// Defines a maximum width for nodes containing text. If the text exceeds
+    /// the given width, it will be truncated and an ellipsis will be appended
+    /// to the end of the text. Giving this property a value that is not NULL
+    /// and higher than 0 will implicitly disable <see cref="TextOverflow"/>
+    /// and <see cref="WordWrap"/>.
+    /// </summary>
+    public int? MaxWidth { get; set; }
+
+    /// <summary>
     /// <para>
     /// Whether to wrap text contents to the next line when they exceed the
     /// defined width of the node.

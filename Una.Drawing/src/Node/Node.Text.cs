@@ -20,6 +20,7 @@ public partial class Node
     private float?   _textCachedFontSize;
     private bool?    _textCachedWordWrap;
     private Size?    _textCachedNodeSize;
+    private int?     _textCachedMaxWidth;
 
     internal MeasuredText? NodeValueMeasurement { get; private set; }
 
@@ -39,15 +40,18 @@ public partial class Node
     /// </summary>
     private Size ComputeContentSizeFromText()
     {
-        if (_nodeValue is SeString) {
+        if (_nodeValue is SeString)
+        {
             return ComputeContentSizeFromSeString();
         }
 
-        if (_nodeValue is not string str || string.IsNullOrEmpty(str)) {
+        if (_nodeValue is not string str || string.IsNullOrEmpty(str))
+        {
             return new(0, 0);
         }
 
-        if (false == MustRecomputeNodeValue()) {
+        if (false == MustRecomputeNodeValue())
+        {
             return NodeValueMeasurement?.Size ?? new();
         }
 
@@ -60,6 +64,7 @@ public partial class Node
         _textCachedFontId    = ComputedStyle.Font;
         _textCachedFontSize  = ComputedStyle.FontSize;
         _textCachedNodeSize  = ComputedStyle.Size.Copy();
+        _textCachedMaxWidth  = ComputedStyle.MaxWidth;
 
         var font = FontRegistry.Fonts[ComputedStyle.Font];
 
@@ -70,7 +75,8 @@ public partial class Node
             ComputedStyle.Size.Width,
             ComputedStyle.WordWrap,
             ComputedStyle.TextOverflow,
-            ComputedStyle.LineHeight
+            ComputedStyle.LineHeight,
+            ComputedStyle.MaxWidth
         );
 
         return NodeValueMeasurement.Value.Size;
@@ -78,7 +84,8 @@ public partial class Node
 
     private Size ComputeContentSizeFromSeString()
     {
-        if (_nodeValue is not SeString str || str.Payloads.Count == 0) {
+        if (_nodeValue is not SeString str || str.Payloads.Count == 0)
+        {
             return new(0, 0);
         }
 
@@ -88,26 +95,29 @@ public partial class Node
         Size  charSize   = font.MeasureText(" ", ComputedStyle.FontSize, ComputedStyle.OutlineSize).Size;
         int   spaceWidth = charSize.Width;
 
-        foreach (var payload in str.Payloads) {
-            switch (payload) {
+        foreach (var payload in str.Payloads)
+        {
+            switch (payload)
+            {
                 case TextPayload text:
                     if (string.IsNullOrEmpty(text.Text)) continue;
 
-                    MeasuredText measurement = font.MeasureText(text.Text, ComputedStyle.FontSize, ComputedStyle.OutlineSize);
+                    MeasuredText measurement = font.MeasureText(
+                        text.Text,
+                        ComputedStyle.FontSize,
+                        ComputedStyle.OutlineSize
+                    );
+
                     maxWidth  += measurement.Size.Width;
                     maxHeight =  Math.Max(maxHeight, measurement.Size.Height);
                     continue;
                 case IconPayload:
-                    maxWidth  += spaceWidth + 20 + spaceWidth;
+                    maxWidth += spaceWidth + 20 + spaceWidth;
                     continue;
             }
         }
 
-        NodeValueMeasurement = new() {
-            Lines     = [],
-            LineCount = 1,
-            Size      = new(maxWidth, maxHeight)
-        };
+        NodeValueMeasurement = new() { Lines = [], LineCount = 1, Size = new(maxWidth, maxHeight) };
 
         return new(maxWidth, maxHeight);
     }
@@ -118,7 +128,8 @@ public partial class Node
     /// </summary>
     private bool MustRecomputeNodeValue()
     {
-        if (_nodeValue is null && !(NodeValueMeasurement?.Size.IsZero ?? false)) {
+        if (_nodeValue is null && !(NodeValueMeasurement?.Size.IsZero ?? false))
+        {
             NodeValueMeasurement = new();
             return false;
         }
@@ -130,15 +141,8 @@ public partial class Node
                 || (!_textCachedFontSize?.Equals(ComputedStyle.FontSize) ?? true)
                 || (!_textCachedWordWrap?.Equals(ComputedStyle.WordWrap) ?? true)
                 || (!_textCachedNodeValue?.Equals(_nodeValue) ?? true)
+                || (!_textCachedMaxWidth?.Equals(ComputedStyle.MaxWidth) ?? true)
                 || !_textCachedPadding.Equals(ComputedStyle.Padding)
             );
     }
-
-    private string GetNormalizedString(string input)
-    {
-        return ComputedStyle.Font == 4 ? input : GameGlyphRegex().Replace(input, string.Empty);
-    }
-
-    [GeneratedRegex(@"[\uE020-\uE0DB]")]
-    private static partial Regex GameGlyphRegex();
 }

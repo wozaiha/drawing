@@ -60,6 +60,9 @@ public partial struct ComputedStyle
     /// <inheritdoc cref="Style.TextOverflow"/>
     public bool TextOverflow;
 
+    /// <inheritdoc cref="Style.MaxWidth"/>
+    public int? MaxWidth;
+
     /// <inheritdoc cref="Style.BackgroundColor"/>
     public Color? BackgroundColor;
 

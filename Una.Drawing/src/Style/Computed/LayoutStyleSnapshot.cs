@@ -30,6 +30,7 @@ internal struct LayoutStyleSnapshot
     internal int                FontSize;
     internal float              LineHeight;
     internal bool               TextOverflow;
+    internal int?               MaxWidth;
 
     internal static LayoutStyleSnapshot Create(ref ComputedStyle style)
     {
@@ -53,7 +54,8 @@ internal struct LayoutStyleSnapshot
             Font          = style.Font,
             FontSize      = style.FontSize,
             LineHeight    = style.LineHeight,
-            TextOverflow  = style.TextOverflow
+            TextOverflow  = style.TextOverflow,
+            MaxWidth      = style.MaxWidth
         };
     }
 }

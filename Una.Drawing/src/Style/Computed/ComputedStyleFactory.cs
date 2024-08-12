@@ -50,6 +50,7 @@ internal static class ComputedStyleFactory
         cs.OutlineSize               = style.OutlineSize ?? cs.OutlineSize;
         cs.TextOffset                = style.TextOffset ?? cs.TextOffset;
         cs.TextOverflow              = style.TextOverflow ?? cs.TextOverflow;
+        cs.MaxWidth                  = style.MaxWidth ?? cs.MaxWidth;
         cs.BackgroundColor           = style.BackgroundColor ?? cs.BackgroundColor;
         cs.BorderColor               = style.BorderColor ?? cs.BorderColor;
         cs.BorderInset               = style.BorderInset ?? cs.BorderInset;
@@ -102,9 +103,13 @@ internal static class ComputedStyleFactory
     /// </summary>
     private static void ApplyScaleFactor(ref ComputedStyle computedStyle)
     {
-        computedStyle.Size         *= Node.ScaleFactor;
-        computedStyle.Padding      *= Node.ScaleFactor;
-        computedStyle.Margin       *= Node.ScaleFactor;
+        computedStyle.Size    *= Node.ScaleFactor;
+        computedStyle.Padding *= Node.ScaleFactor;
+        computedStyle.Margin  *= Node.ScaleFactor;
+
+        computedStyle.MaxWidth =
+            computedStyle.MaxWidth != null ? (int)(computedStyle.MaxWidth * Node.ScaleFactor) : null;
+
         computedStyle.Gap          =  (int)(computedStyle.Gap * Node.ScaleFactor);
         computedStyle.FontSize     =  (int)(computedStyle.FontSize * Node.ScaleFactor);
         computedStyle.TextOffset   *= Node.ScaleFactor;
@@ -156,6 +161,7 @@ internal static class ComputedStyleFactory
             OutlineSize               = 1,
             TextOffset                = Vector2.Zero,
             TextOverflow              = true,
+            MaxWidth                  = null,
             BackgroundColor           = null,
             BorderColor               = null,
             BorderInset               = new(),
