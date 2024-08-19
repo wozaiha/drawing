@@ -301,6 +301,54 @@ public partial class Node : IDisposable
 
     protected virtual void OnDisposed() { }
 
+    /// <summary>
+    /// Toggles the given class name in the class list of this node. If the
+    /// class name is already present in the class list, it is removed. If it is
+    /// not present, it is added. If the `enabled` parameter is set to `true`,
+    /// the class name is added to the class list. If it is set to `false`, the
+    /// class name is removed from the class list.
+    /// </summary>
+    public void ToggleClass(string className, bool? enabled = null)
+    {
+        if (enabled == null) {
+            if (_classList.Contains(className)) {
+                _classList.Remove(className);
+            } else {
+                _classList.Add(className);
+            }
+        } else {
+            if (enabled.Value) {
+                _classList.Add(className);
+            } else {
+                _classList.Remove(className);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Toggles the given tag in the tags list of this node. If the tag is
+    /// already present in the tags list, it is removed. If it is not present,
+    /// the tag is added. If the `enabled` parameter is set to `true`, the tag
+    /// is added to the tags list. If it is set to `false`, the tag is removed
+    /// from the tags list.
+    /// </summary>
+    private void ToggleTag(string tag, bool? enabled = null)
+    {
+        if (enabled == null) {
+            if (_tagsList.Contains(tag)) {
+                _tagsList.Remove(tag);
+            } else {
+                _tagsList.Add(tag);
+            }
+        } else {
+            if (enabled.Value) {
+                _tagsList.Add(tag);
+            } else {
+                _tagsList.Remove(tag);
+            }
+        }
+    }
+
     private void OnFontConfigurationChanged()
     {
         _texture?.Dispose();

@@ -39,6 +39,16 @@ public partial class Node
         );
 
     /// <summary>
+    /// Whether the element should have the "hover" tag added when the mouse is over it.
+    /// </summary>
+    public bool EnableHoverTag { get; set; } = true;
+
+    /// <summary>
+    /// True if the element has any primary interaction event listeners attached to it.
+    /// </summary>
+    public bool HasPrimaryInteraction => !IsDisabled && (null != OnClick || null != OnMouseUp || null != OnMouseDown);
+
+    /// <summary>
     /// Set to true from an event listener to stop remaining event listeners from being called.
     /// </summary>
     public bool CancelEvent { get; set; }
@@ -132,7 +142,7 @@ public partial class Node
         IsMouseOver = ImGui.IsItemHovered();
         IsFocused   = ImGui.IsItemFocused();
 
-        switch (IsMouseOver) {
+        switch (IsMouseOver && HasPrimaryInteraction && EnableHoverTag) {
             case true when !_tagsList.Contains("hover"):
                 _tagsList.Add("hover");
                 break;
