@@ -198,7 +198,8 @@ public partial class Node
         }
 
         if (IsMouseOver) {
-            ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+            if (HasPrimaryInteraction) ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+
             if (_mouseOverStartTime < DateTimeOffset.Now.ToUnixTimeMilliseconds() - 50) {
                 if (!_didStartDelayedMouseEnter) {
                     RaiseEvent(OnDelayedMouseEnter);
