@@ -168,12 +168,13 @@ public partial class Node
 
         DrawDebugBounds();
 
-        var childDrawList = _drawLists.Last();
+        ImDrawListPtr? childDrawList = _drawLists.LastOrDefault();
+        if (null == childDrawList) return;
 
-        OnDraw(childDrawList);
+        OnDraw(childDrawList.Value);
 
         foreach (var childNode in ChildNodes) {
-            childNode.Draw(childDrawList);
+            childNode.Draw(childDrawList.Value);
         }
 
         EndInteractive();
