@@ -389,6 +389,7 @@ public partial class Node : IDisposable
         _internalIdLastIndex  = 0;
         _internalIdLastParent = null;
 
+        MouseCursor.RemoveMouseOver(this);
         FontRegistry.FontChanged -= OnFontConfigurationChanged;
     }
 

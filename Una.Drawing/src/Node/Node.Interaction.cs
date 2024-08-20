@@ -101,7 +101,10 @@ public partial class Node
                 break;
         }
 
-        if (IsDisabled || !IsInteractive || !IsVisible) return;
+        if (IsDisabled || !IsInteractive || !IsVisible) {
+            MouseCursor.RemoveMouseOver(this);
+            return;
+        }
 
         if (_isVisibleSince == 0) _isVisibleSince = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
@@ -141,6 +144,12 @@ public partial class Node
         ImGui.InvisibleButton($"{imGuiId}##Button", Bounds.PaddingSize.ToVector2());
         IsMouseOver = ImGui.IsItemHovered();
         IsFocused   = ImGui.IsItemFocused();
+
+        if (IsMouseOver && HasPrimaryInteraction && EnableHoverTag) {
+            MouseCursor.RegisterMouseOver(this);
+        } else {
+            MouseCursor.RemoveMouseOver(this);
+        }
 
         switch (IsMouseOver && HasPrimaryInteraction && EnableHoverTag) {
             case true when !_tagsList.Contains("hover"):
