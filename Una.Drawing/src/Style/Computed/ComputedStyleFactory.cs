@@ -11,6 +11,8 @@ internal static class ComputedStyleFactory
 {
     internal static ComputedStyle Create(Node node)
     {
+        if (node.IsDisposed) return new();
+
         var computedStyle = CreateDefault();
 
         if (node.Stylesheet is not null)

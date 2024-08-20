@@ -5,6 +5,7 @@
  * https://github.com/una-xiv/drawing                         |______/|___|  (____  / [] |____/|_| |__,|_____|_|_|_|_  |
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
+using System.Collections.Immutable;
 using System.Threading;
 
 namespace Una.Drawing;
@@ -56,18 +57,18 @@ public partial class Node
     private Stylesheet?   _stylesheet;
     private bool          _isUpdatingStyle;
     private bool          _hasComputedStyle;
-    private int           _computeStyleLock = 0;
+    private int           _computeStyleLock;
 
     private readonly object _lockObject = new();
 
-    public static bool UseThreadedStyleComputation { get; set; } = false;
+    public static bool UseThreadedStyleComputation { get; set; }
 
     /// <summary>
     /// Generates the computed style of this node and its descendants.
     /// </summary>
     private bool ComputeStyle()
     {
-        if (_isUpdatingStyle) return false;
+        if (IsDisposed || _isUpdatingStyle) return false;
 
         _isUpdatingStyle = true;
 
@@ -79,6 +80,8 @@ public partial class Node
                     }
                 }
 
+                if (IsDisposed) return false;
+
                 var  style     = ComputedStyleFactory.Create(this);
                 int  result    = style.Commit(ref _intermediateStyle);
                 bool isUpdated = result > 0;
@@ -86,8 +89,8 @@ public partial class Node
                 _intermediateStyle = style;
 
                 lock (_childNodes) {
-                    foreach (Node child in _childNodes) {
-                        if (child.ComputeStyle()) {
+                    foreach (Node child in _childNodes.ToImmutableArray()) {
+                        if (!child.IsDisposed && child.ComputeStyle()) {
                             isUpdated = true;
                         }
                     }

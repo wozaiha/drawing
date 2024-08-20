@@ -13,11 +13,12 @@ public class BackgroundImageGenerator : IGenerator
 
         using var paint = new SKPaint();
 
-        Size     size   = node.Bounds.PaddingSize;
-        EdgeSize inset  = node.ComputedStyle.BackgroundImageInset;
-        Vector2  scale  = node.ComputedStyle.BackgroundImageScale;
-        Color    color  = node.ComputedStyle.BackgroundImageColor;
-        SKImage? image  = LoadImage(node.ComputedStyle.BackgroundImage);
+        Size     size  = node.Bounds.PaddingSize;
+        EdgeSize inset = node.ComputedStyle.BackgroundImageInset;
+        Vector2  scale = node.ComputedStyle.BackgroundImageScale;
+        Color    color = node.ComputedStyle.BackgroundImageColor;
+
+        using SKImage? image = LoadImage(node.ComputedStyle.BackgroundImage);
 
         if (null == image) return false;
 
@@ -30,23 +31,34 @@ public class BackgroundImageGenerator : IGenerator
 
         using var shader = image
             .ToShader(SKShaderTileMode.Repeat, SKShaderTileMode.Repeat, matrix)
-            .WithColorFilter(SKColorFilter.CreateBlendMode(Color.ToSkColor(color), (SKBlendMode)node.ComputedStyle.BackgroundImageBlendMode));
+            .WithColorFilter(
+                SKColorFilter.CreateBlendMode(
+                    Color.ToSkColor(color),
+                    (SKBlendMode)node.ComputedStyle.BackgroundImageBlendMode
+                )
+            );
 
         paint.Shader = shader;
 
-        canvas.DrawRegion(new (new SKRectI(
-            inset.Left,
-            inset.Top,
-            size.Width - inset.Right,
-            size.Height - inset.Bottom
-        )), paint);
+        canvas.DrawRegion(
+            new(
+                new SKRectI(
+                    inset.Left,
+                    inset.Top,
+                    size.Width - inset.Right,
+                    size.Height - inset.Bottom
+                )
+            ),
+            paint
+        );
 
         return true;
     }
 
     private static SKImage? LoadImage(object? image)
     {
-        return image switch {
+        return image switch
+        {
             byte[] bytes => TextureLoader.LoadFromBytes(bytes),
             uint iconId  => TextureLoader.LoadIcon(iconId),
             _            => null

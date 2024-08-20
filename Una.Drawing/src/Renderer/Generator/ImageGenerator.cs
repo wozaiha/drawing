@@ -17,29 +17,6 @@ internal class ImageGenerator : IGenerator
     /// <inheritdoc/>
     public bool Generate(SKCanvas canvas, Node node)
     {
-        SKImage? image = null;
-
-        if (node.ComputedStyle.ImageBytes is not null) {
-            image = TextureLoader.LoadFromBytes(node.ComputedStyle.ImageBytes);
-        } else if (node.ComputedStyle.IconId is not null) {
-            image = TextureLoader.LoadIcon(node.ComputedStyle.IconId.Value);
-        } else if (!string.IsNullOrWhiteSpace(node.ComputedStyle.UldResource) && node.ComputedStyle is { UldPartsId: not null, UldPartId: not null }) {
-            var uld = TextureLoader.LoadUld(
-                node.ComputedStyle.UldResource,
-                node.ComputedStyle.UldPartsId.Value,
-                node.ComputedStyle.UldPartId.Value,
-                node.ComputedStyle.UldStyle ?? UldStyle.Default
-            );
-
-            if (!uld.HasValue) return false;
-
-            var uldVal = uld.Value;
-
-            image = uldVal.Texture.Subset(uldVal.Rect);
-        }
-
-        if (image == null) return false;
-
         SKRect rect = new(
             node.ComputedStyle.ImageInset?.Left ?? 0,
             node.ComputedStyle.ImageInset?.Top ?? 0,
@@ -48,6 +25,9 @@ internal class ImageGenerator : IGenerator
         );
 
         if (rect.IsEmpty) return false;
+
+        SKImage? image = GetImage(node);
+        if (image == null) return false;
 
         SKMatrix scaleMatrix    = SKMatrix.CreateScale(rect.Width / image.Width, rect.Height / image.Height);
         SKMatrix rotationMatrix = SKMatrix.CreateRotationDegrees(node.ComputedStyle.ImageRotation);
@@ -59,7 +39,7 @@ internal class ImageGenerator : IGenerator
 
         SKMatrix matrix = rotationMatrix.PreConcat(scaleMatrix.PreConcat(transformMatrix));
 
-        using SKPaint  paint  = new();
+        using SKPaint paint = new();
 
         paint.IsAntialias = node.ComputedStyle.IsAntialiased;
         paint.IsDither    = true;
@@ -109,5 +89,25 @@ internal class ImageGenerator : IGenerator
         canvas.DrawRoundRect(roundRect, paint);
 
         return true;
+    }
+
+    private SKImage? GetImage(Node node)
+    {
+        if (node.ComputedStyle.ImageBytes is not null) {
+            return TextureLoader.LoadFromBytes(node.ComputedStyle.ImageBytes);
+        } else if (node.ComputedStyle.IconId is not null) {
+            return TextureLoader.LoadIcon(node.ComputedStyle.IconId.Value);
+        } else if (!string.IsNullOrWhiteSpace(node.ComputedStyle.UldResource) && node.ComputedStyle is { UldPartsId: not null, UldPartId: not null }) {
+            var uld = TextureLoader.LoadUld(
+                node.ComputedStyle.UldResource,
+                node.ComputedStyle.UldPartsId.Value,
+                node.ComputedStyle.UldPartId.Value,
+                node.ComputedStyle.UldStyle ?? UldStyle.Default
+            );
+
+            return uld?.Texture.Subset(uld.Value.Rect);
+        }
+
+        return null;
     }
 }

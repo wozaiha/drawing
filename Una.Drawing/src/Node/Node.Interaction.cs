@@ -300,12 +300,30 @@ public partial class Node
         CancelEvent = false;
     }
 
-    private void DisposeEventHandlersOf(Action<Node>? action)
+    private void DisposeEventHandlersOf<T>(Action<T>? action)
     {
         if (action == null) return;
 
         foreach (Delegate handler in action.GetInvocationList()) {
-            if (handler is Action<Node> del) action -= del;
+            if (handler is Action<T> del) action -= del;
+        }
+    }
+
+    private void DisposeEventHandlersOf<T, K>(Action<T, K>? action)
+    {
+        if (action == null) return;
+
+        foreach (Delegate handler in action.GetInvocationList()) {
+            if (handler is Action<T, K> del) action -= del;
+        }
+    }
+
+    private void DisposeEventHandlersOf(Action? action)
+    {
+        if (action == null) return;
+
+        foreach (Delegate handler in action.GetInvocationList()) {
+            if (handler is Action del) action -= del;
         }
     }
 

@@ -48,6 +48,8 @@ public partial class Node
     /// </summary>
     private void InvalidateInternalId()
     {
+        if (IsDisposed) return;
+
         if (ParentNode != _internalIdLastParent || ChildNodes.IndexOf(this) != _internalIdLastIndex) {
             _internalIdLastParent = ParentNode;
             _internalIdLastIndex  = ChildNodes.IndexOf(this);
@@ -61,6 +63,8 @@ public partial class Node
     /// </summary>
     private string GenerateInternalId()
     {
+        if (IsDisposed) return string.Empty;
+
         List<string> breadcrumbs = [GetInternalIdOfThis()];
 
         Node? current = ParentNode;

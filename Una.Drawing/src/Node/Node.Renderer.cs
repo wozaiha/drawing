@@ -103,6 +103,8 @@ public partial class Node
 
     public void Render(ImDrawListPtr drawList, Point position, bool forceSynchronousStyleComputation = false)
     {
+        if (IsDisposed) return;
+
         if (ParentNode is not null)
             throw new InvalidOperationException("Cannot render a node that has a parent or is not a root node.");
 

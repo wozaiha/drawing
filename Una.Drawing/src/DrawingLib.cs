@@ -32,9 +32,9 @@ public class DrawingLib
             FontRegistry.SetupGlyphFont();
         }
 
-#if DEBUG
+// #if DEBUG
         DebugLogger.Writer = DalamudServices.PluginLog;
-#endif
+// #endif
 
         // Use the Noto Sans font that comes with Dalamud as the default font,
         // as it supports a wide range of characters, including Japanese.

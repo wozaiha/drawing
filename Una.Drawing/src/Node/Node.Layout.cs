@@ -63,7 +63,7 @@ public partial class Node
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void Reflow(Point? position = null)
     {
-        if (!ComputedStyle.IsVisible) return;
+        if (IsDisposed || !ComputedStyle.IsVisible) return;
         if (Style.IsVisible is false) return;
 
         lock (Bounds) {
@@ -104,6 +104,8 @@ public partial class Node
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void RecomputeSize()
     {
+        if (IsDisposed) return;
+
         ComputeNodeSize(true);
         ComputeStretchedNodeSizes(false);
     }
@@ -111,6 +113,8 @@ public partial class Node
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private bool InvokeReflowHook()
     {
+        if (IsDisposed) return false;
+
         var changed = false;
 
         foreach (Node child in _childNodes) {
@@ -126,6 +130,7 @@ public partial class Node
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void InheritTagsFromParent()
     {
+        if (IsDisposed) return;
         if (Style.IsVisible is false) return;
 
         if (_inheritTags && ParentNode is not null) {

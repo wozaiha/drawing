@@ -10,6 +10,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Dalamud.Game.Text.SeStringHandling;
+using FFXIVClientStructs.FFXIV.Client.UI;
 
 namespace Una.Drawing;
 
@@ -30,18 +31,25 @@ public partial class Node : IDisposable
     /// <summary>
     /// Defines a unique identifier for the node.
     /// </summary>
-    public string? Id {
+    public string? Id
+    {
         get => _id;
-        set {
+        set
+        {
             if (_id == value) return;
 
-            if (string.IsNullOrWhiteSpace(value)) {
+            if (string.IsNullOrWhiteSpace(value))
+            {
                 _id = null;
-            } else if (!IdentifierNamingRule().Match(value).Success) {
+            }
+            else if (!IdentifierNamingRule().Match(value).Success)
+            {
                 throw new ArgumentException(
                     $"The given ID \"{value}\" is invalid. Node IDs must match the regex \"{IdentifierNamingRule()}\"."
                 );
-            } else {
+            }
+            else
+            {
                 _id              = value;
                 _internalId      = null;
                 _internalIdCrc32 = null;
@@ -56,34 +64,40 @@ public partial class Node : IDisposable
     /// <summary>
     /// Defines the textual content of this node.
     /// </summary>
-    public object? NodeValue {
+    public object? NodeValue
+    {
         get => _nodeValue;
-        set {
-            switch (_nodeValue) {
+        set
+        {
+            switch (_nodeValue)
+            {
                 case null when value is null:
                     return;
-                case string oldStr when value is string newStr: {
-                    if (oldStr.Equals(newStr)) return;
-                    break;
-                }
+                case string oldStr when value is string newStr:
+                    {
+                        if (oldStr.Equals(newStr)) return;
+                        break;
+                    }
             }
 
-            switch (value) {
+            switch (value)
+            {
                 case SeString when ReferenceEquals(value, _nodeValue):
                     return;
-                case SeString seStr: {
-                    byte[] payload = seStr.Encode();
-                    if (_seStringPayload.SequenceEqual(payload)) return;
-                    _seStringPayload = payload;
-                    break;
-                }
+                case SeString seStr:
+                    {
+                        byte[] payload = seStr.Encode();
+                        if (_seStringPayload.SequenceEqual(payload)) return;
+                        _seStringPayload = payload;
+                        break;
+                    }
             }
 
             _nodeValue           = value;
             _textCachedNodeValue = null;
 
             _texture?.Dispose();
-            _texture             = null;
+            _texture = null;
 
             OnPropertyChanged?.Invoke("NodeValue", _nodeValue);
             SignalReflowRecursive();
@@ -102,9 +116,11 @@ public partial class Node : IDisposable
     /// <summary>
     /// Returns a list of class names applied to this node.
     /// </summary>
-    public ObservableHashSet<string> ClassList {
+    public ObservableHashSet<string> ClassList
+    {
         get => _classList;
-        set {
+        set
+        {
             if (_classList.SequenceEqual(value)) return;
 
             _classList.Clear();
@@ -123,9 +139,11 @@ public partial class Node : IDisposable
     /// A node with ID "example" and tags "active" and "hovered" can be queried
     /// using the following query: `example:active:hovered`.
     /// </example>
-    public ObservableHashSet<string> TagsList {
+    public ObservableHashSet<string> TagsList
+    {
         get => _tagsList;
-        set {
+        set
+        {
             if (_tagsList.SequenceEqual(value)) return;
 
             _tagsList.Clear();
@@ -138,14 +156,16 @@ public partial class Node : IDisposable
     /// <summary>
     /// A list of child nodes of this node.
     /// </summary>
-    public ObservableCollection<Node> ChildNodes {
+    public ObservableCollection<Node> ChildNodes
+    {
         get => _childNodes;
-        set {
+        set
+        {
             if (_childNodes.SequenceEqual(value)) return;
 
             List<Node> toRemove = _childNodes.ToList();
 
-            foreach (var node in toRemove) node.Remove();
+            foreach (var node in toRemove) node.Remove(true);
             foreach (var node in value) AppendChild(node);
 
             OnPropertyChanged?.Invoke("ChildNodes", _childNodes);
@@ -161,9 +181,11 @@ public partial class Node : IDisposable
     /// Defines the sort index of this node. Nodes are sorted in ascending
     /// order in the parent's child nodes list based on this value.
     /// </summary>
-    public int SortIndex {
+    public int SortIndex
+    {
         get => _sortIndex;
-        set {
+        set
+        {
             if (_sortIndex == value) return;
 
             _sortIndex = value;
@@ -232,6 +254,11 @@ public partial class Node : IDisposable
     /// </summary>
     public event Action? OnSortIndexChanged;
 
+    /// <summary>
+    /// Whether this node has been disposed.
+    /// </summary>
+    public bool IsDisposed { get; private set; }
+
     private string? _id;
     private object? _nodeValue;
     private int     _sortIndex;
@@ -242,28 +269,32 @@ public partial class Node : IDisposable
 
     public Node()
     {
-        ComputedStyle = ComputedStyleFactory.CreateDefault();
+        ComputedStyle                     = ComputedStyleFactory.CreateDefault();
         ComputedStyle.LayoutStyleSnapshot = new();
         ComputedStyle.PaintStyleSnapshot  = new();
 
         _childNodes.CollectionChanged += HandleChildListChanged;
 
-        _classList.ItemAdded += c => {
+        _classList.ItemAdded += c =>
+        {
             OnClassAdded?.Invoke(c);
             SignalReflow();
         };
 
-        _classList.ItemRemoved += c => {
+        _classList.ItemRemoved += c =>
+        {
             OnClassRemoved?.Invoke(c);
             SignalReflow();
         };
 
-        _tagsList.ItemAdded += t => {
+        _tagsList.ItemAdded += t =>
+        {
             OnTagAdded?.Invoke(t);
             SignalReflow();
         };
 
-        _tagsList.ItemRemoved += t => {
+        _tagsList.ItemRemoved += t =>
+        {
             OnTagRemoved?.Invoke(t);
             SignalReflow();
         };
@@ -281,7 +312,15 @@ public partial class Node : IDisposable
 
     public void Dispose()
     {
+        foreach (var child in _childNodes.ToArray()) child.Dispose();
+
+        if (IsDisposed) return;
+        IsDisposed = true;
+
         OnDisposed();
+
+        NodeValue = null;
+        Tooltip   = null;
 
         DisposeEventHandlersOf(OnClick);
         DisposeEventHandlersOf(OnMouseDown);
@@ -291,10 +330,64 @@ public partial class Node : IDisposable
         DisposeEventHandlersOf(OnRightClick);
         DisposeEventHandlersOf(OnMiddleClick);
         DisposeEventHandlersOf(OnDelayedMouseEnter);
+        DisposeEventHandlersOf(OnChildAdded);
+        DisposeEventHandlersOf(OnChildRemoved);
+        DisposeEventHandlersOf(OnClassAdded);
+        DisposeEventHandlersOf(OnClassRemoved);
+        DisposeEventHandlersOf(OnTagAdded);
+        DisposeEventHandlersOf(OnTagRemoved);
+        DisposeEventHandlersOf(OnSortIndexChanged);
+        DisposeEventHandlersOf(OnPropertyChanged);
+        DisposeEventHandlersOf(OnReflow);
 
-        foreach (var child in _childNodes) child.Dispose();
+        OnClick             = null;
+        OnMouseDown         = null;
+        OnMouseUp           = null;
+        OnMouseEnter        = null;
+        OnMouseLeave        = null;
+        OnRightClick        = null;
+        OnMiddleClick       = null;
+        OnDelayedMouseEnter = null;
+        OnChildAdded        = null;
+        OnChildRemoved      = null;
+        OnClassAdded        = null;
+        OnClassRemoved      = null;
+        OnTagAdded          = null;
+        OnTagRemoved        = null;
+        OnSortIndexChanged  = null;
+        OnPropertyChanged   = null;
 
+        OnReflow           = null;
+        BeforeReflow       = null;
+        BeforeDraw         = null;
+        AfterDraw          = null;
+        ComputedStyle      = new();
+        _style             = null!;
+        _intermediateStyle = new();
+        _stylesheet        = null;
+
+        _anchorToChildNodes.Clear();
+        _childNodeToAnchor.Clear();
+
+        ClearTextCache();
+        ClearQuerySelectorCache();
+
+        _drawLists.Clear();
         _texture?.Dispose();
+        _texture  = null;
+        _snapshot = new();
+
+        ParentNode?.ChildNodes.Remove(this);
+        ParentNode = null;
+
+        _childNodes = [];
+        _classList.Clear();
+        _tagsList.Clear();
+
+        _internalId           = null;
+        _internalIdCrc32      = 0;
+        _internalIdLastIndex  = 0;
+        _internalIdLastParent = null;
 
         FontRegistry.FontChanged -= OnFontConfigurationChanged;
     }
@@ -310,16 +403,25 @@ public partial class Node : IDisposable
     /// </summary>
     public void ToggleClass(string className, bool? enabled = null)
     {
-        if (enabled == null) {
-            if (_classList.Contains(className)) {
+        if (enabled == null)
+        {
+            if (_classList.Contains(className))
+            {
                 _classList.Remove(className);
-            } else {
+            }
+            else
+            {
                 _classList.Add(className);
             }
-        } else {
-            if (enabled.Value) {
+        }
+        else
+        {
+            if (enabled.Value)
+            {
                 _classList.Add(className);
-            } else {
+            }
+            else
+            {
                 _classList.Remove(className);
             }
         }
@@ -334,16 +436,25 @@ public partial class Node : IDisposable
     /// </summary>
     private void ToggleTag(string tag, bool? enabled = null)
     {
-        if (enabled == null) {
-            if (_tagsList.Contains(tag)) {
+        if (enabled == null)
+        {
+            if (_tagsList.Contains(tag))
+            {
                 _tagsList.Remove(tag);
-            } else {
+            }
+            else
+            {
                 _tagsList.Add(tag);
             }
-        } else {
-            if (enabled.Value) {
+        }
+        else
+        {
+            if (enabled.Value)
+            {
                 _tagsList.Add(tag);
-            } else {
+            }
+            else
+            {
                 _tagsList.Remove(tag);
             }
         }
@@ -364,24 +475,29 @@ public partial class Node : IDisposable
 
     private void HandleChildListChanged(object? _, NotifyCollectionChangedEventArgs e)
     {
-        switch (e) {
-            case { Action: NotifyCollectionChangedAction.Add, NewItems: not null }: {
-                foreach (Node node in e.NewItems) OnChildAddedToList(node);
-                break;
-            }
-            case { Action: NotifyCollectionChangedAction.Remove, OldItems: not null }: {
-                foreach (Node node in e.OldItems) OnChildRemovedFromList(node);
-                break;
-            }
-            case { Action: NotifyCollectionChangedAction.Replace, OldItems: not null, NewItems: not null }: {
-                foreach (Node node in e.OldItems!) OnChildRemovedFromList(node);
-                foreach (Node node in e.NewItems!) OnChildAddedToList(node);
-                break;
-            }
-            case { Action: NotifyCollectionChangedAction.Reset, OldItems: not null }: {
-                foreach (Node node in e.OldItems) OnChildRemovedFromList(node);
-                break;
-            }
+        switch (e)
+        {
+            case { Action: NotifyCollectionChangedAction.Add, NewItems: not null }:
+                {
+                    foreach (Node node in e.NewItems) OnChildAddedToList(node);
+                    break;
+                }
+            case { Action: NotifyCollectionChangedAction.Remove, OldItems: not null }:
+                {
+                    foreach (Node node in e.OldItems) OnChildRemovedFromList(node);
+                    break;
+                }
+            case { Action: NotifyCollectionChangedAction.Replace, OldItems: not null, NewItems: not null }:
+                {
+                    foreach (Node node in e.OldItems!) OnChildRemovedFromList(node);
+                    foreach (Node node in e.NewItems!) OnChildAddedToList(node);
+                    break;
+                }
+            case { Action: NotifyCollectionChangedAction.Reset, OldItems: not null }:
+                {
+                    foreach (Node node in e.OldItems) OnChildRemovedFromList(node);
+                    break;
+                }
         }
 
         SignalReflow();
@@ -390,24 +506,29 @@ public partial class Node : IDisposable
 
     private void HandleClassListChanged(object? _, NotifyCollectionChangedEventArgs e)
     {
-        switch (e) {
-            case { Action: NotifyCollectionChangedAction.Add, NewItems: not null }: {
-                foreach (string className in e.NewItems) OnClassAdded?.Invoke(className);
-                break;
-            }
-            case { Action: NotifyCollectionChangedAction.Remove, OldItems: not null }: {
-                foreach (string className in e.OldItems) OnClassRemoved?.Invoke(className);
-                break;
-            }
-            case { Action: NotifyCollectionChangedAction.Replace, OldItems: not null, NewItems: not null }: {
-                foreach (string className in e.NewItems) OnClassAdded?.Invoke(className);
-                foreach (string className in e.OldItems) OnClassRemoved?.Invoke(className);
-                break;
-            }
-            case { Action: NotifyCollectionChangedAction.Reset, OldItems: not null }: {
-                foreach (string className in e.OldItems) OnClassRemoved?.Invoke(className);
-                break;
-            }
+        switch (e)
+        {
+            case { Action: NotifyCollectionChangedAction.Add, NewItems: not null }:
+                {
+                    foreach (string className in e.NewItems) OnClassAdded?.Invoke(className);
+                    break;
+                }
+            case { Action: NotifyCollectionChangedAction.Remove, OldItems: not null }:
+                {
+                    foreach (string className in e.OldItems) OnClassRemoved?.Invoke(className);
+                    break;
+                }
+            case { Action: NotifyCollectionChangedAction.Replace, OldItems: not null, NewItems: not null }:
+                {
+                    foreach (string className in e.NewItems) OnClassAdded?.Invoke(className);
+                    foreach (string className in e.OldItems) OnClassRemoved?.Invoke(className);
+                    break;
+                }
+            case { Action: NotifyCollectionChangedAction.Reset, OldItems: not null }:
+                {
+                    foreach (string className in e.OldItems) OnClassRemoved?.Invoke(className);
+                    break;
+                }
         }
 
         SignalReflow();
@@ -415,24 +536,29 @@ public partial class Node : IDisposable
 
     private void HandleTagsListChanged(object? _, NotifyCollectionChangedEventArgs e)
     {
-        switch (e) {
-            case { Action: NotifyCollectionChangedAction.Add, NewItems: not null }: {
-                foreach (string tag in e.NewItems) OnTagAdded?.Invoke(tag);
-                break;
-            }
-            case { Action: NotifyCollectionChangedAction.Remove, OldItems: not null }: {
-                foreach (string tag in e.OldItems) OnTagRemoved?.Invoke(tag);
-                break;
-            }
-            case { Action: NotifyCollectionChangedAction.Replace, OldItems: not null, NewItems: not null }: {
-                foreach (string tag in e.NewItems) OnTagAdded?.Invoke(tag);
-                foreach (string tag in e.OldItems) OnTagRemoved?.Invoke(tag);
-                break;
-            }
-            case { Action: NotifyCollectionChangedAction.Reset, OldItems: not null }: {
-                foreach (string tag in e.OldItems) OnTagRemoved?.Invoke(tag);
-                break;
-            }
+        switch (e)
+        {
+            case { Action: NotifyCollectionChangedAction.Add, NewItems: not null }:
+                {
+                    foreach (string tag in e.NewItems) OnTagAdded?.Invoke(tag);
+                    break;
+                }
+            case { Action: NotifyCollectionChangedAction.Remove, OldItems: not null }:
+                {
+                    foreach (string tag in e.OldItems) OnTagRemoved?.Invoke(tag);
+                    break;
+                }
+            case { Action: NotifyCollectionChangedAction.Replace, OldItems: not null, NewItems: not null }:
+                {
+                    foreach (string tag in e.NewItems) OnTagAdded?.Invoke(tag);
+                    foreach (string tag in e.OldItems) OnTagRemoved?.Invoke(tag);
+                    break;
+                }
+            case { Action: NotifyCollectionChangedAction.Reset, OldItems: not null }:
+                {
+                    foreach (string tag in e.OldItems) OnTagRemoved?.Invoke(tag);
+                    break;
+                }
         }
 
         SignalReflow();
@@ -448,7 +574,8 @@ public partial class Node : IDisposable
     /// <param name="node">The node to append.</param>
     public void AppendChild(Node node)
     {
-        lock (_childNodes) {
+        lock (_childNodes)
+        {
             if (_childNodes.Contains(node)) return;
 
             node.ParentNode?.RemoveChild(this);
@@ -472,14 +599,16 @@ public partial class Node : IDisposable
     /// node is not a child of this node.
     /// </summary>
     /// <param name="node">The node to remove.</param>
+    /// <param name="dispose">Whether the node should be disposed.</param>
     public void RemoveChild(Node node, bool dispose = false)
     {
-        lock (_childNodes) {
+        lock (_childNodes)
+        {
             if (!_childNodes.Contains(node)) return;
 
             _childNodes.Remove(node);
 
-            if (dispose) node?.Dispose();
+            if (dispose) node.Dispose();
         }
     }
 
@@ -523,7 +652,8 @@ public partial class Node : IDisposable
         node.ParentNode?.RemoveChild(node);
         node.ParentNode = this;
 
-        if (false == _anchorToChildNodes.ContainsKey(node.ComputedStyle.Anchor.Point)) {
+        if (false == _anchorToChildNodes.ContainsKey(node.ComputedStyle.Anchor.Point))
+        {
             _anchorToChildNodes[node.ComputedStyle.Anchor.Point] = [];
         }
 
@@ -548,11 +678,13 @@ public partial class Node : IDisposable
         node.ParentNode         =  null;
         node.OnSortIndexChanged -= SortChildren;
 
-        if (!_childNodeToAnchor.ContainsKey(node)) {
+        if (!_childNodeToAnchor.ContainsKey(node))
+        {
             return;
         }
 
-        if (_childNodeToAnchor.Remove(node, out var anchor)) {
+        if (_childNodeToAnchor.Remove(node, out var anchor))
+        {
             _anchorToChildNodes[anchor].Remove(node);
         }
 
@@ -572,7 +704,8 @@ public partial class Node : IDisposable
         _childNodes                   =  new(_childNodes.OrderBy(n => n.SortIndex));
         _childNodes.CollectionChanged += HandleChildListChanged;
 
-        foreach ((Anchor.AnchorPoint pt, List<Node> nodes) in _anchorToChildNodes) {
+        foreach ((Anchor.AnchorPoint pt, List<Node> nodes) in _anchorToChildNodes)
+        {
             _anchorToChildNodes[pt] = [..nodes.OrderBy(n => n.SortIndex)];
         }
 

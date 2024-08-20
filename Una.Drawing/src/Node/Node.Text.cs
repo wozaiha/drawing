@@ -24,6 +24,17 @@ public partial class Node
 
     internal MeasuredText? NodeValueMeasurement { get; private set; }
 
+    private void ClearTextCache()
+    {
+        _textCachedNodeValue = null;
+        _textCachedFontId    = null;
+        _textCachedFontSize  = null;
+        _textCachedWordWrap  = null;
+        _textCachedNodeSize  = null;
+        _textCachedMaxWidth  = null;
+        NodeValueMeasurement = null;
+    }
+
     /// <summary>
     /// <para>
     /// Computes the <see cref="NodeBounds.ContentSize"/> of this node based on
