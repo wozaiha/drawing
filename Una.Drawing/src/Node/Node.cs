@@ -372,7 +372,6 @@ public partial class Node : IDisposable
         ClearTextCache();
         ClearQuerySelectorCache();
 
-        _drawLists.Clear();
         _texture?.Dispose();
         _texture  = null;
         _snapshot = new();
