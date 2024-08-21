@@ -362,7 +362,7 @@ public partial class Node : IDisposable
         BeforeDraw         = null;
         AfterDraw          = null;
         ComputedStyle      = new();
-        _style             = null!;
+        _style             = new();
         _intermediateStyle = new();
         _stylesheet        = null;
 

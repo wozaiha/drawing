@@ -403,17 +403,19 @@ public partial class Node
 
         var width  = 0;
         var height = 0;
+        var count  = 0;
 
         foreach (var node in nodes) {
             if (!node.IsVisible) continue;
             width  = Math.Max(width,  node.OuterWidth);
             height = Math.Max(height, node.OuterHeight);
+            count++;
         }
 
         if (ComputedStyle.Flow == Flow.Horizontal) {
-            width += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
+            width += ComputedStyle.Gap * Math.Max(0, count - 1);
         } else {
-            height += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
+            height += ComputedStyle.Gap * Math.Max(0, count - 1);
         }
 
         return new(width, height);
@@ -426,17 +428,19 @@ public partial class Node
 
         var width  = 0;
         var height = 0;
+        var count  = 0;
 
         foreach (var node in nodes) {
             if (!node.IsVisible) continue;
             width  += node.OuterWidth;
             height += node.OuterHeight;
+            count++;
         }
 
         if (ComputedStyle.Flow == Flow.Horizontal) {
-            width += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
+            width += ComputedStyle.Gap * Math.Max(0, count - 1);
         } else {
-            height += ComputedStyle.Gap * Math.Max(0, nodes.Count - 1);
+            height += ComputedStyle.Gap * Math.Max(0, count - 1);
         }
 
         return new(width, height);

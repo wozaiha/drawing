@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Dalamud.Interface.Textures.TextureWraps;
 using ImGuiNET;
 using Lumina.Misc;
+using System.Collections.Immutable;
 using Una.Drawing.Texture;
 
 namespace Una.Drawing;
@@ -173,7 +174,7 @@ public partial class Node
 
         OnDraw(childDrawList.Value);
 
-        foreach (var childNode in ChildNodes) {
+        foreach (var childNode in ChildNodes.ToImmutableArray()) {
             childNode.Draw(childDrawList.Value);
         }
 
