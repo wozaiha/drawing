@@ -6,6 +6,7 @@
  * ----------------------------------------------------------------------- \/ --- \/ ----------------------------- |__*/
 
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 
 namespace Una.Drawing;
@@ -138,7 +139,7 @@ public partial class Node
         if (signalParent) ParentNode?.SignalReflowRecursive();
 
         if (_childNodes.Count > 0) {
-            foreach (Node child in _childNodes) {
+            foreach (Node child in _childNodes.ToImmutableArray()) {
                 child.SignalReflowRecursive(false);
             }
         }
