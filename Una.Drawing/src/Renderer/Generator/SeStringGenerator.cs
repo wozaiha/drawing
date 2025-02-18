@@ -51,7 +51,7 @@ public class SeStringGenerator : IGenerator
                         color = prevColor;
                     } else {
                         prevColor = color;
-                        color     = Color.ToSkColor(new(RgbaToAbgr(fg.UIColor.UIForeground)));
+                        color     = Color.ToSkColor(new(RgbaToAbgr(fg.UIColor.Value.UIForeground)));
                     }
                     continue;
                 case UIGlowPayload glow:
@@ -61,7 +61,7 @@ public class SeStringGenerator : IGenerator
                         edgeColor = prevEdgeColor;
                     } else {
                         prevEdgeColor = edgeColor;
-                        edgeColor     = Color.ToSkColor(new(RgbaToAbgr(glow.UIColor.UIForeground)));
+                        edgeColor     = Color.ToSkColor(new(RgbaToAbgr(glow.UIColor.Value.UIForeground)));
                     }
                     continue;
                 case TextPayload text:
